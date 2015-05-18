@@ -3,8 +3,7 @@ package Views;
 import java.io.File;
 import java.io.Serializable;
 
-import org.vaadin.jouni.animator.Animator;
-import org.vaadin.jouni.dom.client.Css;
+
 import org.vaadin.jouni.restrain.Restrain;
 
 import com.vaadin.client.ui.FontIcon;

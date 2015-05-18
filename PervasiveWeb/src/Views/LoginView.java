@@ -3,9 +3,9 @@ package Views;
 import java.io.Serializable;
 
 import org.apache.catalina.core.ApplicationContext;
-import org.vaadin.jouni.animator.Animator;
-import org.vaadin.jouni.animator.client.CssAnimation;
-import org.vaadin.jouni.dom.client.Css;
+//import org.vaadin.jouni.animator.Animator;
+//import org.vaadin.jouni.animator.client.CssAnimation;
+//import org.vaadin.jouni.dom.client.Css;
 
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;

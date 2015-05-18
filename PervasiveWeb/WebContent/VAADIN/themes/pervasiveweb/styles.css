@@ -15542,3 +15542,23 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-animation-delay: 0.25s;
 	animation-delay: 0.25s;
 }
+
+.pervasiveweb .delay15 {
+	-webkit-animation-delay: 1.2s;
+	animation-delay: 1.5s;
+}
+
+.pervasiveweb .delay20 {
+	-webkit-animation-delay: 1.2s;
+	animation-delay: 2s;
+}
+
+.pervasiveweb .delay25 {
+	-webkit-animation-delay: 1.2s;
+	animation-delay: 2.5s;
+}
+
+.pervasiveweb .delay30 {
+	-webkit-animation-delay: 1.2s;
+	animation-delay: 3s;
+}

@@ -11,7 +11,6 @@ import org.dussan.vaadin.dcharts.options.Highlighter;
 import org.dussan.vaadin.dcharts.options.Options;
 import org.dussan.vaadin.dcharts.options.SeriesDefaults;
 import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
-import org.vaadin.jouni.animator.Animator;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.LegendItemClickEvent;
@@ -89,12 +88,28 @@ public class ClassroomView extends VerticalLayout{
 		 subDesc.addStyleName("animated");
 		 subDesc.addStyleName("bounceInUp");
 		 subDesc.addStyleName("delay06");
-		 comboLabel.addStyleName("animated");
-		 comboLabel.addStyleName("rubberBand");
-		 comboLabel.addStyleName("delay07");
-		 combo.addStyleName("animated");
-		 combo.addStyleName("rubberBand");
-		 combo.addStyleName("delay07");
+		 combo.setVisible(false);
+		 comboLabel.setVisible(false);
+		 new java.util.Timer().schedule( 
+			        new java.util.TimerTask() {
+			            @Override
+			            public void run() {
+			            comboLabel.setVisible(true);
+			            combo.setVisible(true);
+			            comboLabel.addStyleName("animated");
+			       		comboLabel.addStyleName("rubberBand");
+			       		comboLabel.addStyleName("delay07");
+			       		combo.addStyleName("animated");
+			       		combo.addStyleName("rubberBand");
+			       		combo.addStyleName("delay07");
+			            combo.markAsDirty();
+			            comboLabel.markAsDirty();
+			            UI.getCurrent().push();
+			            }
+			        }, 
+			        1000 
+			);
+		 
 		 
 		
 		 this.setWidth("100%");
