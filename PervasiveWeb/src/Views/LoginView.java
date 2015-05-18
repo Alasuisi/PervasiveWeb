@@ -10,6 +10,8 @@ import org.vaadin.jouni.dom.client.Css;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
@@ -52,17 +54,76 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 		welcomeLabel.addStyleName(ValoTheme.LABEL_COLORED);
 		welcomeLabel.addStyleName(ValoTheme.LABEL_H1);
 		welcomeLabel.addStyleName(ValoTheme.LABEL_HUGE);
+		welcomeLabel.addStyleName("titleFont");
 		welcomeLabel.setSizeUndefined();
-		loginBtn = new Button("Login");
-		registerBtn = new Button("Register");
+		welcomeLabel.addStyleName("animated");
+		welcomeLabel.addStyleName("tada");
+		welcomeLabel.addStyleName("delay025");
+		this.addComponent(welcomeLabel);
+		this.setComponentAlignment(welcomeLabel, Alignment.TOP_CENTER);
+		VerticalLayout infoLayout = new VerticalLayout();
+		Label info1 = new Label(FontAwesome.CIRCLE_O_NOTCH.getHtml()+" Cool feature");
+		Label info2 = new Label(FontAwesome.CIRCLE_O_NOTCH.getHtml()+" Cool feature");
+		Label info3 = new Label(FontAwesome.CIRCLE_O_NOTCH.getHtml()+" Cool feature");
+		//info1.addStyleName(ValoTheme.LABEL_H2);
+		//info2.addStyleName(ValoTheme.LABEL_H2);
+		//info3.addStyleName(ValoTheme.LABEL_H2);
+		
+		info1.setContentMode(ContentMode.HTML);
+		info2.setContentMode(ContentMode.HTML);
+		info3.setContentMode(ContentMode.HTML);
+		info1.addStyleName("animated");
+		info1.addStyleName("fadeInLeft");
+		info2.addStyleName("animated");
+		info2.addStyleName("fadeInRight");
+		info3.addStyleName("animated");
+		info3.addStyleName("fadeInUp");
+		infoLayout.addComponents(info1,info2,info3);
+		infoLayout.setComponentAlignment(info1, Alignment.MIDDLE_CENTER);
+		infoLayout.setComponentAlignment(info2, Alignment.MIDDLE_CENTER);
+		infoLayout.setComponentAlignment(info3, Alignment.MIDDLE_CENTER);
+		infoLayout.setSizeUndefined();
+		//Animator.animate(info1, new Css().translateX("300px")).sendEndEvent();
+		//Animator.animate(info1, new Css().translateX("-300px")).delay(500);
+		loginBtn = new Button(FontAwesome.SIGN_IN.getHtml()+"     Login");
+		loginBtn.setCaptionAsHtml(true);
+		loginBtn.setImmediate(true);
+		registerBtn = new Button(FontAwesome.PENCIL.getHtml()+"     Register");
+		registerBtn.setCaptionAsHtml(true);
+		loginBtn.setWidth("120px");
+		loginBtn.addStyleName("animated");
+		loginBtn.addStyleName("flipInY");
+		loginBtn.addStyleName("delay05");
+		new java.util.Timer().schedule( 
+		        new java.util.TimerTask() {
+		            @Override
+		            public void run() {
+		                loginBtn.removeStyleName("flipInY");
+		                loginBtn.addStyleName("infinite");
+		                loginBtn.addStyleName("pulse");
+		                loginBtn.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		                loginBtn.markAsDirty();
+		                UI.getCurrent().push();
+		            }
+		        }, 
+		        2000 
+		);
+		registerBtn.setWidth("120px");
+		registerBtn.addStyleName("animated");
+		registerBtn.addStyleName("flipInX");
+		registerBtn.addStyleName("delay05");
 		VerticalLayout registration = new VerticalLayout();
 		registration.setSizeUndefined();
 		registration.setSpacing(true);
-		this.addComponent(registration);
+		this.addComponents(registration,infoLayout);
 		this.setComponentAlignment(registration, Alignment.MIDDLE_CENTER);
+		this.setComponentAlignment(infoLayout, Alignment.TOP_CENTER);
+		this.setExpandRatio(registration, 50);
+		this.setExpandRatio(welcomeLabel, 25);
+		this.setExpandRatio(infoLayout, 25);
 		
-		registration.addComponents(welcomeLabel,loginBtn,registerBtn);
-		registration.setComponentAlignment(welcomeLabel, Alignment.MIDDLE_CENTER);
+		registration.addComponents(loginBtn,registerBtn);
+		//registration.setComponentAlignment(welcomeLabel, Alignment.MIDDLE_CENTER);
 		registration.setComponentAlignment(loginBtn, Alignment.MIDDLE_CENTER);
 		registration.setComponentAlignment(registerBtn, Alignment.MIDDLE_CENTER);
 		

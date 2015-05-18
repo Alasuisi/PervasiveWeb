@@ -34,6 +34,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -51,18 +52,25 @@ public class ClassroomView extends VerticalLayout{
 	private VerticalLayout vert1 = new VerticalLayout();
 	private ComboBox combo = new ComboBox();
 	private VerticalLayout thisLayout = this;
-	private Animator anim;
 	private Chart chart;
 	private DCharts dchart;
 	
-	private String stocaString = "Here some meaningful stuff about room: ";
-	private String stoca2String = "Mean percentage of room occupation: ";
-	private String stoca3String = "Mean temperature of room: ";
-	private String stoca4String = "Mean number of lessons per day:";
-	private Label stoca = new Label();
-	private Label stoca2 = new Label();
-	private Label stoca3 = new Label();
-	private Label stoca4 = new Label();
+	private String genString1 = "Averages of classroom: ";
+	private String genString2 = "Mean percentage of room occupation: ";
+	private String genString3 = "Mean temperature of room: ";
+	private String genString4 = "Mean number of lessons per day: ";
+	private String actString1 = "Actual stats for classroom: ";
+	private String actString2 = "Actual room occupation: ";
+	private String actString3 = "Actual room temperature: ";
+	private String actString4 = "Actual lesson: ";
+	private Label genLabel1= new Label();
+	private Label genLabel2 = new Label();
+	private Label genLabel3 = new Label();
+	private Label genLabel4 = new Label();
+	private Label actLabel1 = new Label();
+	private Label actLabel2 = new Label();
+	private Label actLabel3 = new Label();
+	private Label actLabel4 = new Label();
 	
 	public ClassroomView()
 		{
@@ -75,6 +83,20 @@ public class ClassroomView extends VerticalLayout{
 		 comboLabel.setSizeUndefined();
 		 comboLabel.addStyleName(ValoTheme.LABEL_COLORED);
 		 comboLabel.addStyleName(ValoTheme.LABEL_H3);
+		 desc.addStyleName("animated");
+		 desc.addStyleName("bounceInUp");
+		 desc.addStyleName("delay05");
+		 subDesc.addStyleName("animated");
+		 subDesc.addStyleName("bounceInUp");
+		 subDesc.addStyleName("delay06");
+		 comboLabel.addStyleName("animated");
+		 comboLabel.addStyleName("rubberBand");
+		 comboLabel.addStyleName("delay07");
+		 combo.addStyleName("animated");
+		 combo.addStyleName("rubberBand");
+		 combo.addStyleName("delay07");
+		 
+		
 		 this.setWidth("100%");
 		 this.addComponent(desc);
 		 this.addComponent(subDesc);
@@ -104,44 +126,93 @@ public class ClassroomView extends VerticalLayout{
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				String value = combo.getValue().toString();
-				if(value.equals("A2"))
+				String classValue = combo.getValue().toString();
+				String genValue2= new String();
+				String genValue3=new String();
+				String genValue4=new String();
+				String actValue2=new String();
+				String actValue3=new String();
+				String actValue4=new String();
+				if(classValue.equals("A2"))
 					{
-					vert1.removeAllComponents();
-					hori2.removeAllComponents();
-					stoca.setValue(stocaString+value);
-					stoca2.setValue(stoca2String+"43%");
-					stoca3.setValue(stoca3String+"28° C");
-					stoca4.setValue(stoca4String+"6");
-					vert1.addComponents(stoca,stoca2,stoca3,stoca4);
+					genValue2="43%";
+					genValue3="28°";
+					genValue4="6";
+					actValue2=actValue3=actValue4="value_here";
 					setChart(100,78,20);
-					hori2.addComponent(chart);
-					hori2.addComponents(vert1);
-					}else if(value.equals("A3"))
+					}else if(classValue.equals("A3"))
 						{
-						vert1.removeAllComponents();
-						hori2.removeAllComponents();
-						stoca.setValue(stocaString+value);
-						stoca2.setValue(stoca2String+"60%");
-						stoca3.setValue(stoca3String+"31° C");
-						stoca4.setValue(stoca4String+"4");
-						vert1.addComponents(stoca,stoca2,stoca3,stoca4);
+						genValue2="60%";
+						genValue3="31°";
+						genValue4="4";
+						actValue2=actValue3=actValue4="value_here";
 						setChart(80,20,20);
-						hori2.addComponent(chart);
-						hori2.addComponents(vert1);
-						}else if(value.equals("B2"))
+						}else if (classValue.equals("B2"))
 							{
-							vert1.removeAllComponents();
-							hori2.removeAllComponents();
-							stoca.setValue(stocaString+value);
-							stoca2.setValue(stoca2String+"84%");
-							stoca3.setValue(stoca3String+"22° C");
-							stoca4.setValue(stoca4String+"8");
-							vert1.addComponents(stoca,stoca2,stoca3,stoca4);
+							genValue2="84%";
+							genValue3="22°";
+							genValue4="8";
+							actValue2=actValue3=actValue4="value_here";
 							setChart(50,80,23);
-							hori2.addComponent(chart);
-							hori2.addComponents(vert1);
 							}
+				
+				vert1.removeAllComponents();
+				hori2.removeAllComponents();
+				hori2.removeStyleName("fadeInLeft");
+				genLabel1.setValue(genString1+classValue);
+				genLabel1.addStyleName(ValoTheme.LABEL_COLORED);
+				genLabel1.addStyleName(ValoTheme.LABEL_BOLD);
+				genLabel1.addStyleName(ValoTheme.LABEL_LARGE);
+				genLabel2.addStyleName(ValoTheme.LABEL_LARGE);
+				genLabel3.addStyleName(ValoTheme.LABEL_LARGE);
+				genLabel4.addStyleName(ValoTheme.LABEL_LARGE);
+				genLabel2.setValue(genString2+genValue2);
+				genLabel3.setValue(genString3+genValue3);
+				genLabel4.setValue(genString4+genValue4);
+				actLabel1.setValue(actString1+classValue);
+				actLabel1.addStyleName(ValoTheme.LABEL_COLORED);
+				actLabel1.addStyleName(ValoTheme.LABEL_BOLD);
+				actLabel1.addStyleName(ValoTheme.LABEL_LARGE);
+				actLabel2.addStyleName(ValoTheme.LABEL_LARGE);
+				actLabel3.addStyleName(ValoTheme.LABEL_LARGE);
+				actLabel4.addStyleName(ValoTheme.LABEL_LARGE);
+				actLabel2.setValue(actString2+actValue2);
+				actLabel3.setValue(actString3+actValue3);
+				actLabel4.setValue(actString4+actValue4);
+				hori2.addStyleName("animated");
+				hori2.addStyleName("fadeInLeft");
+				genLabel1.addStyleName("animated");
+				genLabel1.addStyleName("fadeInRight");
+				genLabel1.addStyleName("delay05");
+				genLabel2.addStyleName("animated");
+				genLabel2.addStyleName("fadeInRight");
+				genLabel2.addStyleName("delay06");
+				genLabel3.addStyleName("animated");
+				genLabel3.addStyleName("fadeInRight");
+				genLabel3.addStyleName("delay07");
+				genLabel4.addStyleName("animated");
+				genLabel4.addStyleName("fadeInRight");
+				genLabel4.addStyleName("delay08");
+				actLabel1.addStyleName("animated");
+				actLabel1.addStyleName("delay09");
+				actLabel1.addStyleName("fadeInRight");
+				actLabel2.addStyleName("animated");
+				actLabel2.addStyleName("delay1");
+				actLabel2.addStyleName("fadeInRight");
+				actLabel3.addStyleName("animated");
+				actLabel3.addStyleName("delay11");
+				actLabel3.addStyleName("fadeInRight");
+				actLabel4.addStyleName("animated");
+				actLabel4.addStyleName("delay12");
+				actLabel4.addStyleName("fadeInRight");
+				vert1.addComponents(genLabel1,genLabel2,genLabel3,genLabel4,actLabel1,actLabel2,actLabel3,actLabel4);
+				setChart(100,78,20);
+				hori2.addComponents(chart,vert1);
+				hori2.markAsDirty();
+				UI.getCurrent().push();
+
+				//UI.getCurrent().push();
+				
 				
 			}
 		});
@@ -168,10 +239,6 @@ public class ClassroomView extends VerticalLayout{
 		 this.setComponentAlignment(hori2, Alignment.TOP_CENTER);
 		 
 		 vert1.setSpacing(true);
-		 stoca.addStyleName(ValoTheme.LABEL_LARGE);
-		 stoca2.addStyleName(ValoTheme.LABEL_LARGE);
-		 stoca3.addStyleName(ValoTheme.LABEL_LARGE);
-		 stoca4.addStyleName(ValoTheme.LABEL_LARGE);
 		 
 		 
 		 //setChart();
