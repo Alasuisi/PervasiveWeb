@@ -50,6 +50,7 @@ public class PervasivewebUI extends UI {
 		navi.addView("Login", new LoginView(navi));
 		navi.addView("Welcome", new WelcomeView(navi));
 		navi.navigateTo("Login");
+		
 	}
 
 }
