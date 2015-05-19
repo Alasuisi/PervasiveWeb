@@ -41,8 +41,8 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 	private VerticalLayout topLayout= new VerticalLayout();
 	private VerticalLayout midLayout= new VerticalLayout();
 	private VerticalLayout bottomLayout= new VerticalLayout();
-	private String projDesc="This project is aimed to be a service to evaluate global quality of lectures, professors, and classrooms. Mainly developed"
-			+ " by a groub of students attending the course of Pervasive Systems at University of Rome La Sapienza (Master degree in computer science and engineering)."
+	private String projDesc="This project is a service to evaluate global quality of lectures, professors, and classrooms. Mainly developed"
+			+ " by a group of students attending the course of Pervasive Systems at University of Rome La Sapienza (Master degree in computer science and engineering)."
 			+ " using sensors available in common smartphones, such as microphones, accelerometer and bluetooth beacons, the main purpose of this project is to estimate"
 			+ " noise levels, people distance from professor desk, and common interest in the lecture throgh correlation between al this data; this all done respecting the"
 			+ " need of anonimity of the single user, and without recording and or correlating in any way any of the data collected with a specific, knowable person";

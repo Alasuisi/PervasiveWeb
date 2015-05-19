@@ -14,6 +14,7 @@ import org.dussan.vaadin.dcharts.options.Options;
 import org.dussan.vaadin.dcharts.options.SeriesDefaults;
 import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
 import org.parse4j.callback.FunctionCallback;
@@ -140,10 +141,11 @@ public class ClassroomView extends VerticalLayout{
 		 combo.addStyleName(ValoTheme.COMBOBOX_ALIGN_CENTER);
 		 combo.addStyleName(ValoTheme.COMBOBOX_SMALL);
 		 combo.setSizeUndefined();
+		 populateComboBox();
 		 
-		 combo.addItem(new String("A2"));
-		 combo.addItem(new String("B2"));
-		 combo.addItem(new String("A3"));
+		 //combo.addItem(new String("A2"));
+		 //combo.addItem(new String("B2"));
+		 //combo.addItem(new String("A3"));
 		 
 		 combo.addValueChangeListener(new Property.ValueChangeListener() {
 			
@@ -159,7 +161,6 @@ public class ClassroomView extends VerticalLayout{
 					{
 					getActualStudentNumber(classValue);
 					getClassroomSeats(classValue);
-					test();
 					genValue2="43%";
 					genValue3="28°";
 					genValue4="6";
@@ -432,14 +433,22 @@ Options options = new Options()
 					
 				}});
 		}
-	private void test()
+	private void populateComboBox()
 		{
 		ParseCloud.callFunctionInBackground("getClassroomList", null, new FunctionCallback<JSONArray>(){
 
 			@Override
 			public void done(JSONArray result, ParseException parseException) {
+				for(int i=0;i<result.length();i++)
+					{
+					
+					JSONObject obj =result.getJSONObject(i);
+					combo.addItem(new String(obj.getString("Label")));
+					combo.markAsDirty();
+					UI.getCurrent().push();
+					//System.out.println(obj.getString("Label"));
+					}
 				
-				System.out.println(result.get(1).toString());
 				
 			}});
 		}
