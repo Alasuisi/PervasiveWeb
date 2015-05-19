@@ -1,1 +1,0 @@
-$wnd.com_stupidmonkeys_pervasiveweb_widgetset_PervasivewebWidgetset.runAsyncCallback2('Pfb(1600,1,b5d);_.tc=function Gqc(){obc((!hbc&&(hbc=new ubc),hbc),this.a.d)};oYd(Wh)(2);\n//# sourceURL=com.stupidmonkeys.pervasiveweb.widgetset.PervasivewebWidgetset-2.js\n')

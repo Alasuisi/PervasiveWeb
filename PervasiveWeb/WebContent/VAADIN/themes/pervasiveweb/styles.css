@@ -15538,6 +15538,11 @@ div.v-layout.v-horizontal.v-widget {
 	animation-delay: 1.2s;
 }
 
+.pervasiveweb .delay13 {
+	-webkit-animation-delay: 1.3s;
+	animation-delay: 1.3s;
+}
+
 .pervasiveweb .delay025 {
 	-webkit-animation-delay: 0.25s;
 	animation-delay: 0.25s;
@@ -15561,4 +15566,16 @@ div.v-layout.v-horizontal.v-widget {
 .pervasiveweb .delay30 {
 	-webkit-animation-delay: 1.2s;
 	animation-delay: 3s;
+}
+
+.pervasiveweb .red:hover {
+	color: #ea6464;
+}
+
+.pervasiveweb .red {
+	color: #ed1979;
+}
+
+.pervasiveweb .centeredText {
+	text-align: center;
 }

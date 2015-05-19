@@ -13,6 +13,7 @@ import org.dussan.vaadin.dcharts.options.Highlighter;
 import org.dussan.vaadin.dcharts.options.Options;
 import org.dussan.vaadin.dcharts.options.SeriesDefaults;
 import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
+import org.json.JSONArray;
 import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
 import org.parse4j.callback.FunctionCallback;
@@ -30,7 +31,6 @@ import com.vaadin.addon.charts.model.PlotOptionsPie;
 import com.vaadin.addon.charts.model.Tooltip;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -64,15 +64,18 @@ public class ClassroomView extends VerticalLayout{
 	private String genString3 = "Mean temperature of room: ";
 	private String genString4 = "Mean number of lessons per day: ";
 	private String actString1 = "Actual stats for classroom: ";
-	private String actString2 = "Actual room occupation: ";
-	private String actString3 = "Actual room temperature: ";
-	private String actString4 = "Actual lesson: ";
-	String genValue2= new String();
-	String genValue3=new String();
-	String genValue4=new String();
-	String actValue2=new String();
-	String actValue3=new String();
-	String actValue4=new String();
+	private String actString2 = "Total seats available in classroom: ";
+	private String actString3 = "Actual room occupation: ";
+	private String actString4 = "Actual room temperature: ";
+	private String actString5 = "Actual lesson: ";
+	private String genValue2= new String();
+	private String genValue3=new String();
+	private String genValue4=new String();
+	private String actValue2=new String();
+	private String actValue3=new String();
+	private String actValue4=new String();
+	private String actValue5=new String();
+	
 	private Label genLabel1= new Label();
 	private Label genLabel2 = new Label();
 	private Label genLabel3 = new Label();
@@ -81,7 +84,7 @@ public class ClassroomView extends VerticalLayout{
 	private Label actLabel2 = new Label();
 	private Label actLabel3 = new Label();
 	private Label actLabel4 = new Label();
-	
+	private Label actLabel5 = new Label();
 	public ClassroomView()
 		{
 		 desc.addStyleName(ValoTheme.LABEL_BOLD);
@@ -155,27 +158,31 @@ public class ClassroomView extends VerticalLayout{
 				if(classValue.equals("A2"))
 					{
 					getActualStudentNumber(classValue);
+					getClassroomSeats(classValue);
+					test();
 					genValue2="43%";
 					genValue3="28°";
 					genValue4="6";
-					actValue3=actValue4="value_here";
+					actValue4=actValue5="value_here";
 					setChart(100,78,20);
 					}else if(classValue.equals("A3"))
 						{
 						getActualStudentNumber(classValue);
+						getClassroomSeats(classValue);
 						genValue2="60%";
 						genValue3="31°";
 						genValue4="4";
-						actValue3=actValue4="value_here";
+						actValue4=actValue5="value_here";
 						setChart(80,20,20);
 						
 						}else if (classValue.equals("B2"))
 							{
 							getActualStudentNumber(classValue);
+							getClassroomSeats(classValue);
 							genValue2="84%";
 							genValue3="22°";
 							genValue4="8";
-							actValue3=actValue4="value_here";
+							actValue4=actValue5="value_here";
 							setChart(50,80,23);
 							}
 				
@@ -199,9 +206,10 @@ public class ClassroomView extends VerticalLayout{
 				actLabel2.addStyleName(ValoTheme.LABEL_LARGE);
 				actLabel3.addStyleName(ValoTheme.LABEL_LARGE);
 				actLabel4.addStyleName(ValoTheme.LABEL_LARGE);
-				//actLabel2.setValue(actString2+actValue2);
-				actLabel3.setValue(actString3+actValue3);
+				actLabel5.addStyleName(ValoTheme.LABEL_LARGE);
+				actLabel2.setValue(actString2+actValue2);
 				actLabel4.setValue(actString4+actValue4);
+				actLabel5.setValue(actString5+actValue5);
 				hori2.addStyleName("animated");
 				hori2.addStyleName("fadeInLeft");
 				genLabel1.addStyleName("animated");
@@ -228,7 +236,10 @@ public class ClassroomView extends VerticalLayout{
 				actLabel4.addStyleName("animated");
 				actLabel4.addStyleName("delay12");
 				actLabel4.addStyleName("fadeInRight");
-				vert1.addComponents(genLabel1,genLabel2,genLabel3,genLabel4,actLabel1,actLabel2,actLabel3,actLabel4);
+				actLabel5.addStyleName("animated");
+				actLabel5.addStyleName("delay13");
+				actLabel5.addStyleName("fadeInRight");
+				vert1.addComponents(genLabel1,genLabel2,genLabel3,genLabel4,actLabel1,actLabel2,actLabel3,actLabel4,actLabel5);
 				setChart(100,78,20);
 				hori2.addComponents(chart,vert1);
 				//hori2.markAsDirty();
@@ -239,12 +250,10 @@ public class ClassroomView extends VerticalLayout{
 		});
 		 this.setComponentAlignment(hori1, Alignment.TOP_CENTER);
 		 
-		 Button test = new Button("test");
+		/* Button test = new Button("test");
 		 test.addClickListener(new Button.ClickListener() {
 			
-			/**
-			 * 
-			 */
+			
 			private static final long serialVersionUID = -3617252521939255485L;
 
 			@Override
@@ -253,7 +262,7 @@ public class ClassroomView extends VerticalLayout{
 				
 			}
 		});
-		 this.addComponent(test);
+		 this.addComponent(test);*/
 		 
 		 this.addComponent(hori2);
 		 this.setComponentAlignment(hori1, Alignment.TOP_CENTER);
@@ -371,9 +380,9 @@ Options options = new Options()
 	
 	private void getActualStudentNumber(final String classLabel)
 		{
-		actValue2="Waiting value..";
-		actLabel2.setValue(actString2+actValue2);
-		actLabel2.markAsDirty();
+		actValue3="Waiting value..";
+		actLabel3.setValue(actString3+actValue3);
+		actLabel3.markAsDirty();
 		UI.getCurrent().push();
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("getClassroom", classLabel);
@@ -382,11 +391,11 @@ Options options = new Options()
 			@Override
 			public void done(Integer result, ParseException parseException) {
 				if (parseException == null) {
-					actValue2=result.toString();
-					actLabel2.setValue(actString2+actValue2);
+					actValue3=result.toString();
+					actLabel3.setValue(actString3+actValue3);
 					System.out.println("Number of students from classroom: " + classLabel);
 					System.out.println("Number of students from utils: " + result);
-					actLabel2.markAsDirty();
+					actLabel3.markAsDirty();
 					hori2.markAsDirty();
 					UI.getCurrent().push();
 				} else {
@@ -395,5 +404,46 @@ Options options = new Options()
 			}
 		});
 		}
+	
+	private void getClassroomSeats(final String classLabel)
+		{
+			actValue2="Waiting value..";
+			actLabel2.setValue(actString2+actValue2);
+			actLabel3.markAsDirty();
+			UI.getCurrent().push();
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put("getSeats", classLabel);
+			ParseCloud.callFunctionInBackground("getSeatsNumber", map, new FunctionCallback<Integer>(){
 
+				@Override
+				public void done(Integer result, ParseException parseException) {
+					if(parseException == null)
+						{
+							actValue2=result.toString();
+							actLabel2.setValue(actString2+actValue2);
+							actLabel3.markAsDirty();
+							hori2.markAsDirty();
+							UI.getCurrent().push();
+							System.out.println("Dio bubu, number of seats= "+result.toString());
+						}else
+							{
+							System.err.println(parseException.getMessage());
+							}
+					
+				}});
+		}
+	private void test()
+		{
+		ParseCloud.callFunctionInBackground("getClassroomList", null, new FunctionCallback<JSONArray>(){
+
+			@Override
+			public void done(JSONArray result, ParseException parseException) {
+				
+				System.out.println(result.get(1).toString());
+				
+			}});
+		}
+
+			
+		
 }

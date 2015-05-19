@@ -3509,6 +3509,10 @@ letter-spacing: 0.0em;
   -webkit-animation-delay: 1.2s;
   animation-delay: 1.2s;
 }
+.delay13 {
+  -webkit-animation-delay: 1.3s;
+  animation-delay: 1.3s;
+}
 .delay025 {
   -webkit-animation-delay: 0.25s;
   animation-delay: 0.25s;
@@ -3529,5 +3533,14 @@ letter-spacing: 0.0em;
   -webkit-animation-delay: 1.2s;
   animation-delay: 3s;
 }
-  
+  .red:hover{
+    color: rgb(234, 100, 100);
+  }
+  .red
+  	{
+  	color: rgb(237, 25, 121);
+  	}
+  .centeredText{
+  	text-align: center;
+  }
 }

@@ -62,9 +62,9 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 		this.addComponent(welcomeLabel);
 		this.setComponentAlignment(welcomeLabel, Alignment.TOP_CENTER);
 		VerticalLayout infoLayout = new VerticalLayout();
-		Label info1 = new Label(FontAwesome.CIRCLE_O_NOTCH.getHtml()+" Cool feature");
-		Label info2 = new Label(FontAwesome.CIRCLE_O_NOTCH.getHtml()+" Cooler feature");
-		Label info3 = new Label(FontAwesome.CIRCLE_O_NOTCH.getHtml()+" Very cool feature!!!!!");
+		Label info1 = new Label(FontAwesome.CIRCLE_O_NOTCH.getHtml()+" Classroom occupancy tracking");
+		Label info2 = new Label(FontAwesome.CIRCLE_O_NOTCH.getHtml()+" Lectures quality and professors ranking");
+		Label info3 = new Label(FontAwesome.CIRCLE_O_NOTCH.getHtml()+" Ambient quality estimation");
 		//info1.addStyleName(ValoTheme.LABEL_H2);
 		//info2.addStyleName(ValoTheme.LABEL_H2);
 		//info3.addStyleName(ValoTheme.LABEL_H2);

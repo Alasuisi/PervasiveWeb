@@ -36,7 +36,7 @@
 
     <inherits name="com.vaadin.addon.charts.Widgetset" />
 
-    <inherits name="org.vaadin.jouni.dom.DomWidgetset" />
+    
 
-    <inherits name="org.vaadin.jouni.animator.AnimatorWidgetset" />
+    
 </module>

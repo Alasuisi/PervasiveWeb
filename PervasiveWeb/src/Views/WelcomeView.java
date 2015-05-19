@@ -41,11 +41,15 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 	private VerticalLayout topLayout= new VerticalLayout();
 	private VerticalLayout midLayout= new VerticalLayout();
 	private VerticalLayout bottomLayout= new VerticalLayout();
-	
+	private String projDesc="This project is aimed to be a service to evaluate global quality of lectures, professors, and classrooms. Mainly developed"
+			+ " by a groub of students attending the course of Pervasive Systems at University of Rome La Sapienza (Master degree in computer science and engineering)."
+			+ " using sensors available in common smartphones, such as microphones, accelerometer and bluetooth beacons, the main purpose of this project is to estimate"
+			+ " noise levels, people distance from professor desk, and common interest in the lecture throgh correlation between al this data; this all done respecting the"
+			+ " need of anonimity of the single user, and without recording and or correlating in any way any of the data collected with a specific, knowable person";
 	//private Label topText= new Label();
 	private Label midText= new Label();
 	private Label bottomText= new Label();
-	private Label bottomText2= new Label();
+	//private Label bottomText2= new Label();
 	
 	
 	private boolean initialized=false;
@@ -62,8 +66,13 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 			
 			setTopMenu();
 			midText.setCaption("Things to do here...");
-			bottomText.setCaption("Here should go some useful information, about the projects, or maybe links to licensing and things like that, i don't know, something cool..");
-			bottomText2.setCaption("For example this is cool..");
+			//bottomText.setValue("Here should go some useful information, about the projects, or maybe links to licensing and things like that, i don't know, something cool..");
+			bottomText.setValue(projDesc);
+			bottomText.setSizeFull();
+			bottomText.addStyleName(ValoTheme.LABEL_SMALL);
+			bottomText.addStyleName(ValoTheme.LABEL_COLORED);
+			bottomText.addStyleName("centeredText");
+			//bottomText2.setCaption("For example this is cool..");
 			}
 		
 		
@@ -95,8 +104,8 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		//topLayout.addComponent(topText);
 		midLayout.addComponent(midText);
 		bottomLayout.addComponent(bottomText);
-		bottomLayout.addComponent(bottomText2);
-		bottomLayout.setComponentAlignment(bottomText2, Alignment.TOP_CENTER);
+		//bottomLayout.addComponent(bottomText2);
+		//bottomLayout.setComponentAlignment(bottomText2, Alignment.TOP_CENTER);
 		Restrain mainRestrain = new Restrain(mainLayout);
 		mainRestrain.setMinWidth("1024px");
 		//mainRestrain.setMaxWidth("1920px");
@@ -124,21 +133,23 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		//thisRestrain.setMaxHeight("1080px");
 		
 		
-		String basePath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath();
-		FileResource resource = new FileResource(new File(basePath+"/WEB-INF/images/ice-01.jpg"));
-		Image iceImage = new Image("cool thing",resource);
-		iceImage.setWidth("320px");
-		iceImage.setHeight("240px");
-		bottomLayout.addComponent(iceImage);
-		bottomLayout.setComponentAlignment(iceImage, Alignment.TOP_CENTER);
+		//String basePath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath();
+		//FileResource resource = new FileResource(new File(basePath+"/WEB-INF/images/ice-01.jpg"));
+		//Image iceImage = new Image("cool thing",resource);
+		//iceImage.setWidth("320px");
+		//iceImage.setHeight("240px");
+		//bottomLayout.addComponent(iceImage);
+		//bottomLayout.setComponentAlignment(iceImage, Alignment.TOP_CENTER);
 		//topText.setSizeUndefined();
 		midText.setSizeUndefined();
-		bottomText.setSizeUndefined();
-		bottomText2.setSizeUndefined();
+		//bottomText.setSizeUndefined();
+		//bottomText2.setSizeUndefined();
 		
 		//topLayout.setComponentAlignment(topText, Alignment.MIDDLE_CENTER);
 		midLayout.setComponentAlignment(midText, Alignment.MIDDLE_CENTER);
 		bottomLayout.setComponentAlignment(bottomText, Alignment.TOP_CENTER);
+		bottomLayout.setSpacing(true);
+		bottomLayout.setMargin(true);
 		initialized=true;
 		}
 	
@@ -165,6 +176,9 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		classLabel.setCaptionAsHtml(true);
 		classLabel.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 		classLabel.addStyleName(ValoTheme.BUTTON_QUIET);
+		classLabel.addStyleName("animated");
+		classLabel.addStyleName("lightSpeedIn");
+		classLabel.addStyleName("delay05");
 		classLabel.addClickListener(new Button.ClickListener() {
 			
 			/**
@@ -178,7 +192,6 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 				ClassroomView view =new ClassroomView();
 				midLayout.addComponent(view);
 				midLayout.setComponentAlignment(view, Alignment.TOP_CENTER);
-				//Animator.animate(classLabel, new Css().opacity(50)).duration(200);
 			}
 		});
 		
@@ -186,8 +199,16 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		lectLabel.setCaptionAsHtml(true);
 		lectLabel.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 		lectLabel.addStyleName(ValoTheme.BUTTON_QUIET);
+		lectLabel.addStyleName("animated");
+		lectLabel.addStyleName("lightSpeedIn");
+		lectLabel.addStyleName("delay06");
 		lectLabel.addClickListener(new Button.ClickListener() {
 			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 9026666916068650906L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				midLayout.removeAllComponents();
@@ -205,6 +226,9 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		profLabel.setCaptionAsHtml(true);
 		profLabel.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 		profLabel.addStyleName(ValoTheme.BUTTON_QUIET);
+		profLabel.addStyleName("animated");
+		profLabel.addStyleName("lightSpeedIn");
+		profLabel.addStyleName("delay07");
 		profLabel.addClickListener(new Button.ClickListener() {
 			
 			/**
@@ -236,6 +260,10 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		adminLabel.setCaptionAsHtml(true);
 		adminLabel.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 		adminLabel.addStyleName(ValoTheme.BUTTON_QUIET);
+		adminLabel.addStyleName("red");
+		adminLabel.addStyleName("animated");
+		adminLabel.addStyleName("lightSpeedIn");
+		adminLabel.addStyleName("delay08");
 		adminLabel.addClickListener(new Button.ClickListener() {
 			
 			/**
