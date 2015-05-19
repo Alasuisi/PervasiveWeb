@@ -51,6 +51,7 @@
 		<dependency org="org.vaadin.addons" name="dcharts-widget" rev="1.7.0" />
 		<dependency org="com.vaadin.addon" name="vaadin-charts" rev="2.1.0.beta1" />
 		<dependency org="com.vaadin" name="vaadin-push" rev="&vaadin.version;" conf="default->default"/>
+		<dependency org="com.github.thiagolocatelli" name="parse4j" rev="1.4"/>
 		
 	</dependencies>
 </ivy-module>

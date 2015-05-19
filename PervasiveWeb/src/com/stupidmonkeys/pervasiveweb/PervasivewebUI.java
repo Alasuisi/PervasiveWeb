@@ -2,6 +2,8 @@ package com.stupidmonkeys.pervasiveweb;
 
 import javax.servlet.annotation.WebServlet;
 
+import org.parse4j.Parse;
+
 import Views.LoginView;
 import Views.WelcomeView;
 
@@ -26,6 +28,8 @@ import com.vaadin.ui.VerticalLayout;
 @Push(PushMode.MANUAL)
 public class PervasivewebUI extends UI {
 	private Navigator navi;
+	private String parseAppId = "gjDmHU8kCWGxlmcJP97iCfDWXrH5zxtBZRC8kDMM";
+	private String parseRestKey = "MKEJ4APJFnq7srnzpjPFvRW3vdkP3g1IOwbO53Yl";
 
 	@WebServlet(value = "/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = PervasivewebUI.class)
@@ -34,17 +38,7 @@ public class PervasivewebUI extends UI {
 
 	@Override
 	protected void init(VaadinRequest request) {
-	/*	final VerticalLayout layout = new VerticalLayout();
-		layout.setMargin(true);
-		setContent(layout);
-
-		Button button = new Button("Click Me");
-		button.addClickListener(new Button.ClickListener() {
-			public void buttonClick(ClickEvent event) {
-				layout.addComponent(new Label("Thank you for clicking"));
-			}
-		});
-		layout.addComponent(button);*/
+		Parse.initialize(parseAppId, parseRestKey);
 		navi = new Navigator(this,this);
 		navi.addView("", (Class<? extends View>) this.getClass());
 		navi.addView("Login", new LoginView(navi));

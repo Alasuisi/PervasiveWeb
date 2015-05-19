@@ -1,1 +1,0 @@
-$wnd.com_stupidmonkeys_pervasiveweb_widgetset_PervasivewebWidgetset.runAsyncCallback2('ufb(1583,1,g3d);_.tc=function Mpc(){Uac((!Nac&&(Nac=new $ac),Nac),this.a.d)};wWd(Wh)(2);\n//# sourceURL=com.stupidmonkeys.pervasiveweb.widgetset.PervasivewebWidgetset-2.js\n')

@@ -1,5 +1,7 @@
 package Views;
 
+import java.util.HashMap;
+
 import org.dussan.vaadin.dcharts.DCharts;
 import org.dussan.vaadin.dcharts.base.elements.Trendline;
 import org.dussan.vaadin.dcharts.base.elements.XYaxis;
@@ -11,6 +13,9 @@ import org.dussan.vaadin.dcharts.options.Highlighter;
 import org.dussan.vaadin.dcharts.options.Options;
 import org.dussan.vaadin.dcharts.options.SeriesDefaults;
 import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
+import org.parse4j.ParseCloud;
+import org.parse4j.ParseException;
+import org.parse4j.callback.FunctionCallback;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.LegendItemClickEvent;
@@ -62,6 +67,12 @@ public class ClassroomView extends VerticalLayout{
 	private String actString2 = "Actual room occupation: ";
 	private String actString3 = "Actual room temperature: ";
 	private String actString4 = "Actual lesson: ";
+	String genValue2= new String();
+	String genValue3=new String();
+	String genValue4=new String();
+	String actValue2=new String();
+	String actValue3=new String();
+	String actValue4=new String();
 	private Label genLabel1= new Label();
 	private Label genLabel2 = new Label();
 	private Label genLabel3 = new Label();
@@ -110,7 +121,6 @@ public class ClassroomView extends VerticalLayout{
 			        1000 
 			);
 		 
-		 
 		
 		 this.setWidth("100%");
 		 this.addComponent(desc);
@@ -142,32 +152,30 @@ public class ClassroomView extends VerticalLayout{
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				String classValue = combo.getValue().toString();
-				String genValue2= new String();
-				String genValue3=new String();
-				String genValue4=new String();
-				String actValue2=new String();
-				String actValue3=new String();
-				String actValue4=new String();
 				if(classValue.equals("A2"))
 					{
+					getActualStudentNumber(classValue);
 					genValue2="43%";
 					genValue3="28°";
 					genValue4="6";
-					actValue2=actValue3=actValue4="value_here";
+					actValue3=actValue4="value_here";
 					setChart(100,78,20);
 					}else if(classValue.equals("A3"))
 						{
+						getActualStudentNumber(classValue);
 						genValue2="60%";
 						genValue3="31°";
 						genValue4="4";
-						actValue2=actValue3=actValue4="value_here";
+						actValue3=actValue4="value_here";
 						setChart(80,20,20);
+						
 						}else if (classValue.equals("B2"))
 							{
+							getActualStudentNumber(classValue);
 							genValue2="84%";
 							genValue3="22°";
 							genValue4="8";
-							actValue2=actValue3=actValue4="value_here";
+							actValue3=actValue4="value_here";
 							setChart(50,80,23);
 							}
 				
@@ -191,7 +199,7 @@ public class ClassroomView extends VerticalLayout{
 				actLabel2.addStyleName(ValoTheme.LABEL_LARGE);
 				actLabel3.addStyleName(ValoTheme.LABEL_LARGE);
 				actLabel4.addStyleName(ValoTheme.LABEL_LARGE);
-				actLabel2.setValue(actString2+actValue2);
+				//actLabel2.setValue(actString2+actValue2);
 				actLabel3.setValue(actString3+actValue3);
 				actLabel4.setValue(actString4+actValue4);
 				hori2.addStyleName("animated");
@@ -223,9 +231,7 @@ public class ClassroomView extends VerticalLayout{
 				vert1.addComponents(genLabel1,genLabel2,genLabel3,genLabel4,actLabel1,actLabel2,actLabel3,actLabel4);
 				setChart(100,78,20);
 				hori2.addComponents(chart,vert1);
-				hori2.markAsDirty();
-				UI.getCurrent().push();
-
+				//hori2.markAsDirty();
 				//UI.getCurrent().push();
 				
 				
@@ -361,6 +367,33 @@ Options options = new Options()
 	.setAnimate(true);
 	dchart= new DCharts();
 	dchart.setOptions(options).setDataSeries(dataSeries).show();
+		}
+	
+	private void getActualStudentNumber(final String classLabel)
+		{
+		actValue2="Waiting value..";
+		actLabel2.setValue(actString2+actValue2);
+		actLabel2.markAsDirty();
+		UI.getCurrent().push();
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put("getClassroom", classLabel);
+		ParseCloud.callFunctionInBackground("getStudentsNumber", map, new FunctionCallback<Integer>() {
+			
+			@Override
+			public void done(Integer result, ParseException parseException) {
+				if (parseException == null) {
+					actValue2=result.toString();
+					actLabel2.setValue(actString2+actValue2);
+					System.out.println("Number of students from classroom: " + classLabel);
+					System.out.println("Number of students from utils: " + result);
+					actLabel2.markAsDirty();
+					hori2.markAsDirty();
+					UI.getCurrent().push();
+				} else {
+					System.err.println("dioboia"+parseException.getMessage());
+				}
+			}
+		});
 		}
 
 }
