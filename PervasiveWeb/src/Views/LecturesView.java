@@ -3,9 +3,17 @@ package Views;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.parse4j.ParseCloud;
+import org.parse4j.ParseException;
+import org.parse4j.callback.FunctionCallback;
 
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
@@ -15,12 +23,13 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Table.Align;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 import domainEntities.Lecture;
+import domainEntities.Professor;
 
 public class LecturesView extends VerticalLayout{
 
@@ -42,11 +51,19 @@ public class LecturesView extends VerticalLayout{
 	private Table prevTable = new Table();
 	private Table nowTable = new Table();
 	private Table nextTable = new Table();
+	private HashMap<String,Integer> dayMap = new HashMap<String,Integer>();
 	
-	private SimpleDateFormat sdf= new SimpleDateFormat("HH:mm");
 	
 	public LecturesView()
 		{
+			dayMap.put("Monday", 1);
+			dayMap.put("Tuesday", 2);
+			dayMap.put("Wednesday", 3);
+			dayMap.put("Thursday", 4);
+			dayMap.put("Friday", 5);
+			dayMap.put("Saturday", 6);
+			dayMap.put("Sunday", 7);
+			getWeeklySchedule();
 			
 			title.addStyleName(ValoTheme.LABEL_BOLD);
 			title.addStyleName(ValoTheme.LABEL_LARGE);
@@ -140,23 +157,6 @@ public class LecturesView extends VerticalLayout{
 		            UI.getCurrent().push();
 					
 				}}, 3500);
-		/*	new Timer().schedule( 
-			        new TimerTask() {
-			            @Override
-			            public void run() {
-			            prevTable.setVisible(true);
-			            prevTable.addStyleName("animated");
-			            prevTable.addStyleName("tada");
-			            prevTable.markAsDirty();
-			            nowTable.setVisible(true);
-			            nowTable.markAsDirty();
-			            nextTable.setVisible(true);
-			            nextTable.markAsDirty();
-			            UI.getCurrent().push();
-			            }
-			        }, 
-			        800 
-			);*/
 			
 			prevLayout.addComponents(prevLabel,prevTable);
 			prevLayout.setComponentAlignment(prevLabel, Alignment.TOP_CENTER);
@@ -168,8 +168,8 @@ public class LecturesView extends VerticalLayout{
 			nextLayout.setComponentAlignment(nextLabel, Alignment.TOP_CENTER);
 			nextLayout.setComponentAlignment(nextTable, Alignment.TOP_CENTER);
 			
-			setPrevTable();
-			setNowTable();
+			//setPrevTable();
+			//setNowTable();
 			setNextTable();
 			
 			tableSpace.setWidth("100%");
@@ -189,10 +189,12 @@ public class LecturesView extends VerticalLayout{
 
 	private void setNextTable() {
 		LinkedList<Lecture> list = new LinkedList<Lecture>();
-		list.add(new Lecture("Cool prof","Important Stuff","many things","8:30","10:00"));
-		list.add(new Lecture("Not Cool prof","Crazy Stuff","too many things","10:15","11:45"));
-		list.add(new Lecture("Boring prof","Useless Stuff","random things","10:15","11:45"));
-		list.add(new Lecture("Angry profe","STFU","many things","12:00","13:30"));
+		Professor cool = new Professor("cool prof","course_rnd","1","1","1","1");
+		Lecture lec1= new Lecture(cool.getName(), "cool stuff", "cool things", "8:30","10:00");
+		list.add(lec1);
+		list.add(new Lecture(cool.getName(),"Crazy Stuff","too many things","10:15","11:45"));
+		list.add(new Lecture(cool.getName(),"Useless Stuff","random things","10:15","11:45"));
+		list.add(new Lecture(cool.getName(),"STFU","many things","12:00","13:30"));
 		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,list);
 		nextTable.setContainerDataSource(container);
 		nextTable.setHeight("167px");
@@ -217,7 +219,7 @@ public class LecturesView extends VerticalLayout{
 				Lecture lecture = (Lecture) selected.getBean();
 				//System.out.println(lecture.getTopics());
 				//System.out.println(event.getItemId());
-				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getAttending()+" which talks about "+lecture.getTopics(), Notification.Type.TRAY_NOTIFICATION);
+				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.TRAY_NOTIFICATION);
 			}
 		});
 		
@@ -225,10 +227,10 @@ public class LecturesView extends VerticalLayout{
 
 	private void setNowTable() {
 		LinkedList<Lecture> list = new LinkedList<Lecture>();
-		list.add(new Lecture("Cool prof","Important Stuff","many things","8:30","10:00"));
-		list.add(new Lecture("Not Cool prof","Crazy Stuff","too many things","10:15","11:45"));
-		list.add(new Lecture("Boring prof","Useless Stuff","random things","10:15","11:45"));
-		list.add(new Lecture("Angry profe","STFU","many things","12:00","13:30"));
+		//list.add(new Lecture("Cool prof","Important Stuff","many things","8:30","10:00"));
+		//list.add(new Lecture("Not Cool prof","Crazy Stuff","too many things","10:15","11:45"));
+		//list.add(new Lecture("Boring prof","Useless Stuff","random things","10:15","11:45"));
+		//list.add(new Lecture("Angry profe","STFU","many things","12:00","13:30"));
 		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,list);
 		nowTable.setContainerDataSource(container);
 		nowTable.setHeight("167px");
@@ -253,7 +255,7 @@ public class LecturesView extends VerticalLayout{
 				Lecture lecture = (Lecture) selected.getBean();
 				//System.out.println(lecture.getTopics());
 				//System.out.println(event.getItemId());
-				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getAttending()+" which talks about "+lecture.getTopics(), Notification.Type.WARNING_MESSAGE);
+				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.WARNING_MESSAGE);
 			}
 		});
 		
@@ -268,10 +270,10 @@ public class LecturesView extends VerticalLayout{
 		cal.set(Calendar.SECOND, 0);
 	
 		
-		list.add(new Lecture("Cool prof","Important Stuff","many things","8:30","10:00"));
-		list.add(new Lecture("Not Cool prof","Crazy Stuff","too many things","10:15","11:45"));
-		list.add(new Lecture("Boring prof","Useless Stuff","random things","10:15","11:45"));
-		list.add(new Lecture("Angry profe","STFU","many things","12:00","13:30"));
+		//list.add(new Lecture("Cool prof","Important Stuff","many things","8:30","10:00"));
+		//list.add(new Lecture("Not Cool prof","Crazy Stuff","too many things","10:15","11:45"));
+		//list.add(new Lecture("Boring prof","Useless Stuff","random things","10:15","11:45"));
+		//list.add(new Lecture("Angry profe","STFU","many things","12:00","13:30"));
 		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,list);
 		prevTable.setContainerDataSource(container);
 		prevTable.setHeight("167px");
@@ -296,10 +298,52 @@ public class LecturesView extends VerticalLayout{
 				Lecture lecture = (Lecture) selected.getBean();
 				//System.out.println(lecture.getTopics());
 				//System.out.println(event.getItemId());
-				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getAttending()+" which talks about "+lecture.getTopics(), Notification.Type.HUMANIZED_MESSAGE);
+				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.HUMANIZED_MESSAGE);
 			}
 		});
 	}
 	
+	private void getWeeklySchedule()
+		{
+		LinkedList<Lecture> pastList = new LinkedList<Lecture>();
+		LinkedList<Lecture> nowList = new LinkedList<Lecture>();
+		LinkedList<Lecture> nextList = new LinkedList<Lecture>();
+		final Calendar currentCal =Calendar.getInstance();
+		final Date now =currentCal.getTime();
+		currentCal.setTime(now);
+		SimpleDateFormat dayName = new SimpleDateFormat("EEEE",Locale.ENGLISH);
+		final SimpleDateFormat nowName = new SimpleDateFormat("HH:mm",Locale.ENGLISH);
+		final String hourTime = nowName.format(now);
+		final String dayTime = dayName.format(now);
+		ParseCloud.callFunctionInBackground("getWeeklySchedule", null, new FunctionCallback<JSONArray>(){
+
+			@Override
+			public void done(JSONArray result, ParseException parseException) {
+				for(int i=0;i<result.length();i++)
+					{
+					JSONObject jsn = result.getJSONObject(i);
+					String professor= jsn.getString("Professor");
+					String start = jsn.getString("Start_Time");
+					String end = jsn.getString("End_Time");
+					String day = jsn.getString("Day");
+					String lesson = jsn.getString("Lesson");
+					try {
+						Date date =  nowName.parse(start);
+						Calendar tempCal = Calendar.getInstance();
+						tempCal.setTime(date);
+						tempCal.set(Calendar.DAY_OF_MONTH, currentCal.get(Calendar.DAY_OF_MONTH));
+						tempCal.set(Calendar.MONTH, currentCal.get(Calendar.MONTH));
+						tempCal.set(Calendar.YEAR, currentCal.get(Calendar.YEAR));
+						date=tempCal.getTime();
+						System.out.println("PORCADDIOOOOOOOOOOOO    "+date.toString()+"             "+now);
+					} catch (java.text.ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					System.out.println(professor+" "+lesson+" "+start+" "+end+" "+day+" day+time= "+dayTime+" "+hourTime+" compareToStart "+start.compareTo(hourTime)+" compareToEnd "+end.compareTo(hourTime));
+					}
+				System.out.println(dayTime+" "+hourTime);
+			}});
+		}
 
 }

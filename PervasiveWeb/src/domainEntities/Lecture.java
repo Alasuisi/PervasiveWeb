@@ -4,20 +4,19 @@ import java.util.Date;
 
 public class Lecture {
 
-		private String attending;
-	
 		private String title;
 		private String topics;
 		private String from;
 		private String to;
+		private String prof;
 		
-		public Lecture(String attending,String title,String topics,String from,String to)
+		public Lecture(String prof,String title,String topics,String from,String to)
 			{
-			this.setAttending(attending);
 			this.setTitle(title);
 			this.setTopics(topics);
 			this.setFrom(from);
 			this.setTo(to);
+			this.setProf(prof);
 			}
 
 		public String getTitle() {
@@ -51,22 +50,71 @@ public class Lecture {
 		public void setTo(String to2) {
 			this.to = to2;
 		}
-		/*public boolean equals(Object o)
-			{
-				if(!o.getClass().equals(this.getClass()))return false;
-				else
-					{
-					 Lecture obj = (Lecture)o;
-					 if(obj.getTitle().equals(this.getTitle())&&obj.getTopics().equals(this.getTopics())&&obj.getFrom().equals(this.getFrom())&&obj.getTo().equals(this.getTo())) return true;
-					} 
+
+		public String getProf() {
+			return prof;
+		}
+
+		public void setProf(String prof2) {
+			this.prof = prof2;
+		}
+
+		@Override
+		public String toString() {
+			return "Lecture [title=" + title + ", topics=" + topics + ", from="
+					+ from + ", to=" + to + ", prof=" + prof + "]";
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((from == null) ? 0 : from.hashCode());
+			result = prime * result + ((prof == null) ? 0 : prof.hashCode());
+			result = prime * result + ((title == null) ? 0 : title.hashCode());
+			result = prime * result + ((to == null) ? 0 : to.hashCode());
+			result = prime * result
+					+ ((topics == null) ? 0 : topics.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
 				return false;
-			}*/
-
-		public String getAttending() {
-			return attending;
+			if (getClass() != obj.getClass())
+				return false;
+			Lecture other = (Lecture) obj;
+			if (from == null) {
+				if (other.from != null)
+					return false;
+			} else if (!from.equals(other.from))
+				return false;
+			if (prof == null) {
+				if (other.prof != null)
+					return false;
+			} else if (!prof.equals(other.prof))
+				return false;
+			if (title == null) {
+				if (other.title != null)
+					return false;
+			} else if (!title.equals(other.title))
+				return false;
+			if (to == null) {
+				if (other.to != null)
+					return false;
+			} else if (!to.equals(other.to))
+				return false;
+			if (topics == null) {
+				if (other.topics != null)
+					return false;
+			} else if (!topics.equals(other.topics))
+				return false;
+			return true;
 		}
 
-		public void setAttending(String attending) {
-			this.attending = attending;
-		}
+		
+		
 }
