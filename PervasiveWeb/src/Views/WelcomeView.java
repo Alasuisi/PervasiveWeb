@@ -119,7 +119,7 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		Restrain midRestrain = new Restrain(midLayout);
 		midRestrain.setMinWidth("1024px");
 		//midRestrain.setMaxWidth("1920px");
-		midRestrain.setMinHeight("300px");
+		midRestrain.setMinHeight("600px");
 		//midRestrain.setMaxHeight("1080px");
 		Restrain bottomRestrain = new Restrain(bottomLayout);
 		bottomRestrain.setMinWidth("1024px");
