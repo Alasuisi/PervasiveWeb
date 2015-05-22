@@ -9,16 +9,25 @@ public class Lecture {
 		private String from;
 		private String to;
 		private String prof;
+		private String dayOfTheWeek;
 		
-		public Lecture(String prof,String title,String topics,String from,String to)
+		public Lecture(){};
+		public Lecture(String prof,String title,String topics,String from,String to,String day)
 			{
 			this.setTitle(title);
 			this.setTopics(topics);
 			this.setFrom(from);
 			this.setTo(to);
 			this.setProf(prof);
+			this.setDayOfTheWeek(day);
 			}
 
+		public String getDayOfTheWeek() {
+			return dayOfTheWeek;
+		}
+		public void setDayOfTheWeek(String dayOfTheWeek) {
+			this.dayOfTheWeek = dayOfTheWeek;
+		}
 		public String getTitle() {
 			return title;
 		}
@@ -58,17 +67,18 @@ public class Lecture {
 		public void setProf(String prof2) {
 			this.prof = prof2;
 		}
-
 		@Override
 		public String toString() {
 			return "Lecture [title=" + title + ", topics=" + topics + ", from="
-					+ from + ", to=" + to + ", prof=" + prof + "]";
+					+ from + ", to=" + to + ", prof=" + prof
+					+ ", dayOfTheWeek=" + dayOfTheWeek + "]";
 		}
-
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result
+					+ ((dayOfTheWeek == null) ? 0 : dayOfTheWeek.hashCode());
 			result = prime * result + ((from == null) ? 0 : from.hashCode());
 			result = prime * result + ((prof == null) ? 0 : prof.hashCode());
 			result = prime * result + ((title == null) ? 0 : title.hashCode());
@@ -77,7 +87,6 @@ public class Lecture {
 					+ ((topics == null) ? 0 : topics.hashCode());
 			return result;
 		}
-
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
@@ -87,6 +96,11 @@ public class Lecture {
 			if (getClass() != obj.getClass())
 				return false;
 			Lecture other = (Lecture) obj;
+			if (dayOfTheWeek == null) {
+				if (other.dayOfTheWeek != null)
+					return false;
+			} else if (!dayOfTheWeek.equals(other.dayOfTheWeek))
+				return false;
 			if (from == null) {
 				if (other.from != null)
 					return false;
@@ -114,6 +128,8 @@ public class Lecture {
 				return false;
 			return true;
 		}
+
+		
 
 		
 		
