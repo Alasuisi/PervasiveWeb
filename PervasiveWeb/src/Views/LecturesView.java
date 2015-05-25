@@ -97,72 +97,7 @@ public class LecturesView extends VerticalLayout{
 			prevTable.setVisible(false);
 			nowTable.setVisible(false);
 			nextTable.setVisible(false);
-			new Timer().schedule(new TimerTask(){
-
-				@Override
-				public void run() {
-					prevLabel.setVisible(true);
-					prevLabel.addStyleName("animated");
-					prevLabel.addStyleName("tada");
-					//prevLabel.addStyleName("delay08");
-					prevLabel.markAsDirty();
-					UI.getCurrent().push();
-				}}, 1000);
-			new Timer().schedule(new TimerTask(){
-
-				@Override
-				public void run() {
-					prevTable.setVisible(true);
-					prevTable.addStyleName("animated");
-		            prevTable.addStyleName("zoomInUp");
-		            prevTable.markAsDirty();
-		            UI.getCurrent().push();
-				}}, 1500);
-			new Timer().schedule(new TimerTask(){
-
-				@Override
-				public void run() {
-					nowLabel.setVisible(true);
-					nowLabel.addStyleName("animated");
-					nowLabel.addStyleName("tada");
-					nowLabel.markAsDirty();
-					UI.getCurrent().push();
-					
-				}}, 2000);
-			new Timer().schedule(new TimerTask(){
-
-				@Override
-				public void run() {
-					nowTable.setVisible(true);
-					nowTable.addStyleName("animated");
-					nowTable.addStyleName("zoomInUp");
-					nowTable.markAsDirty();
-		            UI.getCurrent().push();
-					
-				}}, 2500);
-			new Timer().schedule(new TimerTask(){
-
-				@Override
-				public void run() {
-					nextLabel.setVisible(true);
-					nextLabel.addStyleName("animated");
-					nextLabel.addStyleName("tada");
-					nextLabel.markAsDirty();
-					UI.getCurrent().push();
-					
-				}}, 3000);
-			new Timer().schedule(new TimerTask(){
-
-				@Override
-				public void run() {
-					nextTable.setVisible(true);
-					nextTable.addStyleName("animated");
-					nextTable.addStyleName("zoomInUp");
-					nextTable.markAsDirty();
-		            UI.getCurrent().push();
-					
-				}}, 3500);
-			
+						
 			prevLayout.addComponents(prevLabel,prevTable);
 			prevLayout.setComponentAlignment(prevLabel, Alignment.TOP_CENTER);
 			prevLayout.setComponentAlignment(prevTable, Alignment.TOP_CENTER);
@@ -204,7 +139,7 @@ public class LecturesView extends VerticalLayout{
 		nextTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		nextTable.addStyleName(ValoTheme.TABLE_SMALL);
 		prevTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
-		nextTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		nextTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
 		nextTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
 			
 			/**
@@ -234,7 +169,7 @@ public class LecturesView extends VerticalLayout{
 		nowTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		nowTable.addStyleName(ValoTheme.TABLE_SMALL);
 		prevTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
-		nowTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		nowTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
 		nowTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
 			
 			/**
@@ -428,8 +363,8 @@ public class LecturesView extends VerticalLayout{
 							 long startHour = row.getLong("starttime");
 							 long endHour = row.getLong("endtime");
 							 String className = row.getString("classroom_name");
-							 //String profName = row.getString("prof_name");
-							 String profName = "stoca";
+							 String profName = row.getString("prof_name");
+							// String profName = "stoca";
 							 String summary = row.getString("summary");
 							 long lecStart=baseDate+startHour;
 							 long lecEnd=baseDate+endHour;
@@ -438,16 +373,16 @@ public class LecturesView extends VerticalLayout{
 							 String dayName=cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.ENGLISH);
 							 cal.setTimeInMillis(lecStart);
 							 Date startDate = cal.getTime();
-							 hours.format(startDate);
+							 
 							 cal.setTimeInMillis(lecEnd);
 							 Date endDate = cal.getTime();
-							 hours.format(endDate);
+							 
 							 
 							 Lecture toAdd = new Lecture();
 							 toAdd.setClassroom(className);
 							 toAdd.setDayOfTheWeek(dayName);
-							 toAdd.setFrom(startDate.toString());
-							 toAdd.setTo(endDate.toString());
+							 toAdd.setFrom(hours.format(startDate).toString());
+							 toAdd.setTo(hours.format(endDate).toString());
 							 toAdd.setProf(profName);
 							 toAdd.setTitle(summary);
 							 toAdd.setTopics("---");
@@ -460,6 +395,72 @@ public class LecturesView extends VerticalLayout{
 							 		nowList.add(toAdd);
 							 		}else if(lecStart>now) nextList.add(toAdd);
 							}
+						new Timer().schedule(new TimerTask(){
+
+							@Override
+							public void run() {
+								prevLabel.setVisible(true);
+								prevLabel.addStyleName("animated");
+								prevLabel.addStyleName("tada");
+								//prevLabel.addStyleName("delay08");
+								prevLabel.markAsDirty();
+								UI.getCurrent().push();
+							}}, 1000);
+						new Timer().schedule(new TimerTask(){
+
+							@Override
+							public void run() {
+								prevTable.setVisible(true);
+								prevTable.addStyleName("animated");
+					            prevTable.addStyleName("zoomInUp");
+					            prevTable.markAsDirty();
+					            UI.getCurrent().push();
+							}}, 1500);
+						new Timer().schedule(new TimerTask(){
+
+							@Override
+							public void run() {
+								nowLabel.setVisible(true);
+								nowLabel.addStyleName("animated");
+								nowLabel.addStyleName("tada");
+								nowLabel.markAsDirty();
+								UI.getCurrent().push();
+								
+							}}, 2000);
+						new Timer().schedule(new TimerTask(){
+
+							@Override
+							public void run() {
+								nowTable.setVisible(true);
+								nowTable.addStyleName("animated");
+								nowTable.addStyleName("zoomInUp");
+								nowTable.markAsDirty();
+					            UI.getCurrent().push();
+								
+							}}, 2500);
+						new Timer().schedule(new TimerTask(){
+
+							@Override
+							public void run() {
+								nextLabel.setVisible(true);
+								nextLabel.addStyleName("animated");
+								nextLabel.addStyleName("tada");
+								nextLabel.markAsDirty();
+								UI.getCurrent().push();
+								
+							}}, 3000);
+						new Timer().schedule(new TimerTask(){
+
+							@Override
+							public void run() {
+								nextTable.setVisible(true);
+								nextTable.addStyleName("animated");
+								nextTable.addStyleName("zoomInUp");
+								nextTable.markAsDirty();
+					            UI.getCurrent().push();
+								
+							}}, 3500);
+
 						setPrevTable(pastList);
 						setNowTable(nowList);
 						setNextTable(nextList);
