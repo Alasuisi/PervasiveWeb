@@ -346,7 +346,8 @@ public class LecturesView extends VerticalLayout{
 		final LinkedList<Lecture> nowList = new LinkedList<Lecture>();
 		final LinkedList<Lecture> nextList = new LinkedList<Lecture>();
 		final Calendar cal = Calendar.getInstance();
-		final SimpleDateFormat hours = new SimpleDateFormat("HH:mm",Locale.ITALIAN);
+		final SimpleDateFormat hours = new SimpleDateFormat("HH:mm",Locale.ITALY);
+		final SimpleDateFormat dateFormatter = new SimpleDateFormat("",Locale.ITALY);
 		
 			ParseCloud.callFunctionInBackground("getNewWeeklySchedule", null, new FunctionCallback<JSONArray>(){
 
@@ -366,34 +367,40 @@ public class LecturesView extends VerticalLayout{
 							 String profName = row.getString("prof_name");
 							// String profName = "stoca";
 							 String summary = row.getString("summary");
-							 long lecStart=baseDate+startHour;
-							 long lecEnd=baseDate+endHour;
+							 long lecStart=baseDate+(startHour*60);
+							 long lecEnd=baseDate+(endHour*60);
+							 
+							 System.out.println(lecStart+" "+lecEnd);
 							 
 							 cal.setTimeInMillis(baseDate);
 							 String dayName=cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.ENGLISH);
-							 cal.setTimeInMillis(lecStart);
-							 Date startDate = cal.getTime();
-							 
-							 cal.setTimeInMillis(lecEnd);
-							 Date endDate = cal.getTime();
+							// cal.setTimeInMillis(lecStart);
+							// Date startDate = cal.getTime();
+							 Date startDate = new Date(Long.parseLong(String.valueOf(lecStart))*1000);
+							 System.out.println(startDate);
+							 //cal.setTimeInMillis(lecEnd);
+							 //Date endDate = cal.getTime();
+							 Date endDate = new Date(Long.parseLong(String.valueOf(lecEnd))*1000);
 							 
 							 
 							 Lecture toAdd = new Lecture();
 							 toAdd.setClassroom(className);
 							 toAdd.setDayOfTheWeek(dayName);
-							 toAdd.setFrom(hours.format(startDate).toString());
-							 toAdd.setTo(hours.format(endDate).toString());
+							 //toAdd.setFrom(hours.format(startDate).toString());
+							 //toAdd.setTo(hours.format(endDate).toString());
+							 toAdd.setFrom(startDate.toString());
+							 toAdd.setTo(endDate.toString());
 							 toAdd.setProf(profName);
 							 toAdd.setTitle(summary);
 							 toAdd.setTopics("---");
 							 
-							 if(lecStart<now && lecEnd<now)
+							 if((lecStart*1000)<now && (lecEnd*1000)<now)
 							 	{
 								 pastList.add(toAdd);
-							 	}else if(lecStart<=now && lecEnd>now)
+							 	}else if((lecStart*1000)<=now && (lecEnd*1000)>now)
 							 		{
 							 		nowList.add(toAdd);
-							 		}else if(lecStart>now) nextList.add(toAdd);
+							 		}else if((lecStart*1000)>now) nextList.add(toAdd);
 							}
 						new Timer().schedule(new TimerTask(){
 
@@ -464,6 +471,11 @@ public class LecturesView extends VerticalLayout{
 						setPrevTable(pastList);
 						setNowTable(nowList);
 						setNextTable(nextList);
+						Iterator<Lecture> iter = nextList.iterator();
+						while(iter.hasNext())
+							{
+							System.out.println(iter.next().toString());
+							}
 						 System.out.println(result.length());
 						}else
 							{
