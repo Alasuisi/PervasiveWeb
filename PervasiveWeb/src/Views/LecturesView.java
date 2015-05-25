@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Timer;
@@ -12,7 +11,6 @@ import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.parse4j.Parse;
 import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
 import org.parse4j.callback.FunctionCallback;
@@ -21,7 +19,6 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
@@ -31,7 +28,6 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 import domainEntities.Lecture;
-import domainEntities.Professor;
 
 public class LecturesView extends VerticalLayout{
 
@@ -44,20 +40,18 @@ public class LecturesView extends VerticalLayout{
 	private VerticalLayout prevLayout = new VerticalLayout();
 	private VerticalLayout nowLayout = new VerticalLayout();
 	private VerticalLayout nextLayout = new VerticalLayout();
+	private VerticalLayout thisLayout = this;
 	
 	private Label title = new Label("Today's lectures");
 	private Label prevLabel = new Label("Previous lectures");
 	private Label nowLabel = new Label("Ongoing lectures");
 	private Label nextLabel = new Label("Next lectures");
+	private Label waitingLabel = new Label("Fetching results...");
 	
 	private Table prevTable = new Table();
 	private Table nowTable = new Table();
 	private Table nextTable = new Table();
 	private HashMap<String,Integer> dayMap = new HashMap<String,Integer>();
-	private JSONArray tempResult = new JSONArray();
-	private boolean more=true;
-	private boolean done=false;
-	private int index=0;
 	
 	
 	public LecturesView()
@@ -69,25 +63,34 @@ public class LecturesView extends VerticalLayout{
 			dayMap.put("Friday", 5);
 			dayMap.put("Saturday", 6);
 			dayMap.put("Sunday", 7);
-			//getWeeklySchedule();
 			title.addStyleName(ValoTheme.LABEL_BOLD);
 			title.addStyleName(ValoTheme.LABEL_LARGE);
 			title.setSizeUndefined();
 			title.addStyleName("animated");
 			title.addStyleName("flipInX");
 			title.addStyleName("delay05");
+			waitingLabel.setSizeUndefined();
+			waitingLabel.addStyleName(ValoTheme.LABEL_HUGE);
+			waitingLabel.addStyleName(ValoTheme.LABEL_BOLD);
+			waitingLabel.addStyleName(ValoTheme.LABEL_COLORED);
+			waitingLabel.addStyleName("animated");
+			waitingLabel.addStyleName("flipInX");
+			waitingLabel.addStyleName("delay05");
 			prevLabel.setSizeUndefined();
 			prevLabel.addStyleName(ValoTheme.LABEL_BOLD);
+			prevLabel.addStyleName(ValoTheme.LABEL_COLORED);
 			nowLabel.setSizeUndefined();
 			nowLabel.addStyleName("animated");
 			nowLabel.addStyleName("tada");
 			nowLabel.addStyleName("delay09");
 			nowLabel.addStyleName(ValoTheme.LABEL_BOLD);
+			nowLabel.addStyleName(ValoTheme.LABEL_COLORED);
 			nextLabel.setSizeUndefined();
 			nextLabel.addStyleName("animated");
 			nextLabel.addStyleName("tada");
 			nextLabel.addStyleName("delay1");
 			nextLabel.addStyleName(ValoTheme.LABEL_BOLD);
+			nextLabel.addStyleName(ValoTheme.LABEL_COLORED);
 			prevTable.setImmediate(true);
 			nowTable.setImmediate(true);
 			nextTable.setImmediate(true);
@@ -101,14 +104,16 @@ public class LecturesView extends VerticalLayout{
 			prevLayout.addComponents(prevLabel,prevTable);
 			prevLayout.setComponentAlignment(prevLabel, Alignment.TOP_CENTER);
 			prevLayout.setComponentAlignment(prevTable, Alignment.TOP_CENTER);
+			prevLayout.setSpacing(true);
 			nowLayout.addComponents(nowLabel,nowTable);
 			nowLayout.setComponentAlignment(nowLabel, Alignment.TOP_CENTER);
 			nowLayout.setComponentAlignment(nowTable, Alignment.TOP_CENTER);
+			nowLayout.setSpacing(true);
 			nextLayout.addComponents(nextLabel,nextTable);
 			nextLayout.setComponentAlignment(nextLabel, Alignment.TOP_CENTER);
 			nextLayout.setComponentAlignment(nextTable, Alignment.TOP_CENTER);
+			nextLayout.setSpacing(true);
 
-			//getWeeklySchedule();
 			getNewWeeklySchedule();
 			
 			tableSpace.setWidth("100%");
@@ -121,25 +126,31 @@ public class LecturesView extends VerticalLayout{
 			tableSpace.setComponentAlignment(nextLayout, Alignment.TOP_CENTER);
 			
 			this.setWidth("100%");
-			this.addComponents(title,tableSpace);
+			this.addComponents(title,waitingLabel,tableSpace);
 			this.setSpacing(true);
 			this.setComponentAlignment(title, Alignment.TOP_CENTER);
+			this.setComponentAlignment(waitingLabel, Alignment.MIDDLE_CENTER);
 			this.setComponentAlignment(tableSpace, Alignment.TOP_CENTER);
 		}
 
 	private void setNextTable(LinkedList<Lecture> next) {
 		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,next);
 		nextTable.setContainerDataSource(container);
-		nextTable.setHeight("167px");
 		nextTable.setWidth("100%");
-		if(next.size()<=5)
-			{
-			nextTable.setPageLength(next.size());
-			}else nextTable.setPageLength(5);
+		if(next.size()<10) nextTable.setPageLength(next.size());
+		else nextTable.setPageLength(10);
 		nextTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		nextTable.addStyleName(ValoTheme.TABLE_SMALL);
-		prevTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
 		nextTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		nextTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		nextTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
+		nextTable.setColumnWidth("classroom", 170);
+		nextTable.setColumnWidth("from", 50);
+		nextTable.setColumnWidth("to", 50);
+		nextTable.setColumnWidth("prof", 230);
+		nextTable.setColumnExpandRatio("title", 50);
+		nextTable.setColumnExpandRatio("topics", 50);
+		nextTable.setColumnWidth("dayOfTheWeek", 170);
 		nextTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
 			
 			/**
@@ -160,16 +171,22 @@ public class LecturesView extends VerticalLayout{
 	private void setNowTable(LinkedList<Lecture> now) {
 		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,now);
 		nowTable.setContainerDataSource(container);
-		nowTable.setHeight("167px");
 		nowTable.setWidth("100%");
-		if(now.size()<=5)
-		{
-			nowTable.setPageLength(now.size());
-		}else nowTable.setPageLength(5);
+		if(now.size()<10) nowTable.setPageLength(now.size());
+		else nowTable.setPageLength(10);
 		nowTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		nowTable.addStyleName(ValoTheme.TABLE_SMALL);
-		prevTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
+		//nowTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
 		nowTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		nowTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		nowTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
+		nowTable.setColumnWidth("classroom", 170);
+		nowTable.setColumnWidth("from", 50);
+		nowTable.setColumnWidth("to", 50);
+		nowTable.setColumnWidth("prof", 230);
+		nowTable.setColumnExpandRatio("title", 50);
+		nowTable.setColumnExpandRatio("topics", 50);
+		nowTable.setColumnWidth("dayOfTheWeek", 170);
 		nowTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
 			
 			/**
@@ -191,16 +208,21 @@ public class LecturesView extends VerticalLayout{
 
 		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,prev);
 		prevTable.setContainerDataSource(container);
-		prevTable.setHeight("167px");
 		prevTable.setWidth("100%");
-		if(prev.size()<=5)
-		{
-			prevTable.setPageLength(prev.size());
-		}else prevTable.setPageLength(5);
+		if(prev.size()<10)prevTable.setPageLength(prev.size());
+		else prevTable.setPageLength(10);
 		prevTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		prevTable.addStyleName(ValoTheme.TABLE_SMALL);
-		prevTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
 		prevTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		prevTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		prevTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
+		prevTable.setColumnWidth("classroom", 170);
+		prevTable.setColumnWidth("from", 50);
+		prevTable.setColumnWidth("to", 50);
+		prevTable.setColumnWidth("prof", 230);
+		prevTable.setColumnExpandRatio("title", 50);
+		prevTable.setColumnExpandRatio("topics", 50);
+		prevTable.setColumnWidth("dayOfTheWeek", 170);
 		prevTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
 			
 			/**
@@ -217,137 +239,15 @@ public class LecturesView extends VerticalLayout{
 		});
 	}
 	
-	private void getWeeklySchedule()
-		{
-		final LinkedList<Lecture> pastList = new LinkedList<Lecture>();
-		final LinkedList<Lecture> nowList = new LinkedList<Lecture>();
-		final LinkedList<Lecture> nextList = new LinkedList<Lecture>();
-		
-		final Calendar currentCal =Calendar.getInstance();
-		final Date now =currentCal.getTime();
-		currentCal.setTime(now);
-		SimpleDateFormat dayName = new SimpleDateFormat("EEEE",Locale.ENGLISH);
-		final SimpleDateFormat nowName = new SimpleDateFormat("HH:mm",Locale.ITALIAN);
-		//final String hourTime = nowName.format(now);
-		final String dayTime = dayName.format(now);
-		
-		ParseCloud.callFunctionInBackground("getWeeklySchedule", null, new FunctionCallback<JSONArray>(){
-			
-
-			@Override
-			public void done(JSONArray result, ParseException parseException) {
-				
-				for(int i=0;i<result.length();i++)
-					{
-					Date startDate = new Date();
-					Date endDate = new Date();
-					JSONObject jsn = result.getJSONObject(i);
-					String professor= jsn.getString("Professor");
-					String start = jsn.getString("Start_Time");
-					String end = jsn.getString("End_Time");
-					String day = jsn.getString("Day");
-					String lesson = jsn.getString("Lesson");
-					
-					try {
-						
-						startDate =  nowName.parse(start);
-						endDate = nowName.parse(end);
-						Calendar tempCal = Calendar.getInstance();
-						tempCal.setTime(startDate);
-						tempCal.set(Calendar.DAY_OF_MONTH, currentCal.get(Calendar.DAY_OF_MONTH));
-						tempCal.set(Calendar.MONTH, currentCal.get(Calendar.MONTH));
-						tempCal.set(Calendar.YEAR, currentCal.get(Calendar.YEAR));
-						startDate=tempCal.getTime();
-						tempCal.setTime(endDate);
-						tempCal.set(Calendar.DAY_OF_MONTH, currentCal.get(Calendar.DAY_OF_MONTH));
-						tempCal.set(Calendar.MONTH, currentCal.get(Calendar.MONTH));
-						tempCal.set(Calendar.YEAR, currentCal.get(Calendar.YEAR));
-						endDate=tempCal.getTime();
-						
-						//System.out.println("PORCADDIOOOOOOOOOOOO    "+startDate.toString()+" original time string: "+start+"             "+now+"   compare= "+startDate.compareTo(now));
-					} catch (java.text.ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					Lecture toAdd = new Lecture();
-					toAdd.setProf(professor);
-					toAdd.setFrom(start);
-					toAdd.setTo(end);
-					toAdd.setTitle(lesson);
-					toAdd.setDayOfTheWeek(day);
-					toAdd.setTopics("---");
-					if(dayMap.get(day)<dayMap.get(dayTime))
-						{
-						 pastList.add(toAdd);
-						}else if(dayMap.get(day)==dayMap.get(dayTime))
-							{
-								if(startDate.before(now) && endDate.before(now))
-									{
-									pastList.add(toAdd);
-									}else if (startDate.before(now)&& endDate.after(now))
-										{
-										nowList.add(toAdd);
-										}else if (startDate.after(now) && endDate.after(now))
-											{
-											nextList.add(toAdd);
-											}
-							}else
-								{
-								nextList.add(toAdd);
-								}
-					//System.out.println(professor+" "+lesson+" "+start+" "+end+" "+day+" day+time= "+dayTime+" "+hourTime+" compareToStart "+start.compareTo(hourTime)+" compareToEnd "+end.compareTo(hourTime));
-					}
-				setPrevTable(pastList);
-				setNowTable(nowList);
-				setNextTable(nextList);
-				//System.out.println(dayTime+" "+hourTime);
-			}});
-		}
-
-	/*private void getNewWeeklySchedule(final int fromResult)
-		{
-			HashMap<String, String> map = new HashMap<String, String>();
-			map.put("skip", Integer.toString(fromResult));
-			ParseCloud.callFunctionInBackground("getNewWeeklySchedule", map, new FunctionCallback<JSONArray>(){
-				
-				@Override
-				public void done(JSONArray result, ParseException parseException) {
-					if(parseException==null)
-						{
-							while(!done){
-										System.out.println(result.length());
-										if(result.length()!=1000) 
-											{
-											more=false;
-											System.out.println("MORE E' FALSOOOOOOOOOOOOOOOOOOO!   "+result.length());
-											}
-										for(int i=0;i<result.length();i++)
-											{
-											tempResult.put(result.get(i));
-											}
-										if(more)
-											{
-												int newFrom = fromResult+1000;
-												System.out.println("sto per invocarmi di nuovo, il valore di index è "+newFrom);
-												getNewWeeklySchedule(newFrom);
-											}else{done=true;}
-										}
-							System.out.println("fine del porcoddio "+tempResult.length());
-						}else
-							{
-							System.err.println(parseException.getMessage());
-							}
-				}});
-			//System.out.println("Fuori dal done "+result.length());
-		}*/
+	
 	private void getNewWeeklySchedule()
 		{
 		final LinkedList<Lecture> pastList = new LinkedList<Lecture>();
 		final LinkedList<Lecture> nowList = new LinkedList<Lecture>();
 		final LinkedList<Lecture> nextList = new LinkedList<Lecture>();
 		final Calendar cal = Calendar.getInstance();
-		final SimpleDateFormat hours = new SimpleDateFormat("HH:mm",Locale.ITALY);
-		final SimpleDateFormat dateFormatter = new SimpleDateFormat("",Locale.ITALY);
+		final SimpleDateFormat hours = new SimpleDateFormat("HH:mm",Locale.ITALIAN);
+		final SimpleDateFormat days = new SimpleDateFormat("EEEE dd MMM YYYY",Locale.ENGLISH);
 		
 			ParseCloud.callFunctionInBackground("getNewWeeklySchedule", null, new FunctionCallback<JSONArray>(){
 
@@ -365,31 +265,18 @@ public class LecturesView extends VerticalLayout{
 							 long endHour = row.getLong("endtime");
 							 String className = row.getString("classroom_name");
 							 String profName = row.getString("prof_name");
-							// String profName = "stoca";
 							 String summary = row.getString("summary");
 							 long lecStart=baseDate+(startHour*60);
 							 long lecEnd=baseDate+(endHour*60);
 							 
-							 System.out.println(lecStart+" "+lecEnd);
-							 
-							 cal.setTimeInMillis(baseDate);
-							 String dayName=cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.ENGLISH);
-							// cal.setTimeInMillis(lecStart);
-							// Date startDate = cal.getTime();
 							 Date startDate = new Date(Long.parseLong(String.valueOf(lecStart))*1000);
-							 System.out.println(startDate);
-							 //cal.setTimeInMillis(lecEnd);
-							 //Date endDate = cal.getTime();
 							 Date endDate = new Date(Long.parseLong(String.valueOf(lecEnd))*1000);
-							 
 							 
 							 Lecture toAdd = new Lecture();
 							 toAdd.setClassroom(className);
-							 toAdd.setDayOfTheWeek(dayName);
-							 //toAdd.setFrom(hours.format(startDate).toString());
-							 //toAdd.setTo(hours.format(endDate).toString());
-							 toAdd.setFrom(startDate.toString());
-							 toAdd.setTo(endDate.toString());
+							 toAdd.setDayOfTheWeek(days.format(startDate));
+							 toAdd.setFrom(hours.format(startDate));
+							 toAdd.setTo(hours.format(endDate));
 							 toAdd.setProf(profName);
 							 toAdd.setTitle(summary);
 							 toAdd.setTopics("---");
@@ -409,7 +296,6 @@ public class LecturesView extends VerticalLayout{
 								prevLabel.setVisible(true);
 								prevLabel.addStyleName("animated");
 								prevLabel.addStyleName("tada");
-								//prevLabel.addStyleName("delay08");
 								prevLabel.markAsDirty();
 								UI.getCurrent().push();
 							}}, 1000);
@@ -467,19 +353,13 @@ public class LecturesView extends VerticalLayout{
 					            UI.getCurrent().push();
 								
 							}}, 3500);
-
+						thisLayout.removeComponent(waitingLabel);
 						setPrevTable(pastList);
 						setNowTable(nowList);
 						setNextTable(nextList);
-						Iterator<Lecture> iter = nextList.iterator();
-						while(iter.hasNext())
-							{
-							System.out.println(iter.next().toString());
-							}
-						 System.out.println(result.length());
 						}else
 							{
-							System.err.println("PIG GOD "+parseException.getMessage());
+							System.err.println("FUUUUUUUU "+parseException.getMessage());
 							}
 					
 				}});
