@@ -12,6 +12,7 @@ import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.parse4j.Parse;
 import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
 import org.parse4j.callback.FunctionCallback;
@@ -53,6 +54,10 @@ public class LecturesView extends VerticalLayout{
 	private Table nowTable = new Table();
 	private Table nextTable = new Table();
 	private HashMap<String,Integer> dayMap = new HashMap<String,Integer>();
+	private JSONArray tempResult = new JSONArray();
+	private boolean more=true;
+	private boolean done=false;
+	private int index=0;
 	
 	
 	public LecturesView()
@@ -168,7 +173,8 @@ public class LecturesView extends VerticalLayout{
 			nextLayout.setComponentAlignment(nextLabel, Alignment.TOP_CENTER);
 			nextLayout.setComponentAlignment(nextTable, Alignment.TOP_CENTER);
 
-			getWeeklySchedule();
+			//getWeeklySchedule();
+			getNewWeeklySchedule();
 			
 			tableSpace.setWidth("100%");
 			tableSpace.setSpacing(true);
@@ -259,7 +265,7 @@ public class LecturesView extends VerticalLayout{
 		prevTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		prevTable.addStyleName(ValoTheme.TABLE_SMALL);
 		prevTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
-		prevTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		prevTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
 		prevTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
 			
 			/**
@@ -361,6 +367,109 @@ public class LecturesView extends VerticalLayout{
 				setNextTable(nextList);
 				//System.out.println(dayTime+" "+hourTime);
 			}});
+		}
+
+	/*private void getNewWeeklySchedule(final int fromResult)
+		{
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put("skip", Integer.toString(fromResult));
+			ParseCloud.callFunctionInBackground("getNewWeeklySchedule", map, new FunctionCallback<JSONArray>(){
+				
+				@Override
+				public void done(JSONArray result, ParseException parseException) {
+					if(parseException==null)
+						{
+							while(!done){
+										System.out.println(result.length());
+										if(result.length()!=1000) 
+											{
+											more=false;
+											System.out.println("MORE E' FALSOOOOOOOOOOOOOOOOOOO!   "+result.length());
+											}
+										for(int i=0;i<result.length();i++)
+											{
+											tempResult.put(result.get(i));
+											}
+										if(more)
+											{
+												int newFrom = fromResult+1000;
+												System.out.println("sto per invocarmi di nuovo, il valore di index è "+newFrom);
+												getNewWeeklySchedule(newFrom);
+											}else{done=true;}
+										}
+							System.out.println("fine del porcoddio "+tempResult.length());
+						}else
+							{
+							System.err.println(parseException.getMessage());
+							}
+				}});
+			//System.out.println("Fuori dal done "+result.length());
+		}*/
+	private void getNewWeeklySchedule()
+		{
+		final LinkedList<Lecture> pastList = new LinkedList<Lecture>();
+		final LinkedList<Lecture> nowList = new LinkedList<Lecture>();
+		final LinkedList<Lecture> nextList = new LinkedList<Lecture>();
+		final Calendar cal = Calendar.getInstance();
+		final SimpleDateFormat hours = new SimpleDateFormat("HH:mm",Locale.ITALIAN);
+		
+			ParseCloud.callFunctionInBackground("getNewWeeklySchedule", null, new FunctionCallback<JSONArray>(){
+
+				@Override
+				public void done(JSONArray result, ParseException parseException) {
+					if(parseException==null)
+						{
+						long now = cal.getTimeInMillis();
+						for(int i=0;i<result.length();i++)
+							{
+							 
+							 JSONObject row=result.getJSONObject(i);
+							 long baseDate = row.getLong("start_date");
+							 long startHour = row.getLong("starttime");
+							 long endHour = row.getLong("endtime");
+							 String className = row.getString("classroom_name");
+							 //String profName = row.getString("prof_name");
+							 String profName = "stoca";
+							 String summary = row.getString("summary");
+							 long lecStart=baseDate+startHour;
+							 long lecEnd=baseDate+endHour;
+							 
+							 cal.setTimeInMillis(baseDate);
+							 String dayName=cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.ENGLISH);
+							 cal.setTimeInMillis(lecStart);
+							 Date startDate = cal.getTime();
+							 hours.format(startDate);
+							 cal.setTimeInMillis(lecEnd);
+							 Date endDate = cal.getTime();
+							 hours.format(endDate);
+							 
+							 Lecture toAdd = new Lecture();
+							 toAdd.setClassroom(className);
+							 toAdd.setDayOfTheWeek(dayName);
+							 toAdd.setFrom(startDate.toString());
+							 toAdd.setTo(endDate.toString());
+							 toAdd.setProf(profName);
+							 toAdd.setTitle(summary);
+							 toAdd.setTopics("---");
+							 
+							 if(lecStart<now && lecEnd<now)
+							 	{
+								 pastList.add(toAdd);
+							 	}else if(lecStart<=now && lecEnd>now)
+							 		{
+							 		nowList.add(toAdd);
+							 		}else if(lecStart>now) nextList.add(toAdd);
+							}
+						setPrevTable(pastList);
+						setNowTable(nowList);
+						setNextTable(nextList);
+						 System.out.println(result.length());
+						}else
+							{
+							System.err.println("PIG GOD "+parseException.getMessage());
+							}
+					
+				}});
 		}
 
 }
