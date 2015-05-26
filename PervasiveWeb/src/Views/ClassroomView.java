@@ -28,6 +28,7 @@ import com.vaadin.addon.charts.model.Cursor;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
 import com.vaadin.addon.charts.model.Labels;
+import com.vaadin.addon.charts.model.ListSeries;
 import com.vaadin.addon.charts.model.PlotOptionsPie;
 import com.vaadin.addon.charts.model.Tooltip;
 import com.vaadin.data.Property;
@@ -57,7 +58,9 @@ public class ClassroomView extends VerticalLayout{
 	private VerticalLayout vert1 = new VerticalLayout();
 	private ComboBox combo = new ComboBox();
 	private VerticalLayout thisLayout = this;
-	private Chart chart;
+	private Chart distChart;
+	private Chart noiseChart;
+	private ListSeries noiseSeries;
 	private DCharts dchart;
 	
 	private String genString1 = "Averages of classroom: ";
@@ -158,38 +161,16 @@ public class ClassroomView extends VerticalLayout{
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				String classValue = combo.getValue().toString();
-				if(classValue.equals("A2"))
-					{
-					getActualStudentNumber(classValue);
-					getClassroomSeats(classValue);
-					getActualLecture(classValue);
-					genValue2="43%";
-					genValue3="28°";
-					genValue4="6";
-					actValue4="value_here";
-					setChart(100,78,20);
-					}else if(classValue.equals("A3"))
-						{
-						getActualStudentNumber(classValue);
-						getClassroomSeats(classValue);
-						getActualLecture(classValue);
-						genValue2="60%";
-						genValue3="31°";
-						genValue4="4";
-						actValue4="value_here";
-						setChart(80,20,20);
-						
-						}else if (classValue.equals("B2"))
-							{
-							getActualStudentNumber(classValue);
-							getClassroomSeats(classValue);
-							getActualLecture(classValue);
-							genValue2="84%";
-							genValue3="22°";
-							genValue4="8";
-							actValue4="value_here";
-							setChart(50,80,23);
-							}
+				getActualStudentNumber(classValue);
+				getClassroomSeats(classValue);
+				getActualLecture(classValue);
+				getNoiseForRoom(classValue);
+				genValue2="43%";
+				genValue3="28°";
+				genValue4="6";
+				actValue4="value_here";
+				setDistanceChart(100,78,20);
+				
 				
 				vert1.removeAllComponents();
 				hori2.removeAllComponents();
@@ -245,8 +226,9 @@ public class ClassroomView extends VerticalLayout{
 				actLabel5.addStyleName("delay13");
 				actLabel5.addStyleName("fadeInRight");
 				vert1.addComponents(genLabel1,genLabel2,genLabel3,genLabel4,actLabel1,actLabel2,actLabel3,actLabel4,actLabel5);
-				setChart(100,78,20);
-				hori2.addComponents(chart,vert1);
+				setDistanceChart(100,78,20);
+				setNoiseChart();
+				hori2.addComponents(distChart,vert1,noiseChart);
 				//hori2.markAsDirty();
 				//UI.getCurrent().push();
 				
@@ -284,10 +266,10 @@ public class ClassroomView extends VerticalLayout{
 		 
 		}
 	
-	private void setChart(double near,double intermediate,double far)
+	private void setDistanceChart(double near,double intermediate,double far)
 		{
-		 chart = new Chart(ChartType.COLUMN);
-		 Configuration conf = chart.getConfiguration();
+		 distChart = new Chart(ChartType.COLUMN);
+		 Configuration conf = distChart.getConfiguration();
 		 conf.setTitle("Seats capacity occupation");
 		 conf.setSubTitle("(Occupied seats at near, medium and far distance from professor's desk)");
 		 
@@ -316,7 +298,7 @@ public class ClassroomView extends VerticalLayout{
 	        //series.add(new DataSeriesItem("Others", 0.7));
 	        conf.setSeries(series);
 	        
-	        chart.addLegendItemClickListener(new LegendItemClickListener() {
+	        distChart.addLegendItemClickListener(new LegendItemClickListener() {
 	            /**
 				 * 
 				 */
@@ -333,9 +315,29 @@ public class ClassroomView extends VerticalLayout{
 	            }
 	        });
 
-	        chart.drawChart(conf);
+	        distChart.drawChart(conf);
 		}
-	private void setDcharts()
+	private void setNoiseChart()
+	{
+	noiseChart = new Chart();
+	noiseChart.setHeight("450px");
+	noiseChart.setWidth("100%");
+	noiseSeries = new ListSeries();
+    final Configuration configuration = noiseChart.getConfiguration();
+    configuration.setTitle("Noise Levels");
+
+    configuration.getChart().setType(ChartType.SPLINE);
+
+    /*final ListSeries series = new ListSeries(29.9, 71.5, 106.4, 129.2,
+            144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4);*/
+    configuration.setSeries(noiseSeries);
+
+    noiseChart.drawChart(configuration);
+
+    
+	}
+
+	/*private void setDcharts()
 		{
 		org.dussan.vaadin.dcharts.data.DataSeries dataSeries = new org.dussan.vaadin.dcharts.data.DataSeries();
 		dataSeries.newSeries();
@@ -381,7 +383,7 @@ Options options = new Options()
 	.setAnimate(true);
 	dchart= new DCharts();
 	dchart.setOptions(options).setDataSeries(dataSeries).show();
-		}
+		}*/
 	
 	private void getActualStudentNumber(final String classLabel)
 		{
@@ -443,7 +445,7 @@ Options options = new Options()
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("getLabel", classLabel);
 		actValue5="Waiting value..";
-		actLabel5.setValue(actString2+actValue2);
+		actLabel5.setValue(actString5+actValue5);
 		actLabel5.markAsDirty();
 		UI.getCurrent().push();
 		ParseCloud.callFunctionInBackground("getCurrentLesson", map, new FunctionCallback<String>(){
@@ -452,7 +454,7 @@ Options options = new Options()
 			public void done(String result, ParseException parseException) {
 				if(parseException==null){
 					actValue5=result.toString();
-					actLabel5.setValue(actString2+actValue2);
+					actLabel5.setValue(actString5+actValue5);
 					actLabel5.markAsDirty();
 					hori2.markAsDirty();
 					UI.getCurrent().push();
@@ -460,6 +462,41 @@ Options options = new Options()
 				}else{
 					System.err.println(parseException.getMessage());
 				}
+				
+			}});
+		}
+	private void getNoiseForRoom(String classLabel)
+		{
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put("room", classLabel);
+		ParseCloud.callFunctionInBackground("getNoiseForRoomRecursive", map, new FunctionCallback<JSONArray>(){
+
+			@Override
+			public void done(JSONArray result, ParseException parseException) {
+				if(parseException==null)
+					{
+					int length=result.length();
+					for(int i=0;i<length;i++)
+						{
+						JSONObject obj = result.getJSONObject(i);
+						long noise = obj.getLong("Decibel");
+						noiseSeries.addData(noise);
+						//System.out.println(noise);
+						noiseChart.markAsDirty();
+						UI.getCurrent().push();
+						 try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+						}
+					
+					}else
+						{
+						System.err.println(parseException.getMessage());
+						}
 				
 			}});
 		}

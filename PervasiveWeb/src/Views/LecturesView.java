@@ -268,6 +268,13 @@ public class LecturesView extends VerticalLayout{
 							 String summary = row.getString("summary");
 							 long lecStart=baseDate+(startHour*60);
 							 long lecEnd=baseDate+(endHour*60);
+							 if(java.util.Locale.getDefault().toString().equals("en_US"))
+							 	{
+								 lecStart=lecStart+21600;
+								 lecEnd=lecEnd+21600;
+								// now=now+21600000;
+							 	}
+							 
 							 
 							 Date startDate = new Date(Long.parseLong(String.valueOf(lecStart))*1000);
 							 Date endDate = new Date(Long.parseLong(String.valueOf(lecEnd))*1000);

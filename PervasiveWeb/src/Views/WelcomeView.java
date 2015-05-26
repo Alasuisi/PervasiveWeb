@@ -3,9 +3,12 @@ package Views;
 import java.io.File;
 import java.io.Serializable;
 
+import javax.swing.JApplet;
 
+import org.apache.tools.ant.taskdefs.Java;
 import org.vaadin.jouni.restrain.Restrain;
 
+import com.askvikrant.digitalclock.DigitalClock;
 import com.vaadin.client.ui.FontIcon;
 import com.vaadin.event.FieldEvents;
 import com.vaadin.event.FieldEvents.FocusEvent;
@@ -26,6 +29,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.ValoTheme;
@@ -103,7 +107,10 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		this.addComponent(mainLayout);
 		//topLayout.addComponent(topText);
 		midLayout.addComponent(midText);
-		bottomLayout.addComponent(bottomText);
+		DigitalClock clock = new DigitalClock();
+		clock.addStyleName("clockValo");
+		clock.setSizeUndefined();
+		bottomLayout.addComponents(bottomText,clock);
 		//bottomLayout.addComponent(bottomText2);
 		//bottomLayout.setComponentAlignment(bottomText2, Alignment.TOP_CENTER);
 		Restrain mainRestrain = new Restrain(mainLayout);
@@ -148,6 +155,7 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		//topLayout.setComponentAlignment(topText, Alignment.MIDDLE_CENTER);
 		midLayout.setComponentAlignment(midText, Alignment.MIDDLE_CENTER);
 		bottomLayout.setComponentAlignment(bottomText, Alignment.TOP_CENTER);
+		bottomLayout.setComponentAlignment(clock, Alignment.TOP_CENTER);
 		bottomLayout.setSpacing(true);
 		bottomLayout.setMargin(true);
 		initialized=true;
@@ -294,6 +302,7 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		lecturesLayout.addComponent(lectLabel);
 		professorLayout.addComponent(profLabel);
 		adminLayout.addComponent(adminLabel);
+		
 		menuLayout.addComponents(classLayout,lecturesLayout,professorLayout,adminLayout);
 		menuLayout.setSpacing(true);
 		topLayout.addComponent(titleLabel);

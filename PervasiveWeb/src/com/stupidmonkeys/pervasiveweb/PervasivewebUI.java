@@ -1,5 +1,7 @@
 package com.stupidmonkeys.pervasiveweb;
 
+import java.util.Locale;
+
 import javax.servlet.annotation.WebServlet;
 
 import org.parse4j.Parse;
@@ -39,6 +41,7 @@ public class PervasivewebUI extends UI {
 	@Override
 	protected void init(VaadinRequest request) {
 		Parse.initialize(parseAppId, parseRestKey);
+		//UI.getCurrent().setLocale(new Locale("it"));
 		navi = new Navigator(this,this);
 		navi.addView("", (Class<? extends View>) this.getClass());
 		navi.addView("Login", new LoginView(navi));

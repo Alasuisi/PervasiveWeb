@@ -15579,3 +15579,10 @@ div.v-layout.v-horizontal.v-widget {
 .pervasiveweb .centeredText {
 	text-align: center;
 }
+
+.pervasiveweb .clockcomponent .clockValo {
+	font-weight: inherit;
+	font-size: inherit;
+	background-color: white;
+	color: black;
+}

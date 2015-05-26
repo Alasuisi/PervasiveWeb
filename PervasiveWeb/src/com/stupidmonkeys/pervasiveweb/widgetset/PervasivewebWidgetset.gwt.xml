@@ -39,4 +39,6 @@
     
 
     
+
+    <inherits name="com.askvikrant.digitalclock.widgetset.DigitalclockWidgetset" />
 </module>
