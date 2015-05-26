@@ -105,6 +105,7 @@ public class ClassroomView extends VerticalLayout{
 		 subDesc.addStyleName("delay06");
 		 combo.setVisible(false);
 		 comboLabel.setVisible(false);
+		 comboLabel.setReadOnly(true);
 		 new java.util.Timer().schedule( 
 			        new java.util.TimerTask() {
 			            @Override
@@ -161,29 +162,32 @@ public class ClassroomView extends VerticalLayout{
 					{
 					getActualStudentNumber(classValue);
 					getClassroomSeats(classValue);
+					getActualLecture(classValue);
 					genValue2="43%";
 					genValue3="28°";
 					genValue4="6";
-					actValue4=actValue5="value_here";
+					actValue4="value_here";
 					setChart(100,78,20);
 					}else if(classValue.equals("A3"))
 						{
 						getActualStudentNumber(classValue);
 						getClassroomSeats(classValue);
+						getActualLecture(classValue);
 						genValue2="60%";
 						genValue3="31°";
 						genValue4="4";
-						actValue4=actValue5="value_here";
+						actValue4="value_here";
 						setChart(80,20,20);
 						
 						}else if (classValue.equals("B2"))
 							{
 							getActualStudentNumber(classValue);
 							getClassroomSeats(classValue);
+							getActualLecture(classValue);
 							genValue2="84%";
 							genValue3="22°";
 							genValue4="8";
-							actValue4=actValue5="value_here";
+							actValue4="value_here";
 							setChart(50,80,23);
 							}
 				
@@ -410,7 +414,7 @@ Options options = new Options()
 		{
 			actValue2="Waiting value..";
 			actLabel2.setValue(actString2+actValue2);
-			actLabel3.markAsDirty();
+			actLabel2.markAsDirty();
 			UI.getCurrent().push();
 			HashMap<String, String> map = new HashMap<String, String>();
 			map.put("getSeats", classLabel);
@@ -422,7 +426,7 @@ Options options = new Options()
 						{
 							actValue2=result.toString();
 							actLabel2.setValue(actString2+actValue2);
-							actLabel3.markAsDirty();
+							actLabel2.markAsDirty();
 							hori2.markAsDirty();
 							UI.getCurrent().push();
 							System.out.println("Dio bubu, number of seats= "+result.toString());
@@ -432,6 +436,32 @@ Options options = new Options()
 							}
 					
 				}});
+		}
+	
+	private void getActualLecture(String classLabel)
+		{
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put("getLabel", classLabel);
+		actValue5="Waiting value..";
+		actLabel5.setValue(actString2+actValue2);
+		actLabel5.markAsDirty();
+		UI.getCurrent().push();
+		ParseCloud.callFunctionInBackground("getCurrentLesson", map, new FunctionCallback<String>(){
+
+			@Override
+			public void done(String result, ParseException parseException) {
+				if(parseException==null){
+					actValue5=result.toString();
+					actLabel5.setValue(actString2+actValue2);
+					actLabel5.markAsDirty();
+					hori2.markAsDirty();
+					UI.getCurrent().push();
+					System.out.println("fucking lecture= "+result.toString());
+				}else{
+					System.err.println(parseException.getMessage());
+				}
+				
+			}});
 		}
 	private void populateComboBox()
 		{
