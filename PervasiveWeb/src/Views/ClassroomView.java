@@ -1,6 +1,11 @@
 package Views;
 
 import java.util.HashMap;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.dussan.vaadin.dcharts.DCharts;
 import org.dussan.vaadin.dcharts.base.elements.Trendline;
@@ -22,6 +27,7 @@ import org.parse4j.callback.FunctionCallback;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.LegendItemClickEvent;
 import com.vaadin.addon.charts.LegendItemClickListener;
+import com.vaadin.addon.charts.model.Background;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
 import com.vaadin.addon.charts.model.Cursor;
@@ -29,14 +35,22 @@ import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
 import com.vaadin.addon.charts.model.Labels;
 import com.vaadin.addon.charts.model.ListSeries;
+import com.vaadin.addon.charts.model.PlotBand;
+import com.vaadin.addon.charts.model.PlotOptionsGauge;
 import com.vaadin.addon.charts.model.PlotOptionsPie;
+import com.vaadin.addon.charts.model.TickPosition;
+import com.vaadin.addon.charts.model.Title;
 import com.vaadin.addon.charts.model.Tooltip;
+import com.vaadin.addon.charts.model.YAxis;
+import com.vaadin.addon.charts.model.style.GradientColor;
+import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -57,9 +71,9 @@ public class ClassroomView extends VerticalLayout{
 	private HorizontalLayout hori2 = new HorizontalLayout();
 	private VerticalLayout vert1 = new VerticalLayout();
 	private ComboBox combo = new ComboBox();
-	private VerticalLayout thisLayout = this;
 	private Chart distChart;
 	private Chart noiseChart;
+	private Chart noiseGauge;
 	private ListSeries noiseSeries;
 	private DCharts dchart;
 	
@@ -228,7 +242,8 @@ public class ClassroomView extends VerticalLayout{
 				vert1.addComponents(genLabel1,genLabel2,genLabel3,genLabel4,actLabel1,actLabel2,actLabel3,actLabel4,actLabel5);
 				setDistanceChart(100,78,20);
 				setNoiseChart();
-				hori2.addComponents(distChart,vert1,noiseChart);
+				setNoiseGauge();
+				hori2.addComponents(distChart,vert1,noiseChart,noiseGauge);
 				//hori2.markAsDirty();
 				//UI.getCurrent().push();
 				
@@ -336,6 +351,129 @@ public class ClassroomView extends VerticalLayout{
 
     
 	}
+	
+	private void setNoiseGauge() {
+        noiseGauge = new Chart();
+        noiseGauge.setWidth("500px");
+        noiseGauge.setHeight("450px");
+
+        final Configuration configuration = noiseGauge.getConfiguration();
+        configuration.getChart().setType(ChartType.GAUGE);
+        configuration.getChart().setPlotBackgroundColor(null);
+        configuration.getChart().setPlotBackgroundImage(null);
+        configuration.getChart().setPlotBorderWidth(0);
+        configuration.getChart().setPlotShadow(false);
+        configuration.setTitle("Actual Noise (Demo)");
+
+        GradientColor gradient1 = GradientColor.createLinear(0, 0, 0, 1);
+        gradient1.addColorStop(0, new SolidColor("#FFF"));
+        gradient1.addColorStop(1, new SolidColor("#333"));
+
+        GradientColor gradient2 = GradientColor.createLinear(0, 0, 0, 1);
+        gradient2.addColorStop(0, new SolidColor("#333"));
+        gradient2.addColorStop(1, new SolidColor("#FFF"));
+
+        Background[] background = new Background[3];
+        background[0] = new Background();
+        background[0].setBackgroundColor(gradient1);
+        background[0].setBorderWidth(0);
+        background[0].setOuterRadius("109%");
+
+        background[1] = new Background();
+        background[1].setBackgroundColor(gradient2);
+        background[1].setBorderWidth(1);
+        background[1].setOuterRadius("107%");
+
+        background[2] = new Background();
+        background[2].setBackgroundColor(new SolidColor("#DDD"));
+        background[2].setBorderWidth(0);
+        background[2].setInnerRadius("103%");
+        background[2].setOuterRadius("105%");
+
+        configuration.getPane().setStartAngle(-150);
+        configuration.getPane().setEndAngle(150);
+        configuration.getPane().setBackground(background);
+
+        YAxis yAxis = configuration.getyAxis();
+        yAxis.setTitle(new Title("dB"));
+        yAxis.setMin(0);
+        yAxis.setMax(150);
+        yAxis.setMinorTickInterval("auto");
+        yAxis.setMinorTickWidth(1);
+        yAxis.setMinorTickLength(10);
+        yAxis.setMinorTickPosition(TickPosition.INSIDE);
+        yAxis.setMinorTickColor(new SolidColor("#666"));
+        yAxis.setGridLineWidth(0);
+        yAxis.setTickPixelInterval(30);
+        yAxis.setTickWidth(2);
+        yAxis.setTickPosition(TickPosition.INSIDE);
+        yAxis.setTickLength(10);
+        yAxis.setTickColor(new SolidColor("#666"));
+
+        yAxis.getLabels().setStep(2);
+        yAxis.getLabels().setRotationPerpendicular();
+
+        PlotBand[] plotBands = new PlotBand[3];
+        plotBands[0] = new PlotBand(0, 50, new SolidColor("#55BF3B"));
+        plotBands[1] = new PlotBand(50, 100, new SolidColor("#DDDF0D"));
+        plotBands[2] = new PlotBand(100, 150, new SolidColor("#DF5353"));
+        yAxis.setPlotBands(plotBands);
+
+        final ListSeries series = new ListSeries("db level", 80);
+        PlotOptionsGauge plotOptions = new PlotOptionsGauge();
+        plotOptions.getTooltip().setValueSuffix(" dB");
+        series.setPlotOptions(plotOptions);
+        configuration.setSeries(series);
+        final Random r = new Random(0);
+        runWhileAttached(noiseGauge, new Runnable() {
+            Random r = new Random(0);
+
+            @Override
+            public void run() {
+                Integer oldValue = series.getData()[0].intValue();
+                Integer newValue = (int) (oldValue + (r.nextDouble() - 0.5) * 20.0);
+                series.updatePoint(0, newValue);
+            }
+        }, 1000, 1000);
+       
+
+        noiseGauge.drawChart(configuration);
+     
+    }
+	public static void runWhileAttached(final Component component,
+            final Runnable task, final int interval, final int initialPause) {
+        // Until reliable push available in our demo servers
+        UI.getCurrent().setPollInterval(interval);
+
+        final Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(initialPause);
+                    while (component.getUI() != null) {
+                        Future<Void> future = component.getUI().access(task);
+                        future.get();
+                        Thread.sleep(interval);
+                    }
+                } catch (InterruptedException e) {
+                } catch (ExecutionException e) {
+                    Logger.getLogger(this.getClass().getName())
+                            .log(Level.WARNING,
+                                    "Stopping repeating command due to an exception",
+                                    e);
+                } catch (com.vaadin.ui.UIDetachedException e) {
+                } catch (Exception e) {
+                    Logger.getLogger(this.getClass().getName())
+                            .log(Level.WARNING,
+                                    "Unexpected exception while running scheduled update",
+                                    e);
+                }
+                Logger.getLogger(this.getClass().getName()).log(Level.INFO,
+                        "Thread stopped");
+            };
+        };
+        thread.start();
+    }
 
 	/*private void setDcharts()
 		{
