@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Timer;
@@ -15,6 +16,7 @@ import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
 import org.parse4j.callback.FunctionCallback;
 
+import com.stupidmonkeys.pervasiveweb.PervasivewebUI;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ItemClickEvent;
@@ -51,7 +53,9 @@ public class LecturesView extends VerticalLayout{
 	private Table prevTable = new Table();
 	private Table nowTable = new Table();
 	private Table nextTable = new Table();
+	private PervasivewebUI thisUI;
 	private HashMap<String,Integer> dayMap = new HashMap<String,Integer>();
+
 	
 	
 	public LecturesView()
@@ -63,6 +67,7 @@ public class LecturesView extends VerticalLayout{
 			dayMap.put("Friday", 5);
 			dayMap.put("Saturday", 6);
 			dayMap.put("Sunday", 7);
+			thisUI=(PervasivewebUI) UI.getCurrent();
 			title.addStyleName(ValoTheme.LABEL_BOLD);
 			title.addStyleName(ValoTheme.LABEL_LARGE);
 			title.setSizeUndefined();
@@ -114,7 +119,7 @@ public class LecturesView extends VerticalLayout{
 			nextLayout.setComponentAlignment(nextTable, Alignment.TOP_CENTER);
 			nextLayout.setSpacing(true);
 
-			getNewWeeklySchedule();
+			//getNewWeeklySchedule();
 			
 			tableSpace.setWidth("100%");
 			tableSpace.setSpacing(true);
@@ -131,6 +136,7 @@ public class LecturesView extends VerticalLayout{
 			this.setComponentAlignment(title, Alignment.TOP_CENTER);
 			this.setComponentAlignment(waitingLabel, Alignment.MIDDLE_CENTER);
 			this.setComponentAlignment(tableSpace, Alignment.TOP_CENTER);
+			getNewWeeklySchedule2();
 		}
 
 	private void setNextTable(LinkedList<Lecture> next) {
@@ -239,7 +245,106 @@ public class LecturesView extends VerticalLayout{
 		});
 	}
 	
-	
+	private void getNewWeeklySchedule2()
+		{
+		Timer timer = new Timer();
+		TimerTask task = new TimerTask(){
+
+			@Override
+			public void run() {
+				if(thisUI.isLecListRetrieved())
+					{
+					LinkedList<Lecture>[] fullList = thisUI.getLecList();
+					
+					prevLabel.getUI().getSession().getLockInstance().lock();
+					new Timer().schedule(new TimerTask(){
+
+						@Override
+						public void run() {
+							prevLabel.setVisible(true);
+							prevLabel.addStyleName("animated");
+							prevLabel.addStyleName("tada");
+							prevLabel.markAsDirty();
+							UI.getCurrent().push();
+						}}, 1000);
+					prevLabel.getUI().getSession().getLockInstance().unlock();
+					prevTable.getUI().getSession().getLockInstance().lock();
+					new Timer().schedule(new TimerTask(){
+
+						@Override
+						public void run() {
+							prevTable.setVisible(true);
+							prevTable.addStyleName("animated");
+				            prevTable.addStyleName("zoomInUp");
+				            prevTable.markAsDirty();
+				            UI.getCurrent().push();
+						}}, 1500);
+					prevTable.getUI().getSession().getLockInstance().unlock();
+					nowLabel.getUI().getSession().getLockInstance().lock();
+					new Timer().schedule(new TimerTask(){
+
+						@Override
+						public void run() {
+							nowLabel.setVisible(true);
+							nowLabel.addStyleName("animated");
+							nowLabel.addStyleName("tada");
+							nowLabel.markAsDirty();
+							UI.getCurrent().push();
+							
+						}}, 2000);
+					nowLabel.getUI().getSession().getLockInstance().unlock();
+					nowTable.getUI().getSession().getLockInstance().lock();
+					new Timer().schedule(new TimerTask(){
+
+						@Override
+						public void run() {
+							nowTable.setVisible(true);
+							nowTable.addStyleName("animated");
+							nowTable.addStyleName("zoomInUp");
+							nowTable.markAsDirty();
+				            UI.getCurrent().push();
+							
+						}}, 2500);
+					nowTable.getUI().getSession().getLockInstance().unlock();
+					nextLabel.getUI().getSession().getLockInstance().lock();
+					new Timer().schedule(new TimerTask(){
+
+						@Override
+						public void run() {
+							nextLabel.setVisible(true);
+							nextLabel.addStyleName("animated");
+							nextLabel.addStyleName("tada");
+							nextLabel.markAsDirty();
+							UI.getCurrent().push();
+							
+						}}, 3000);
+					nextLabel.getUI().getSession().getLockInstance().unlock();
+					nextTable.getUI().getSession().getLockInstance().lock();
+					new Timer().schedule(new TimerTask(){
+
+						@Override
+						public void run() {
+							nextTable.setVisible(true);
+							nextTable.addStyleName("animated");
+							nextTable.addStyleName("zoomInUp");
+							nextTable.markAsDirty();
+				            UI.getCurrent().push();
+							
+						}}, 3500);
+					nextTable.getUI().getSession().getLockInstance().unlock();
+					thisLayout.removeComponent(waitingLabel);
+					setPrevTable(fullList[0]);
+					setNowTable(fullList[1]);
+					setNextTable(fullList[2]);
+						
+					}else
+						{
+						System.out.println("List wasn't there or is being updated, rescheduling getNewWeeklySchedule");
+						}
+				
+			}};
+			timer.scheduleAtFixedRate(task, 0, 500);
+		}
 	private void getNewWeeklySchedule()
 		{
 		final LinkedList<Lecture> pastList = new LinkedList<Lecture>();

@@ -1,7 +1,11 @@
 package com.stupidmonkeys.pervasiveweb;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Calendar;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -36,9 +40,11 @@ public class PervasivewebUI extends UI {
 	private String parseAppId;
 	private String parseRestKey;
 	
-	private LinkedList<Lecture> totalList;
+	private LinkedList<Lecture>[] totalList;
 	private boolean lecListRetrieved;
 	private long lecListRetrievedTime;
+	
+	int retry =0;
 
 	@WebServlet(value = "/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = PervasivewebUI.class)
@@ -50,6 +56,7 @@ public class PervasivewebUI extends UI {
 		//UI.getCurrent().setLocale(new Locale("it"));
 		lecListRetrievedTime=0;
 		lecListRetrieved=false;
+		totalList=new LinkedList[3];
 		parseAppId = "gjDmHU8kCWGxlmcJP97iCfDWXrH5zxtBZRC8kDMM";
 		parseRestKey = "MKEJ4APJFnq7srnzpjPFvRW3vdkP3g1IOwbO53Yl";
 		
@@ -61,14 +68,49 @@ public class PervasivewebUI extends UI {
 		navi.addView("Welcome", new WelcomeView(navi));
 		navi.navigateTo("Login");
 		
+		ParseServices.getInstance().retrieveLectureList();
+		ParseServices.getInstance().periodicallyRetrieveLectureList(1800000);
+		
+		/*Timer timer = new Timer();
+		TimerTask task = new TimerTask(){
+
+			@Override
+			public void run() {
+				System.out.println("info about list:  "+ totalList.size()+"  "+isLecListRetrieved()+" "+getLectListRetrievedTime());
+				
+			}};
+			
+		timer.scheduleAtFixedRate(task, 0, 250);*/
+		
+		
 	}
-	public void switchLecListRetrieved()
+	public void setLecListRetrievedFalse()
 		{
-			lecListRetrieved=!lecListRetrieved;
+			lecListRetrieved=false;
+		}
+	public void setLecListRetrievedTrue()
+	{
+		lecListRetrieved=true;
+	}
+	public boolean isLecListRetrieved()
+		{
+		return lecListRetrieved;
 		}
 	public void setLecListRetrievedTime()
 		{
-		
+		lecListRetrievedTime=Calendar.getInstance().getTimeInMillis();
+		}
+	public long getLectListRetrievedTime()
+		{
+		return lecListRetrievedTime;
+		}
+	public void setLecList(LinkedList<Lecture>[] toSet)
+		{
+		totalList=toSet;
+		}
+	public LinkedList<Lecture>[] getLecList()
+		{
+		return totalList;
 		}
 
 }
