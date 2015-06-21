@@ -71,16 +71,6 @@ public class PervasivewebUI extends UI {
 		ParseServices.getInstance().retrieveLectureList();
 		ParseServices.getInstance().periodicallyRetrieveLectureList(1800000);
 		
-		/*Timer timer = new Timer();
-		TimerTask task = new TimerTask(){
-
-			@Override
-			public void run() {
-				System.out.println("info about list:  "+ totalList.size()+"  "+isLecListRetrieved()+" "+getLectListRetrievedTime());
-				
-			}};
-			
-		timer.scheduleAtFixedRate(task, 0, 250);*/
 		
 		
 	}

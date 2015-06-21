@@ -40,6 +40,7 @@ public class ParseServices {
 	 */
 	public  void retrieveLectureList()
 		{
+		System.out.println("called retrieveLectureList");
 		final LinkedList<Lecture> pastList = new LinkedList<Lecture>();
 		final LinkedList<Lecture> nowList = new LinkedList<Lecture>();
 		final LinkedList<Lecture> nextList = new LinkedList<Lecture>();
@@ -94,7 +95,10 @@ public class ParseServices {
 								total[2]=nextList;
 
 								}
-							}
+							}else
+								{
+								System.out.println(parseException.getMessage());
+								}
 						PervasivewebUI thisUI = (PervasivewebUI) UI.getCurrent();
 						thisUI.setLecList(total);
 						thisUI.setLecListRetrievedTrue();

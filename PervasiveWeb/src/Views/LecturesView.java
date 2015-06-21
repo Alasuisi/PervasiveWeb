@@ -119,7 +119,6 @@ public class LecturesView extends VerticalLayout{
 			nextLayout.setComponentAlignment(nextTable, Alignment.TOP_CENTER);
 			nextLayout.setSpacing(true);
 
-			//getNewWeeklySchedule();
 			
 			tableSpace.setWidth("100%");
 			tableSpace.setSpacing(true);
@@ -136,7 +135,7 @@ public class LecturesView extends VerticalLayout{
 			this.setComponentAlignment(title, Alignment.TOP_CENTER);
 			this.setComponentAlignment(waitingLabel, Alignment.MIDDLE_CENTER);
 			this.setComponentAlignment(tableSpace, Alignment.TOP_CENTER);
-			getNewWeeklySchedule2();
+			getNewWeeklySchedule();
 		}
 
 	private void setNextTable(LinkedList<Lecture> next) {
@@ -245,236 +244,133 @@ public class LecturesView extends VerticalLayout{
 		});
 	}
 	
-	private void getNewWeeklySchedule2()
+	private void getNewWeeklySchedule()
 		{
-		Timer timer = new Timer();
+		System.out.println("called LEcturesView.getNewWeeklySchedule");
+		final Timer timer = new Timer();
 		TimerTask task = new TimerTask(){
 
 			@Override
 			public void run() {
 				if(thisUI.isLecListRetrieved())
 					{
-					LinkedList<Lecture>[] fullList = thisUI.getLecList();
 					
-					prevLabel.getUI().getSession().getLockInstance().lock();
+					final LinkedList<Lecture>[] fullList = thisUI.getLecList();
+					thisUI.access(new Runnable(){
+
+						@Override
+						public void run() {
+							thisLayout.removeComponent(waitingLabel);
+							setPrevTable(fullList[0]);
+							setNowTable(fullList[1]);
+							setNextTable(fullList[2]);
+							thisUI.push();
+						}});
 					new Timer().schedule(new TimerTask(){
 
 						@Override
 						public void run() {
-							prevLabel.setVisible(true);
-							prevLabel.addStyleName("animated");
-							prevLabel.addStyleName("tada");
-							prevLabel.markAsDirty();
-							UI.getCurrent().push();
+							thisUI.access(new Runnable(){
+
+								@Override
+								public void run() {
+									prevLabel.setVisible(true);
+									prevLabel.addStyleName("animated");
+									prevLabel.addStyleName("tada");
+									thisUI.push();
+								}});
 						}}, 1000);
-					prevLabel.getUI().getSession().getLockInstance().unlock();
-					prevTable.getUI().getSession().getLockInstance().lock();
 					new Timer().schedule(new TimerTask(){
 
 						@Override
 						public void run() {
-							prevTable.setVisible(true);
-							prevTable.addStyleName("animated");
-				            prevTable.addStyleName("zoomInUp");
-				            prevTable.markAsDirty();
-				            UI.getCurrent().push();
+							thisUI.access(new Runnable(){
+
+								@Override
+								public void run() {
+									prevTable.setVisible(true);
+									prevTable.addStyleName("animated");
+						            prevTable.addStyleName("zoomInUp");
+									thisUI.push();
+								}});
 						}}, 1500);
-					prevTable.getUI().getSession().getLockInstance().unlock();
-					nowLabel.getUI().getSession().getLockInstance().lock();
+					
 					new Timer().schedule(new TimerTask(){
 
 						@Override
 						public void run() {
-							nowLabel.setVisible(true);
-							nowLabel.addStyleName("animated");
-							nowLabel.addStyleName("tada");
-							nowLabel.markAsDirty();
-							UI.getCurrent().push();
+							thisUI.access(new Runnable(){
+
+								@Override
+								public void run() {
+									nowLabel.setVisible(true);
+									nowLabel.addStyleName("animated");
+									nowLabel.addStyleName("tada");
+									//nowLabel.markAsDirty();
+									UI.getCurrent().push();
+								}});
+							
 							
 						}}, 2000);
-					nowLabel.getUI().getSession().getLockInstance().unlock();
-					nowTable.getUI().getSession().getLockInstance().lock();
 					new Timer().schedule(new TimerTask(){
 
 						@Override
 						public void run() {
-							nowTable.setVisible(true);
-							nowTable.addStyleName("animated");
-							nowTable.addStyleName("zoomInUp");
-							nowTable.markAsDirty();
-				            UI.getCurrent().push();
+							thisUI.access(new Runnable(){
+
+								@Override
+								public void run() {
+									nowTable.setVisible(true);
+									nowTable.addStyleName("animated");
+									nowTable.addStyleName("zoomInUp");
+									//nowTable.markAsDirty();
+						            UI.getCurrent().push();
+									
+								}});
 							
 						}}, 2500);
-					nowTable.getUI().getSession().getLockInstance().unlock();
-					nextLabel.getUI().getSession().getLockInstance().lock();
 					new Timer().schedule(new TimerTask(){
 
 						@Override
 						public void run() {
-							nextLabel.setVisible(true);
-							nextLabel.addStyleName("animated");
-							nextLabel.addStyleName("tada");
-							nextLabel.markAsDirty();
-							UI.getCurrent().push();
+							thisUI.access(new Runnable(){
+
+								@Override
+								public void run() {
+									nextLabel.setVisible(true);
+									nextLabel.addStyleName("animated");
+									nextLabel.addStyleName("tada");
+									//nextLabel.markAsDirty();
+									UI.getCurrent().push();
+								}});
 							
 						}}, 3000);
-					nextLabel.getUI().getSession().getLockInstance().unlock();
-					nextTable.getUI().getSession().getLockInstance().lock();
+
 					new Timer().schedule(new TimerTask(){
 
 						@Override
 						public void run() {
-							nextTable.setVisible(true);
-							nextTable.addStyleName("animated");
-							nextTable.addStyleName("zoomInUp");
-							nextTable.markAsDirty();
-				            UI.getCurrent().push();
+							thisUI.access(new Runnable(){
+
+								@Override
+								public void run() {
+									nextTable.setVisible(true);
+									nextTable.addStyleName("animated");
+									nextTable.addStyleName("zoomInUp");
+									//nextTable.markAsDirty();
+						            UI.getCurrent().push();
+								}});
 							
 						}}, 3500);
-					nextTable.getUI().getSession().getLockInstance().unlock();
-					thisLayout.removeComponent(waitingLabel);
-					setPrevTable(fullList[0]);
-					setNowTable(fullList[1]);
-					setNextTable(fullList[2]);
-						
+					timer.cancel();
 					}else
 						{
 						System.out.println("List wasn't there or is being updated, rescheduling getNewWeeklySchedule");
 						}
 				
 			}};
-			timer.scheduleAtFixedRate(task, 0, 500);
-		}
-	private void getNewWeeklySchedule()
-		{
-		final LinkedList<Lecture> pastList = new LinkedList<Lecture>();
-		final LinkedList<Lecture> nowList = new LinkedList<Lecture>();
-		final LinkedList<Lecture> nextList = new LinkedList<Lecture>();
-		final Calendar cal = Calendar.getInstance();
-		final SimpleDateFormat hours = new SimpleDateFormat("HH:mm",Locale.ITALIAN);
-		final SimpleDateFormat days = new SimpleDateFormat("EEEE dd MMM YYYY",Locale.ENGLISH);
-		
-			ParseCloud.callFunctionInBackground("getNewWeeklySchedule", null, new FunctionCallback<JSONArray>(){
-
-				@Override
-				public void done(JSONArray result, ParseException parseException) {
-					if(parseException==null)
-						{
-						long now = cal.getTimeInMillis();
-						for(int i=0;i<result.length();i++)
-							{
-							 
-							 JSONObject row=result.getJSONObject(i);
-							 long baseDate = row.getLong("start_date");
-							 long startHour = row.getLong("starttime");
-							 long endHour = row.getLong("endtime");
-							 String className = row.getString("classroom_name");
-							 String profName = row.getString("prof_name");
-							 String summary = row.getString("summary");
-							 long lecStart=baseDate+(startHour*60);
-							 long lecEnd=baseDate+(endHour*60);
-							 if(java.util.Locale.getDefault().toString().equals("en_US"))
-							 	{
-								 lecStart=lecStart+21600;
-								 lecEnd=lecEnd+21600;
-								// now=now+21600000;
-							 	}
-							 
-							 
-							 Date startDate = new Date(Long.parseLong(String.valueOf(lecStart))*1000);
-							 Date endDate = new Date(Long.parseLong(String.valueOf(lecEnd))*1000);
-							 
-							 Lecture toAdd = new Lecture();
-							 toAdd.setClassroom(className);
-							 toAdd.setDayOfTheWeek(days.format(startDate));
-							 toAdd.setFrom(hours.format(startDate));
-							 toAdd.setTo(hours.format(endDate));
-							 toAdd.setProf(profName);
-							 toAdd.setTitle(summary);
-							 toAdd.setTopics("---");
-							 
-							 if((lecStart*1000)<now && (lecEnd*1000)<now)
-							 	{
-								 pastList.add(toAdd);
-							 	}else if((lecStart*1000)<=now && (lecEnd*1000)>now)
-							 		{
-							 		nowList.add(toAdd);
-							 		}else if((lecStart*1000)>now) nextList.add(toAdd);
-							}
-						new Timer().schedule(new TimerTask(){
-
-							@Override
-							public void run() {
-								prevLabel.setVisible(true);
-								prevLabel.addStyleName("animated");
-								prevLabel.addStyleName("tada");
-								prevLabel.markAsDirty();
-								UI.getCurrent().push();
-							}}, 1000);
-						new Timer().schedule(new TimerTask(){
-
-							@Override
-							public void run() {
-								prevTable.setVisible(true);
-								prevTable.addStyleName("animated");
-					            prevTable.addStyleName("zoomInUp");
-					            prevTable.markAsDirty();
-					            UI.getCurrent().push();
-							}}, 1500);
-						new Timer().schedule(new TimerTask(){
-
-							@Override
-							public void run() {
-								nowLabel.setVisible(true);
-								nowLabel.addStyleName("animated");
-								nowLabel.addStyleName("tada");
-								nowLabel.markAsDirty();
-								UI.getCurrent().push();
-								
-							}}, 2000);
-						new Timer().schedule(new TimerTask(){
-
-							@Override
-							public void run() {
-								nowTable.setVisible(true);
-								nowTable.addStyleName("animated");
-								nowTable.addStyleName("zoomInUp");
-								nowTable.markAsDirty();
-					            UI.getCurrent().push();
-								
-							}}, 2500);
-						new Timer().schedule(new TimerTask(){
-
-							@Override
-							public void run() {
-								nextLabel.setVisible(true);
-								nextLabel.addStyleName("animated");
-								nextLabel.addStyleName("tada");
-								nextLabel.markAsDirty();
-								UI.getCurrent().push();
-								
-							}}, 3000);
-						new Timer().schedule(new TimerTask(){
-
-							@Override
-							public void run() {
-								nextTable.setVisible(true);
-								nextTable.addStyleName("animated");
-								nextTable.addStyleName("zoomInUp");
-								nextTable.markAsDirty();
-					            UI.getCurrent().push();
-								
-							}}, 3500);
-						thisLayout.removeComponent(waitingLabel);
-						setPrevTable(pastList);
-						setNowTable(nowList);
-						setNextTable(nextList);
-						}else
-							{
-							System.err.println("FUUUUUUUU "+parseException.getMessage());
-							}
-					
-				}});
+			timer.scheduleAtFixedRate(task, 0, 1500);
+			
 		}
 
 }
