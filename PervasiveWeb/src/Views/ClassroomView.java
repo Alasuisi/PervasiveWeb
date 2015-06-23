@@ -1,7 +1,11 @@
 package Views;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -24,6 +28,7 @@ import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
 import org.parse4j.callback.FunctionCallback;
 
+import com.stupidmonkeys.pervasiveweb.PervasivewebUI;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.LegendItemClickEvent;
 import com.vaadin.addon.charts.LegendItemClickListener;
@@ -46,6 +51,7 @@ import com.vaadin.addon.charts.model.style.GradientColor;
 import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -75,8 +81,6 @@ public class ClassroomView extends VerticalLayout{
 	private Chart noiseChart;
 	private Chart noiseGauge;
 	private ListSeries noiseSeries;
-	private DCharts dchart;
-	
 	private String genString1 = "Averages of classroom: ";
 	private String genString2 = "Mean percentage of room occupation: ";
 	private String genString3 = "Mean temperature of room: ";
@@ -103,8 +107,12 @@ public class ClassroomView extends VerticalLayout{
 	private Label actLabel3 = new Label();
 	private Label actLabel4 = new Label();
 	private Label actLabel5 = new Label();
+	
+	private PervasivewebUI thisUI;
+	
 	public ClassroomView()
 		{
+		 thisUI=(PervasivewebUI) UI.getCurrent();
 		 desc.addStyleName(ValoTheme.LABEL_BOLD);
 		 desc.addStyleName(ValoTheme.LABEL_LARGE);
 		 desc.setSizeUndefined();
@@ -123,8 +131,29 @@ public class ClassroomView extends VerticalLayout{
 		 combo.setVisible(false);
 		 comboLabel.setVisible(false);
 		 comboLabel.setReadOnly(true);
-		 new java.util.Timer().schedule( 
-			        new java.util.TimerTask() {
+		 thisUI.access(new Runnable(){
+
+			@Override
+			public void run() {
+				new Timer().schedule(new TimerTask(){
+
+					@Override
+					public void run() {
+						comboLabel.setVisible(true);
+			            combo.setVisible(true);
+			            comboLabel.addStyleName("animated");
+			       		comboLabel.addStyleName("rubberBand");
+			       		comboLabel.addStyleName("delay07");
+			       		combo.addStyleName("animated");
+			       		combo.addStyleName("rubberBand");
+			       		combo.addStyleName("delay07");
+			       		thisUI.push();
+					}}, 1000);
+				
+			}});
+		 
+		/* new Timer().schedule( 
+			        new TimerTask() {
 			            @Override
 			            public void run() {
 			            comboLabel.setVisible(true);
@@ -141,7 +170,7 @@ public class ClassroomView extends VerticalLayout{
 			            }
 			        }, 
 			        1000 
-			);
+			);*/
 		 
 		
 		 this.setWidth("100%");
@@ -174,7 +203,7 @@ public class ClassroomView extends VerticalLayout{
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				String classValue = combo.getValue().toString();
+				final String classValue = combo.getValue().toString();
 				getActualStudentNumber(classValue);
 				getClassroomSeats(classValue);
 				getActualLecture(classValue);
@@ -182,7 +211,7 @@ public class ClassroomView extends VerticalLayout{
 				genValue2="43%";
 				genValue3="28°";
 				genValue4="6";
-				actValue4="value_here";
+				actValue4="value_here (4)";
 				setDistanceChart(100,78,20);
 				
 				
@@ -244,28 +273,11 @@ public class ClassroomView extends VerticalLayout{
 				setNoiseChart();
 				setNoiseGauge();
 				hori2.addComponents(distChart,vert1,noiseChart,noiseGauge);
-				//hori2.markAsDirty();
-				//UI.getCurrent().push();
 				
 				
 			}
 		});
-		 this.setComponentAlignment(hori1, Alignment.TOP_CENTER);
-		 
-		/* Button test = new Button("test");
-		 test.addClickListener(new Button.ClickListener() {
-			
-			
-			private static final long serialVersionUID = -3617252521939255485L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				thisLayout.addComponent(new Label("TESTESTESTESTESTESTESTESTE"));
-				
-			}
-		});
-		 this.addComponent(test);*/
-		 
+		 this.setComponentAlignment(hori1, Alignment.TOP_CENTER); 
 		 this.addComponent(hori2);
 		 this.setComponentAlignment(hori1, Alignment.TOP_CENTER);
 		 this.setComponentAlignment(hori2, Alignment.TOP_CENTER);
@@ -475,76 +487,41 @@ public class ClassroomView extends VerticalLayout{
         thread.start();
     }
 
-	/*private void setDcharts()
-		{
-		org.dussan.vaadin.dcharts.data.DataSeries dataSeries = new org.dussan.vaadin.dcharts.data.DataSeries();
-		dataSeries.newSeries();
-		dataSeries.add("2","boh");
-		dataSeries.add("3","mmmah");
-		dataSeries.add("33","Coddio");
-		
-		Highlighter highlighter = new Highlighter();
-		
-		SeriesDefaults seriesDefaults = new SeriesDefaults()
-		.setTrendline(
-			new Trendline()
-				.setShow(true));
-
-	Axes axes = new Axes()
-		.addAxis(
-			new XYaxis()
-				.setRenderer(AxisRenderers.DATE)
-				.setTickOptions(
-					new AxisTickRenderer()
-						.setFormatString("%#d/%#m/%y")));
-						//.setNumberTicks(8))   ///cambiato qui
-		axes.addAxis(
-			new XYaxis(XYaxes.Y)
-				.setTickOptions(
-					new AxisTickRenderer()
-						.setFormatString("%d €")));
-
 	
-	highlighter.setShow(true);
-	highlighter.setSizeAdjust(10);
-	highlighter.setTooltipLocation(TooltipLocations.NORTH);
-	highlighter.setUseAxesFormatters(true);
-	highlighter.setShowTooltip(true);
-	highlighter.setTooltipAlwaysVisible(true);
-	
-	
-
-Options options = new Options()
-	.addOption(seriesDefaults)
-	.addOption(axes)
-	.addOption(highlighter)
-	.setAnimate(true);
-	dchart= new DCharts();
-	dchart.setOptions(options).setDataSeries(dataSeries).show();
-		}*/
 	
 	private void getActualStudentNumber(final String classLabel)
 		{
-		actValue3="Waiting value..";
-		actLabel3.setValue(actString3+actValue3);
-		actLabel3.markAsDirty();
-		UI.getCurrent().push();
+		thisUI.access(new Runnable(){
+
+			@Override
+			public void run() {
+				actValue3="Waiting value..";
+				actLabel3.setValue(actString3+actValue3);
+				thisUI.push();
+				
+			}});
+
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("getClassroom", classLabel);
 		ParseCloud.callFunctionInBackground("getStudentsNumber", map, new FunctionCallback<Integer>() {
 			
 			@Override
-			public void done(Integer result, ParseException parseException) {
+			public void done(final Integer result, ParseException parseException) {
 				if (parseException == null) {
-					actValue3=result.toString();
-					actLabel3.setValue(actString3+actValue3);
-					System.out.println("Number of students from classroom: " + classLabel);
-					System.out.println("Number of students from utils: " + result);
-					actLabel3.markAsDirty();
-					hori2.markAsDirty();
-					UI.getCurrent().push();
+					thisUI.access(new Runnable(){
+
+						@Override
+						public void run() {
+							actValue3=result.toString();
+							actLabel3.setValue(actString3+actValue3);
+							System.out.println("Number of students from classroom: " + classLabel);
+							System.out.println("Number of students from utils: " + result);
+							thisUI.push();
+							
+						}});
+
 				} else {
-					System.err.println("dioboia"+parseException.getMessage());
+					System.err.println("Error in ClassroomView.getActualStudentNumber() "+parseException.getMessage());
 				}
 			}
 		});
@@ -552,27 +529,37 @@ Options options = new Options()
 	
 	private void getClassroomSeats(final String classLabel)
 		{
-			actValue2="Waiting value..";
-			actLabel2.setValue(actString2+actValue2);
-			actLabel2.markAsDirty();
-			UI.getCurrent().push();
+		thisUI.access(new Runnable(){
+
+			@Override
+			public void run() {
+				actValue2="Waiting value..";
+				actLabel2.setValue(actString2+actValue2);
+				thisUI.push();
+				
+			}});
+			
 			HashMap<String, String> map = new HashMap<String, String>();
 			map.put("getSeats", classLabel);
 			ParseCloud.callFunctionInBackground("getSeatsNumber", map, new FunctionCallback<Integer>(){
 
 				@Override
-				public void done(Integer result, ParseException parseException) {
+				public void done(final Integer result, ParseException parseException) {
 					if(parseException == null)
 						{
-							actValue2=result.toString();
-							actLabel2.setValue(actString2+actValue2);
-							actLabel2.markAsDirty();
-							hori2.markAsDirty();
-							UI.getCurrent().push();
+						thisUI.access(new Runnable(){
+
+							@Override
+							public void run() {
+								actValue2=result.toString();
+								actLabel2.setValue(actString2+actValue2);
+								thisUI.push();
+								
+							}});
 							System.out.println("Dio bubu, number of seats= "+result.toString());
 						}else
 							{
-							System.err.println(parseException.getMessage());
+							System.err.println("Error in ClassroomView.getClassroomSeats "+parseException.getMessage());
 							}
 					
 				}});
@@ -582,20 +569,29 @@ Options options = new Options()
 		{
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("getLabel", classLabel);
-		actValue5="Waiting value..";
-		actLabel5.setValue(actString5+actValue5);
-		actLabel5.markAsDirty();
-		UI.getCurrent().push();
+		thisUI.access(new Runnable(){
+
+			@Override
+			public void run() {
+				actValue5="Waiting value..";
+				actLabel5.setValue(actString5+actValue5);
+				thisUI.push();
+				
+			}});
 		ParseCloud.callFunctionInBackground("getCurrentLesson", map, new FunctionCallback<String>(){
 
 			@Override
-			public void done(String result, ParseException parseException) {
+			public void done(final String result, ParseException parseException) {
 				if(parseException==null){
-					actValue5=result.toString();
-					actLabel5.setValue(actString5+actValue5);
-					actLabel5.markAsDirty();
-					hori2.markAsDirty();
-					UI.getCurrent().push();
+					thisUI.access(new Runnable(){
+
+						@Override
+						public void run() {
+							actValue5=result.toString();
+							actLabel5.setValue(actString5+actValue5);
+							thisUI.push();
+							
+						}});
 					System.out.println("fucking lecture= "+result.toString());
 				}else{
 					System.err.println(parseException.getMessage());
@@ -603,33 +599,74 @@ Options options = new Options()
 				
 			}});
 		}
-	private void getNoiseForRoom(String classLabel)
+	
+	
+	private void getNoiseForRoom(final String classLabel)
+		{
+		final Timer timer = new Timer();
+		TimerTask task = new TimerTask(){
+
+			@Override
+			public void run() {
+				final LinkedList<Long> noiseList = thisUI.getNoiseForRoom(classLabel);
+				if(noiseList!=null)
+					{
+					thisUI.access(new Runnable(){
+
+						@Override
+						public void run() {
+							Iterator<Long> iter =noiseList.iterator();
+							while(iter.hasNext())
+								{
+								long point=iter.next().longValue();
+								noiseSeries.addData(point);
+								thisUI.push();
+								try {
+									Thread.sleep(500);
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								}
+							
+						}});
+					
+					timer.cancel();
+					}
+			}};
+			timer.scheduleAtFixedRate(task, 0, 500);
+		}
+	/*private void getNoiseForRoom(String classLabel)
 		{
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("room", classLabel);
 		ParseCloud.callFunctionInBackground("getNoiseForRoomRecursive", map, new FunctionCallback<JSONArray>(){
 
 			@Override
-			public void done(JSONArray result, ParseException parseException) {
+			public void done(final JSONArray result, ParseException parseException) {
 				if(parseException==null)
 					{
-					int length=result.length();
-					for(int i=0;i<length;i++)
-						{
-						JSONObject obj = result.getJSONObject(i);
-						long noise = obj.getLong("Decibel");
-						noiseSeries.addData(noise);
-						//System.out.println(noise);
-						noiseChart.markAsDirty();
-						UI.getCurrent().push();
-						 try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-						}
+					thisUI.access(new Runnable(){
+
+						@Override
+						public void run() {
+							int length=result.length();
+							for(int i=0;i<length;i++)
+								{
+								JSONObject obj = result.getJSONObject(i);
+								long noise = obj.getLong("Decibel");
+								noiseSeries.addData(noise);
+								UI.getCurrent().push();
+								 try {
+									Thread.sleep(500);
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								
+								}
+							
+						}});
 					
 					}else
 						{
@@ -637,25 +674,27 @@ Options options = new Options()
 						}
 				
 			}});
-		}
+		}*/
+	
 	private void populateComboBox()
 		{
-		ParseCloud.callFunctionInBackground("getClassroomList", null, new FunctionCallback<JSONArray>(){
+		 System.out.println("Called ClassroomView.populateComboBox()");
+		 final Timer timer = new Timer();
+		 TimerTask task = new TimerTask(){
 
 			@Override
-			public void done(JSONArray result, ParseException parseException) {
-				for(int i=0;i<result.length();i++)
+			public void run() {
+				if(thisUI.isClassListRetrieved())
 					{
-					
-					JSONObject obj =result.getJSONObject(i);
-					combo.addItem(new String(obj.getString("Label")));
-					combo.markAsDirty();
-					UI.getCurrent().push();
-					//System.out.println(obj.getString("Label"));
+					BeanItemContainer<String> container = new BeanItemContainer<String>(String.class,thisUI.getClassroomList());
+					combo.setContainerDataSource(container);
+					timer.cancel();
+					}else
+					{
+					System.out.println("List wasn't there or is being updated, rescheduling populateComboBox()");
 					}
-				
-				
-			}});
+			}};
+			timer.scheduleAtFixedRate(task, 0, 1500);
 		}
 
 			

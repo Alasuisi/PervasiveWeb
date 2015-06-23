@@ -1,11 +1,10 @@
 package com.stupidmonkeys.pervasiveweb;
 
-import java.util.Iterator;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Calendar;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -23,13 +22,10 @@ import com.vaadin.navigator.View;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.communication.PushMode;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 
 import domainEntities.Lecture;
+import domainEntities.Noise;
 
 @SuppressWarnings("serial")
 @Theme("pervasiveweb")
@@ -44,6 +40,13 @@ public class PervasivewebUI extends UI {
 	private boolean lecListRetrieved;
 	private long lecListRetrievedTime;
 	
+	private LinkedList<String> classroomList;
+	private boolean classListRetrieved;
+	private long classListRetrievedTime;
+	
+	private HashMap<String,Noise> classesNoiseMap;
+	private HashMap<String,Boolean> classesNoiseMapRetrieved;
+	
 	int retry =0;
 
 	@WebServlet(value = "/*", asyncSupported = true)
@@ -54,9 +57,18 @@ public class PervasivewebUI extends UI {
 	@Override
 	protected void init(VaadinRequest request) {
 		//UI.getCurrent().setLocale(new Locale("it"));
+		ParseServices services = ParseServices.getInstance();
 		lecListRetrievedTime=0;
 		lecListRetrieved=false;
 		totalList=new LinkedList[3];
+		
+		classListRetrieved=false;
+		classListRetrievedTime=0;
+		classroomList=new LinkedList<String>();
+		
+		classesNoiseMap= new HashMap<String,Noise>();
+		classesNoiseMapRetrieved=new HashMap<String,Boolean>();
+		
 		parseAppId = "gjDmHU8kCWGxlmcJP97iCfDWXrH5zxtBZRC8kDMM";
 		parseRestKey = "MKEJ4APJFnq7srnzpjPFvRW3vdkP3g1IOwbO53Yl";
 		
@@ -68,17 +80,19 @@ public class PervasivewebUI extends UI {
 		navi.addView("Welcome", new WelcomeView(navi));
 		navi.navigateTo("Login");
 		
-		ParseServices.getInstance().retrieveLectureList();
-		ParseServices.getInstance().periodicallyRetrieveLectureList(1800000);
+		services.retrieveLectureList();
+		services.retrieveClassroomList();
+		services.periodicallyRetrieveLectureList(1800000);
+		services.periodicallyRetrieveClassroomList(24);
 		
 		
 		
 	}
-	public void setLecListRetrievedFalse()
+	protected void setLecListRetrievedFalse()
 		{
 			lecListRetrieved=false;
 		}
-	public void setLecListRetrievedTrue()
+	protected void setLecListRetrievedTrue()
 	{
 		lecListRetrieved=true;
 	}
@@ -86,21 +100,87 @@ public class PervasivewebUI extends UI {
 		{
 		return lecListRetrieved;
 		}
-	public void setLecListRetrievedTime()
+	protected void setLecListRetrievedTime()
 		{
 		lecListRetrievedTime=Calendar.getInstance().getTimeInMillis();
 		}
-	public long getLectListRetrievedTime()
+	protected long getLectListRetrievedTime()
 		{
 		return lecListRetrievedTime;
 		}
-	public void setLecList(LinkedList<Lecture>[] toSet)
+	protected void setLecList(LinkedList<Lecture>[] toSet)
 		{
 		totalList=toSet;
 		}
+	
+	
 	public LinkedList<Lecture>[] getLecList()
 		{
 		return totalList;
+		}
+	protected void setClassListRetrievedFalse()
+		{
+		classListRetrieved=false;
+		}
+	protected void setClassListRetrievedTrue()
+		{
+		classListRetrieved=true;
+		}
+	public boolean isClassListRetrieved()
+		{
+		return classListRetrieved;
+		}
+	protected void setClassListRetrievedTime()
+		{
+		classListRetrievedTime=Calendar.getInstance().getTimeInMillis();
+		}
+	public long getClassListRetrievedTime()
+		{
+		return classListRetrievedTime;
+		}
+	protected void setClassList(LinkedList<String> toSet)
+		{
+		classroomList=toSet;
+		}
+	public LinkedList<String> getClassroomList()
+		{
+		return classroomList;
+		}
+	
+	public LinkedList<Long> getNoiseForRoom(final String classRoomName)
+		{
+		long timeStamp=0;
+		 if(classesNoiseMap.get(classRoomName)!=null)
+		 	{
+			 Noise noise = classesNoiseMap.get(classRoomName);
+			 
+				 timeStamp=noise.getTimeStamp();
+		 	}
+		 //long timeStamp=classesNoiseMap.get(classRoomName).getTimeStamp();
+		 long actualTime = Calendar.getInstance().getTimeInMillis();
+		 long tenMinutes = 600000;
+		 if((actualTime-timeStamp)>tenMinutes)
+		 	{
+			 ParseServices.getInstance().retrieveNoiseForRoom(classRoomName);
+		 	}else return classesNoiseMap.get(classRoomName).getNoiseList();
+		
+		 return null;
+		}
+	protected void setNoiseForRoomRetrievedFalse(String classRoomName)
+		{
+		classesNoiseMapRetrieved.put(classRoomName, false);
+		}
+	protected void setNoiseForRoomRetrievedTrue(String classRoomName)
+		{
+		classesNoiseMapRetrieved.put(classRoomName, true);
+		}
+	public boolean isNoiseForRoomRetrieved(String classRoomName)
+		{
+		return classesNoiseMapRetrieved.get(classRoomName);
+		}
+	public void setNoiseForRoom(String classRoomName,Noise toSet)
+		{
+		classesNoiseMap.put(classRoomName, toSet);
 		}
 
 }

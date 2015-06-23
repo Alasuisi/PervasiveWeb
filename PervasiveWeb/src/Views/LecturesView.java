@@ -1,20 +1,8 @@
 package Views;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.parse4j.ParseCloud;
-import org.parse4j.ParseException;
-import org.parse4j.callback.FunctionCallback;
 
 import com.stupidmonkeys.pervasiveweb.PervasivewebUI;
 import com.vaadin.data.util.BeanItem;
@@ -54,19 +42,14 @@ public class LecturesView extends VerticalLayout{
 	private Table nowTable = new Table();
 	private Table nextTable = new Table();
 	private PervasivewebUI thisUI;
-	private HashMap<String,Integer> dayMap = new HashMap<String,Integer>();
 
 	
-	
+	/*
+	 * This is the constructor, it prepares, defines and organize the main components
+	 * of this view
+	 */
 	public LecturesView()
 		{
-			dayMap.put("Monday", 1);
-			dayMap.put("Tuesday", 2);
-			dayMap.put("Wednesday", 3);
-			dayMap.put("Thursday", 4);
-			dayMap.put("Friday", 5);
-			dayMap.put("Saturday", 6);
-			dayMap.put("Sunday", 7);
 			thisUI=(PervasivewebUI) UI.getCurrent();
 			title.addStyleName(ValoTheme.LABEL_BOLD);
 			title.addStyleName(ValoTheme.LABEL_LARGE);
@@ -135,118 +118,19 @@ public class LecturesView extends VerticalLayout{
 			this.setComponentAlignment(title, Alignment.TOP_CENTER);
 			this.setComponentAlignment(waitingLabel, Alignment.MIDDLE_CENTER);
 			this.setComponentAlignment(tableSpace, Alignment.TOP_CENTER);
+			
 			getNewWeeklySchedule();
 		}
 
-	private void setNextTable(LinkedList<Lecture> next) {
-		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,next);
-		nextTable.setContainerDataSource(container);
-		nextTable.setWidth("100%");
-		if(next.size()<10) nextTable.setPageLength(next.size());
-		else nextTable.setPageLength(10);
-		nextTable.addStyleName(ValoTheme.TABLE_COMPACT);
-		nextTable.addStyleName(ValoTheme.TABLE_SMALL);
-		nextTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
-		nextTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
-		nextTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
-		nextTable.setColumnWidth("classroom", 170);
-		nextTable.setColumnWidth("from", 50);
-		nextTable.setColumnWidth("to", 50);
-		nextTable.setColumnWidth("prof", 230);
-		nextTable.setColumnExpandRatio("title", 50);
-		nextTable.setColumnExpandRatio("topics", 50);
-		nextTable.setColumnWidth("dayOfTheWeek", 170);
-		nextTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
-			
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = -6373787444551133713L;
-
-			@Override
-			public void itemClick(ItemClickEvent event) {
-				BeanItem<?> selected =(BeanItem<?>) event.getItem();
-				Lecture lecture = (Lecture) selected.getBean();
-				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.TRAY_NOTIFICATION);
-			}
-		});
-		
-	}
-
-	private void setNowTable(LinkedList<Lecture> now) {
-		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,now);
-		nowTable.setContainerDataSource(container);
-		nowTable.setWidth("100%");
-		if(now.size()<10) nowTable.setPageLength(now.size());
-		else nowTable.setPageLength(10);
-		nowTable.addStyleName(ValoTheme.TABLE_COMPACT);
-		nowTable.addStyleName(ValoTheme.TABLE_SMALL);
-		//nowTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
-		nowTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
-		nowTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
-		nowTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
-		nowTable.setColumnWidth("classroom", 170);
-		nowTable.setColumnWidth("from", 50);
-		nowTable.setColumnWidth("to", 50);
-		nowTable.setColumnWidth("prof", 230);
-		nowTable.setColumnExpandRatio("title", 50);
-		nowTable.setColumnExpandRatio("topics", 50);
-		nowTable.setColumnWidth("dayOfTheWeek", 170);
-		nowTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
-			
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = -6373787444551133713L;
-
-			@Override
-			public void itemClick(ItemClickEvent event) {
-				BeanItem<?> selected =(BeanItem<?>) event.getItem();
-				Lecture lecture = (Lecture) selected.getBean();
-				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.WARNING_MESSAGE);
-			}
-		});
-		
-	}
-
-	private void setPrevTable(LinkedList<Lecture> prev) {
-
-		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,prev);
-		prevTable.setContainerDataSource(container);
-		prevTable.setWidth("100%");
-		if(prev.size()<10)prevTable.setPageLength(prev.size());
-		else prevTable.setPageLength(10);
-		prevTable.addStyleName(ValoTheme.TABLE_COMPACT);
-		prevTable.addStyleName(ValoTheme.TABLE_SMALL);
-		prevTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
-		prevTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
-		prevTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
-		prevTable.setColumnWidth("classroom", 170);
-		prevTable.setColumnWidth("from", 50);
-		prevTable.setColumnWidth("to", 50);
-		prevTable.setColumnWidth("prof", 230);
-		prevTable.setColumnExpandRatio("title", 50);
-		prevTable.setColumnExpandRatio("topics", 50);
-		prevTable.setColumnWidth("dayOfTheWeek", 170);
-		prevTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
-			
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 8643717639430433327L;
-
-			@Override
-			public void itemClick(ItemClickEvent event) {
-				BeanItem<?> selected =(BeanItem<?>) event.getItem();
-				Lecture lecture = (Lecture) selected.getBean();
-				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.HUMANIZED_MESSAGE);
-			}
-		});
-	}
 	
+	/*
+	 * This method mainly calls the UI method to retrieve the list of the lectures,
+	 * it also invoke the methods to prepare the tables and
+	 *  access the ui and schedule the animations to render in the proper way
+	 */
 	private void getNewWeeklySchedule()
 		{
-		System.out.println("called LEcturesView.getNewWeeklySchedule");
+		System.out.println("called LecturesView.getNewWeeklySchedule");
 		final Timer timer = new Timer();
 		TimerTask task = new TimerTask(){
 
@@ -306,7 +190,6 @@ public class LecturesView extends VerticalLayout{
 									nowLabel.setVisible(true);
 									nowLabel.addStyleName("animated");
 									nowLabel.addStyleName("tada");
-									//nowLabel.markAsDirty();
 									UI.getCurrent().push();
 								}});
 							
@@ -323,7 +206,6 @@ public class LecturesView extends VerticalLayout{
 									nowTable.setVisible(true);
 									nowTable.addStyleName("animated");
 									nowTable.addStyleName("zoomInUp");
-									//nowTable.markAsDirty();
 						            UI.getCurrent().push();
 									
 								}});
@@ -340,7 +222,6 @@ public class LecturesView extends VerticalLayout{
 									nextLabel.setVisible(true);
 									nextLabel.addStyleName("animated");
 									nextLabel.addStyleName("tada");
-									//nextLabel.markAsDirty();
 									UI.getCurrent().push();
 								}});
 							
@@ -357,7 +238,6 @@ public class LecturesView extends VerticalLayout{
 									nextTable.setVisible(true);
 									nextTable.addStyleName("animated");
 									nextTable.addStyleName("zoomInUp");
-									//nextTable.markAsDirty();
 						            UI.getCurrent().push();
 								}});
 							
@@ -372,5 +252,125 @@ public class LecturesView extends VerticalLayout{
 			timer.scheduleAtFixedRate(task, 0, 1500);
 			
 		}
+	
+	/*
+	 * This method defines how the tables should be rendered
+	 * it's nothing more than the visual setup and the data binding 
+	 * for the appropriate table
+	 */
+	private void setNextTable(LinkedList<Lecture> next) {
+		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,next);
+		nextTable.setContainerDataSource(container);
+		nextTable.setWidth("100%");
+		if(next.size()<10) nextTable.setPageLength(next.size());
+		else nextTable.setPageLength(10);
+		nextTable.addStyleName(ValoTheme.TABLE_COMPACT);
+		nextTable.addStyleName(ValoTheme.TABLE_SMALL);
+		nextTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		nextTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		nextTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
+		nextTable.setColumnWidth("classroom", 170);
+		nextTable.setColumnWidth("from", 50);
+		nextTable.setColumnWidth("to", 50);
+		nextTable.setColumnWidth("prof", 230);
+		nextTable.setColumnExpandRatio("title", 50);
+		nextTable.setColumnExpandRatio("topics", 50);
+		nextTable.setColumnWidth("dayOfTheWeek", 170);
+		nextTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -6373787444551133713L;
 
+			@Override
+			public void itemClick(ItemClickEvent event) {
+				BeanItem<?> selected =(BeanItem<?>) event.getItem();
+				Lecture lecture = (Lecture) selected.getBean();
+				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.TRAY_NOTIFICATION);
+			}
+		});
+		
+	}
+
+	
+	/*
+	 * This method defines how the tables should be rendered
+	 * it's nothing more than the visual setup and the data binding 
+	 * for the appropriate table
+	 */
+	private void setNowTable(LinkedList<Lecture> now) {
+		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,now);
+		nowTable.setContainerDataSource(container);
+		nowTable.setWidth("100%");
+		if(now.size()<10) nowTable.setPageLength(now.size());
+		else nowTable.setPageLength(10);
+		nowTable.addStyleName(ValoTheme.TABLE_COMPACT);
+		nowTable.addStyleName(ValoTheme.TABLE_SMALL);
+		nowTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		nowTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		nowTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
+		nowTable.setColumnWidth("classroom", 170);
+		nowTable.setColumnWidth("from", 50);
+		nowTable.setColumnWidth("to", 50);
+		nowTable.setColumnWidth("prof", 230);
+		nowTable.setColumnExpandRatio("title", 50);
+		nowTable.setColumnExpandRatio("topics", 50);
+		nowTable.setColumnWidth("dayOfTheWeek", 170);
+		nowTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -6373787444551133713L;
+
+			@Override
+			public void itemClick(ItemClickEvent event) {
+				BeanItem<?> selected =(BeanItem<?>) event.getItem();
+				Lecture lecture = (Lecture) selected.getBean();
+				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.WARNING_MESSAGE);
+			}
+		});
+		
+	}
+	
+	/*
+	 * This method defines how the tables should be rendered
+	 * it's nothing more than the visual setup and the data binding 
+	 * for the appropriate table
+	 */
+	private void setPrevTable(LinkedList<Lecture> prev) {
+
+		BeanItemContainer<Lecture> container = new BeanItemContainer<Lecture>(Lecture.class,prev);
+		prevTable.setContainerDataSource(container);
+		prevTable.setWidth("100%");
+		if(prev.size()<10)prevTable.setPageLength(prev.size());
+		else prevTable.setPageLength(10);
+		prevTable.addStyleName(ValoTheme.TABLE_COMPACT);
+		prevTable.addStyleName(ValoTheme.TABLE_SMALL);
+		prevTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		prevTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		prevTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
+		prevTable.setColumnWidth("classroom", 170);
+		prevTable.setColumnWidth("from", 50);
+		prevTable.setColumnWidth("to", 50);
+		prevTable.setColumnWidth("prof", 230);
+		prevTable.setColumnExpandRatio("title", 50);
+		prevTable.setColumnExpandRatio("topics", 50);
+		prevTable.setColumnWidth("dayOfTheWeek", 170);
+		prevTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 8643717639430433327L;
+
+			@Override
+			public void itemClick(ItemClickEvent event) {
+				BeanItem<?> selected =(BeanItem<?>) event.getItem();
+				Lecture lecture = (Lecture) selected.getBean();
+				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.HUMANIZED_MESSAGE);
+			}
+		});
+	}
 }
