@@ -23,17 +23,87 @@ import domainEntities.Noise;
 public class ParseServices {
 	
 	private static ParseServices instance = null;
-	private PervasivewebUI thisUI = (PervasivewebUI) UI.getCurrent();
+	//private PervasivewebUI thisUI = (PervasivewebUI) UI.getCurrent();
+	
+	private static LinkedList<Lecture>[] totalList;
+	private static boolean lecListRetrieved;
+	private static boolean lecListPending=false;
+	private static long lecListRetrievedTime;
+	
+	private static LinkedList<String> classroomList;
+	private static boolean classListRetrieved;
+	private static boolean classListPending=false;
+	private static long classListRetrievedTime;
+	
+	private static HashMap<String,Noise> classesNoiseMap;
+	private static HashMap<String,Boolean> classesNoiseMapRetrieved;
+	
+	private Calendar cal = Calendar.getInstance();
+	
 	   protected ParseServices() {
 	      // Exists only to defeat instantiation.
 	   }
 	   public static ParseServices getInstance() {
 	      if(instance == null) {
 	         instance = new ParseServices();
+	         System.out.println("NUOOOOVA ISTANZAAAAAAAA");
 	      }
+	      System.out.println("VECCHIAAAA ISTANZAAAAAAAA");
 	      return instance;
 	   }
 	   
+	public LinkedList<Lecture>[] getLectures()
+		{
+		if(lecListPending==true) return null;
+		long thirtyMin=1800000;
+		long thisTime=cal.getTimeInMillis();
+		if(totalList==null)
+			{
+			System.out.println("Total list null");
+			retrieveLectureList();
+			}else
+				{
+				long listAge=thisTime-lecListRetrievedTime;
+				if(listAge>thirtyMin) 
+					{
+					System.out.println("Total list old");
+					lecListPending=true;
+					retrieveLectureList();
+					}
+				}
+		if(classListRetrievedTime-thisTime<300000)
+			{
+			System.out.println("class list retrieved");
+			lecListPending=false;
+			return totalList;
+			}
+		else return null;
+		}
+	
+	public LinkedList<String> getClassroomList()
+		{
+		if(classListPending==true) return null;
+		long twentyforHours=86400000;
+		long thisTime=cal.getTimeInMillis();
+		if(classroomList==null)
+			{
+			retrieveClassroomList();
+			}else
+				{
+				 long listAge=thisTime-classListRetrievedTime;
+				 if(listAge>twentyforHours)
+				 	{
+					 classListPending=true;
+					 retrieveClassroomList();
+				 	}
+				}
+		if(classListRetrievedTime-thisTime<twentyforHours)
+			{
+			classListPending=false;
+			return classroomList;
+			}else return null;
+		}
+	
 	/*
 	 * This method calls a remote procedure on parse.com asking for the list of all the lectures
 	 * ad returns an array linkedlist of objects "Lecture" properly formatted in this manner:
@@ -41,9 +111,10 @@ public class ParseServices {
 	 * array[1]= ongoing lectures
 	 * array[2]= lectures not started yet
 	 */
-	protected  void retrieveLectureList()
+	private  void retrieveLectureList()
 		{
 		System.out.println("called retrieveLectureList");
+		lecListRetrieved=false;
 		final LinkedList<Lecture> pastList = new LinkedList<Lecture>();
 		final LinkedList<Lecture> nowList = new LinkedList<Lecture>();
 		final LinkedList<Lecture> nextList = new LinkedList<Lecture>();
@@ -102,10 +173,13 @@ public class ParseServices {
 								{
 								System.out.println(parseException.getMessage());
 								}
-						thisUI.setLecList(total);
+						totalList=total;
+						lecListRetrieved=true;
+						lecListRetrievedTime=Calendar.getInstance().getTimeInMillis();
+						/*thisUI.setLecList(total);
 						thisUI.setLecListRetrievedTrue();
 						thisUI.setLecListRetrievedTime();
-						System.out.println("Lecture list retrieved");
+						System.out.println("Lecture list retrieved");*/
 						}
 					});
 				
@@ -115,15 +189,18 @@ public class ParseServices {
 	 * This method simply invokes periodically retrieveLectureList(),
 	 * this is to be used in the main UI class, in order to create-update
 	 * a global shared variable for all the instances of the web-app
+	 * 
+	 * ---PROBABLY DEPRECATED---
 	 */
-	protected void periodicallyRetrieveLectureList(final long intervalMillis)
+	private void periodicallyRetrieveLectureList(final long intervalMillis)
 		{
 			final Timer timer = new Timer();
 			TimerTask task = new TimerTask(){
 			
 						@Override
 						public void run() {
-							thisUI.setLecListRetrievedFalse();
+							//thisUI.setLecListRetrievedFalse();
+							lecListRetrieved=false;
 							System.out.println("Called lecture retrieve periodically every "+intervalMillis/(60*1000)+" minutes");
 							retrieveLectureList();
 
@@ -137,9 +214,10 @@ public class ParseServices {
 	 * This method simply retrieve from parse, the list of the classrooms
 	 * defined in the system
 	 */
-	protected void retrieveClassroomList()
+	private void retrieveClassroomList()
 		{
 			System.out.println("called retrieveClassroomList");
+			classListRetrieved =false;
 			final LinkedList<String> lista=new LinkedList<String>();
 			ParseCloud.callFunctionInBackground("getClassroomList", null, new FunctionCallback<JSONArray>(){
 
@@ -152,9 +230,12 @@ public class ParseServices {
 				JSONObject obj =result.getJSONObject(i);
 				lista.add(new String(obj.getString("Label")));
 				}
-				thisUI.setClassList(lista);
+				classroomList=lista;
+				classListRetrieved = true;
+				classListRetrievedTime=Calendar.getInstance().getTimeInMillis();
+				/*thisUI.setClassList(lista);
 				thisUI.setClassListRetrievedTrue();
-				thisUI.setClassListRetrievedTime();
+				thisUI.setClassListRetrievedTime();*/
 				System.out.println("ClassroomList retrieved");
 				
 			}});
@@ -163,15 +244,18 @@ public class ParseServices {
 	 * Even if its very unlikely that classrooms changes, still a method
 	 * has been defined for polling at regular intervals for update the cached
 	 * data about che classroom list, it executes every 24 hour at 20:00
+	 * 
+	 * ---PROBABLY DEPRECATED---
 	 */
-	protected void periodicallyRetrieveClassroomList(final int hours)
+	private void periodicallyRetrieveClassroomList(final int hours)
 		{
 			Timer timer = new Timer();
 			TimerTask task = new TimerTask(){
 
 				@Override
 				public void run() {
-					thisUI.setClassListRetrievedFalse();
+					//thisUI.setClassListRetrievedFalse();
+					classListRetrieved=false;
 					System.out.println("Called lecture retrieve periodically every "+hours+" hours");
 					retrieveClassroomList();
 				}};
@@ -183,12 +267,13 @@ public class ParseServices {
 			
 		}
 	
-	protected void retrieveNoiseForRoom(final String classRoom)
+	private void retrieveNoiseForRoom(final String classRoom)
 		{
 		System.out.println("called retrieveNoiseForRoom("+classRoom+")");
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("room", classRoom);
-		thisUI.setNoiseForRoomRetrievedFalse(classRoom);
+		//thisUI.setNoiseForRoomRetrievedFalse(classRoom);
+		classesNoiseMapRetrieved.put(classRoom, false);
 		ParseCloud.callFunctionInBackground("getNoiseForRoomRecursive", map, new FunctionCallback<JSONArray>(){
 
 			@Override
@@ -204,30 +289,11 @@ public class ParseServices {
 						noiseList.add(temp);
 						}
 					Noise toSet = new Noise(Calendar.getInstance().getTimeInMillis(), noiseList);
-					thisUI.setNoiseForRoom(classRoom,toSet);
-					thisUI.setNoiseForRoomRetrievedTrue(classRoom);
+					//thisUI.setNoiseForRoom(classRoom,toSet);
+					classesNoiseMap.put(classRoom, toSet);
+					classesNoiseMapRetrieved.put(classRoom, true);
+					//thisUI.setNoiseForRoomRetrievedTrue(classRoom);
 					System.out.println(" retrieved noise for room "+classRoom);
-					/*thisUI.access(new Runnable(){
-
-						@Override
-						public void run() {
-							int length=result.length();
-							for(int i=0;i<length;i++)
-								{
-								JSONObject obj = result.getJSONObject(i);
-								long noise = obj.getLong("Decibel");
-								noiseSeries.addData(noise);
-								UI.getCurrent().push();
-								 try {
-									Thread.sleep(500);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								
-								}
-							
-						}});*/
 					
 					}else
 						{

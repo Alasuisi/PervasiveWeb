@@ -28,6 +28,7 @@ import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
 import org.parse4j.callback.FunctionCallback;
 
+import com.stupidmonkeys.pervasiveweb.ParseServices;
 import com.stupidmonkeys.pervasiveweb.PervasivewebUI;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.LegendItemClickEvent;
@@ -207,7 +208,7 @@ public class ClassroomView extends VerticalLayout{
 				getActualStudentNumber(classValue);
 				getClassroomSeats(classValue);
 				getActualLecture(classValue);
-				getNoiseForRoom(classValue);
+				//TODO getNoiseForRoom(classValue);
 				genValue2="43%";
 				genValue3="28°";
 				genValue4="6";
@@ -608,31 +609,35 @@ public class ClassroomView extends VerticalLayout{
 
 			@Override
 			public void run() {
-				final LinkedList<Long> noiseList = thisUI.getNoiseForRoom(classLabel);
-				if(noiseList!=null)
+				if(thisUI.isNoiseForRoomRetrieved(classLabel))
 					{
-					thisUI.access(new Runnable(){
+					final LinkedList<Long> noiseList = thisUI.getNoiseForRoom(classLabel);
+					if(noiseList!=null)
+						{
+						thisUI.access(new Runnable(){
 
-						@Override
-						public void run() {
-							Iterator<Long> iter =noiseList.iterator();
-							while(iter.hasNext())
-								{
-								long point=iter.next().longValue();
-								noiseSeries.addData(point);
-								thisUI.push();
-								try {
-									Thread.sleep(500);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								}
-							
-						}});
-					
-					timer.cancel();
+							@Override
+							public void run() {
+								Iterator<Long> iter =noiseList.iterator();
+								while(iter.hasNext())
+									{
+									long point=iter.next().longValue();
+									noiseSeries.addData(point);
+									thisUI.push();
+									try {
+										Thread.sleep(500);
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									}
+								
+							}});
+						
+						timer.cancel();
+						}
 					}
+				
 			}};
 			timer.scheduleAtFixedRate(task, 0, 500);
 		}
@@ -684,7 +689,14 @@ public class ClassroomView extends VerticalLayout{
 
 			@Override
 			public void run() {
-				if(thisUI.isClassListRetrieved())
+				LinkedList<String> classList = ParseServices.getInstance().getClassroomList();
+				if(classList!=null)
+					{
+					BeanItemContainer<String> container = new BeanItemContainer<String>(String.class,classList);
+					combo.setContainerDataSource(container);
+					timer.cancel();
+					}else System.out.println("List wasn't there or is being updated, rescheduling populateComboBox()");
+				/*if(thisUI.isClassListRetrieved())
 					{
 					BeanItemContainer<String> container = new BeanItemContainer<String>(String.class,thisUI.getClassroomList());
 					combo.setContainerDataSource(container);
@@ -692,7 +704,8 @@ public class ClassroomView extends VerticalLayout{
 					}else
 					{
 					System.out.println("List wasn't there or is being updated, rescheduling populateComboBox()");
-					}
+					//ParseServices.getInstance().
+					}*/
 			}};
 			timer.scheduleAtFixedRate(task, 0, 1500);
 		}

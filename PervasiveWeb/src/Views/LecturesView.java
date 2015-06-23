@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.stupidmonkeys.pervasiveweb.ParseServices;
 import com.stupidmonkeys.pervasiveweb.PervasivewebUI;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
@@ -136,10 +137,9 @@ public class LecturesView extends VerticalLayout{
 
 			@Override
 			public void run() {
-				if(thisUI.isLecListRetrieved())
+				final LinkedList<Lecture>[] fullList = ParseServices.getInstance().getLectures();
+				if(fullList!=null)
 					{
-					
-					final LinkedList<Lecture>[] fullList = thisUI.getLecList();
 					thisUI.access(new Runnable(){
 
 						@Override
@@ -249,7 +249,7 @@ public class LecturesView extends VerticalLayout{
 						}
 				
 			}};
-			timer.scheduleAtFixedRate(task, 0, 1500);
+			timer.scheduleAtFixedRate(task, 0, 3000);
 			
 		}
 	

@@ -36,16 +36,16 @@ public class PervasivewebUI extends UI {
 	private String parseAppId;
 	private String parseRestKey;
 	
-	private LinkedList<Lecture>[] totalList;
-	private boolean lecListRetrieved;
-	private long lecListRetrievedTime;
+	/*private static LinkedList<Lecture>[] totalList;
+	private static boolean lecListRetrieved;
+	private static long lecListRetrievedTime;
 	
-	private LinkedList<String> classroomList;
-	private boolean classListRetrieved;
-	private long classListRetrievedTime;
+	private static LinkedList<String> classroomList;
+	private static boolean classListRetrieved;
+	private static long classListRetrievedTime;
 	
-	private HashMap<String,Noise> classesNoiseMap;
-	private HashMap<String,Boolean> classesNoiseMapRetrieved;
+	private static HashMap<String,Noise> classesNoiseMap;
+	private static HashMap<String,Boolean> classesNoiseMapRetrieved;*/
 	
 	int retry =0;
 
@@ -58,16 +58,16 @@ public class PervasivewebUI extends UI {
 	protected void init(VaadinRequest request) {
 		//UI.getCurrent().setLocale(new Locale("it"));
 		ParseServices services = ParseServices.getInstance();
-		lecListRetrievedTime=0;
+	/*	lecListRetrievedTime=0;
 		lecListRetrieved=false;
-		totalList=new LinkedList[3];
+		
 		
 		classListRetrieved=false;
 		classListRetrievedTime=0;
 		classroomList=new LinkedList<String>();
 		
 		classesNoiseMap= new HashMap<String,Noise>();
-		classesNoiseMapRetrieved=new HashMap<String,Boolean>();
+		classesNoiseMapRetrieved=new HashMap<String,Boolean>();*/
 		
 		parseAppId = "gjDmHU8kCWGxlmcJP97iCfDWXrH5zxtBZRC8kDMM";
 		parseRestKey = "MKEJ4APJFnq7srnzpjPFvRW3vdkP3g1IOwbO53Yl";
@@ -80,15 +80,16 @@ public class PervasivewebUI extends UI {
 		navi.addView("Welcome", new WelcomeView(navi));
 		navi.navigateTo("Login");
 		
-		services.retrieveLectureList();
-		services.retrieveClassroomList();
-		services.periodicallyRetrieveLectureList(1800000);
-		services.periodicallyRetrieveClassroomList(24);
-		
+		/*if(getLecList()==null && getClassroomList()==null){
+			services.retrieveLectureList();
+			services.retrieveClassroomList();
+			services.periodicallyRetrieveLectureList(1800000);
+			services.periodicallyRetrieveClassroomList(24);
+		}*/
 		
 		
 	}
-	protected void setLecListRetrievedFalse()
+	/*protected void setLecListRetrievedFalse()
 		{
 			lecListRetrieved=false;
 		}
@@ -176,11 +177,15 @@ public class PervasivewebUI extends UI {
 		}
 	public boolean isNoiseForRoomRetrieved(String classRoomName)
 		{
-		return classesNoiseMapRetrieved.get(classRoomName);
+		if(classesNoiseMapRetrieved.get(classRoomName)!=null)
+			{
+				return classesNoiseMapRetrieved.get(classRoomName);
+			}else return false;
+		
 		}
 	public void setNoiseForRoom(String classRoomName,Noise toSet)
 		{
 		classesNoiseMap.put(classRoomName, toSet);
-		}
+		}*/
 
 }
