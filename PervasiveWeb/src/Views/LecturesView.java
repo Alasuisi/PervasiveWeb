@@ -296,25 +296,25 @@ public class LecturesView extends VerticalLayout{
 				{
 				Window subWin = new Window("Lecture Topics List");
 				VerticalLayout winLay = new VerticalLayout();
-				Panel subPanel = new Panel();
-				subPanel.setSizeFull();
+
 				Label topicsLabel = new Label();
 				topicsLabel.setContentMode(ContentMode.HTML);
 				topicsLabel.setValue(lecture.getTopicsList());
 				winLay.setImmediate(true);
-				winLay.setSizeFull();
+				winLay.setWidth("100%");
+				winLay.setHeight("-1");
 				topicsLabel.setImmediate(true);
 				topicsLabel.setSizeUndefined();
 				winLay.addComponent(topicsLabel);
 				winLay.setComponentAlignment(topicsLabel, Alignment.TOP_CENTER);
 				winLay.setSpacing(true);
-				subPanel.setContent(winLay);
+	
 				subWin.setWidth("800px");
 				subWin.setHeight("600px");
 				subWin.setModal(true);
-				subWin.setResizable(true);
+				
 				subWin.setImmediate(true);
-				subWin.setContent(subPanel);
+				subWin.setContent(winLay);
 				UI.getCurrent().addWindow(subWin);
 				}else
 					{
@@ -365,25 +365,25 @@ public class LecturesView extends VerticalLayout{
 				{
 				Window subWin = new Window("Lecture Topics List");
 				VerticalLayout winLay = new VerticalLayout();
-				Panel subPanel = new Panel();
-				subPanel.setSizeFull();
+
 				Label topicsLabel = new Label();
 				topicsLabel.setContentMode(ContentMode.HTML);
 				topicsLabel.setValue(lecture.getTopicsList());
 				winLay.setImmediate(true);
-				winLay.setSizeFull();
+				winLay.setWidth("100%");
+				winLay.setHeight("-1");
 				topicsLabel.setImmediate(true);
 				topicsLabel.setSizeUndefined();
 				winLay.addComponent(topicsLabel);
 				winLay.setComponentAlignment(topicsLabel, Alignment.TOP_CENTER);
 				winLay.setSpacing(true);
-				subPanel.setContent(winLay);
+	
 				subWin.setWidth("800px");
 				subWin.setHeight("600px");
 				subWin.setModal(true);
-				subWin.setResizable(true);
+				
 				subWin.setImmediate(true);
-				subWin.setContent(subPanel);
+				subWin.setContent(winLay);
 				UI.getCurrent().addWindow(subWin);
 				}else
 					{
@@ -431,33 +431,33 @@ public class LecturesView extends VerticalLayout{
 				BeanItem<?> selected =(BeanItem<?>) event.getItem();
 				Lecture lecture = (Lecture) selected.getBean();
 				if(!lecture.getTopicsList().equals("---"))
+				{
+				Window subWin = new Window("Lecture Topics List");
+				VerticalLayout winLay = new VerticalLayout();
+
+				Label topicsLabel = new Label();
+				topicsLabel.setContentMode(ContentMode.HTML);
+				topicsLabel.setValue(lecture.getTopicsList());
+				winLay.setImmediate(true);
+				winLay.setWidth("100%");
+				winLay.setHeight("-1");
+				topicsLabel.setImmediate(true);
+				topicsLabel.setSizeUndefined();
+				winLay.addComponent(topicsLabel);
+				winLay.setComponentAlignment(topicsLabel, Alignment.TOP_CENTER);
+				winLay.setSpacing(true);
+	
+				subWin.setWidth("800px");
+				subWin.setHeight("600px");
+				subWin.setModal(true);
+				
+				subWin.setImmediate(true);
+				subWin.setContent(winLay);
+				UI.getCurrent().addWindow(subWin);
+				}else
 					{
-					Window subWin = new Window("Lecture Topics List");
-					VerticalLayout winLay = new VerticalLayout();
-					Panel subPanel = new Panel();
-					subPanel.setSizeFull();
-					Label topicsLabel = new Label();
-					topicsLabel.setContentMode(ContentMode.HTML);
-					topicsLabel.setValue(lecture.getTopicsList());
-					winLay.setImmediate(true);
-					winLay.setSizeFull();
-					topicsLabel.setImmediate(true);
-					topicsLabel.setSizeUndefined();
-					winLay.addComponent(topicsLabel);
-					winLay.setComponentAlignment(topicsLabel, Alignment.TOP_CENTER);
-					winLay.setSpacing(true);
-					subPanel.setContent(winLay);
-					subWin.setWidth("800px");
-					subWin.setHeight("600px");
-					subWin.setModal(true);
-					subWin.setResizable(true);
-					subWin.setImmediate(true);
-					subWin.setContent(subPanel);
-					UI.getCurrent().addWindow(subWin);
-					}else
-						{
-						Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.HUMANIZED_MESSAGE);
-						}
+					Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.HUMANIZED_MESSAGE);
+					}
 			}
 		});
 	}
