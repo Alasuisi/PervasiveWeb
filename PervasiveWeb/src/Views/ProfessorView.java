@@ -179,6 +179,7 @@ public class ProfessorView extends VerticalLayout {
 						{
 						System.out.println("OBJID NEL DONEBTN "+selObjectID);
 						ParseServices.getInstance().saveTopicsListForLecture(selObjectID, topicsText);
+						ParseServices.getInstance().markLectureListAsDirty();
 						System.out.println(topicsText);
 						}
 			}

@@ -33,6 +33,7 @@ public class ParseServices {
 	private static LinkedList<Lecture>[] totalList;
 	private static boolean lecListRetrieved;
 	private static boolean lecListPending=false;
+	private static boolean lectureListDirty=false;
 	private static long lecListRetrievedTime;
 	
 	private static LinkedList<String> classroomList;
@@ -62,14 +63,18 @@ public class ParseServices {
 	   
 	public LinkedList<Lecture>[] getLectures()
 		{
-		if(lecListPending==true) return null;
+		if(lecListPending==true) 
+			{
+			System.out.println("list pending");
+			return null;
+			}
 		long thirtyMin=1800000;
 		long thisTime=cal.getTimeInMillis();
 		if(totalList==null)
 			{
 			System.out.println("Total list null");
 			retrieveLectureList();
-			}else
+			}else if(!lecListPending)
 				{
 				long listAge=thisTime-lecListRetrievedTime;
 				if(listAge>thirtyMin) 
@@ -79,7 +84,13 @@ public class ParseServices {
 					retrieveLectureList();
 					}
 				}
-		if(classListRetrievedTime-thisTime<300000)
+		if(lectureListDirty && !lecListPending)
+			{
+			System.out.println("Total list is dirty");
+			//lecListPending=true;
+			retrieveLectureList();
+			}
+		if(classListRetrievedTime-thisTime<300000 && !lectureListDirty)
 			{
 			System.out.println("class list retrieved");
 			lecListPending=false;
@@ -88,6 +99,10 @@ public class ParseServices {
 		else return null;
 		}
 	
+	public void markLectureListAsDirty()
+		{
+		lectureListDirty=true;
+		}
 	public LinkedList<String> getClassroomList()
 		{
 		if(classListPending==true) return null;
@@ -233,6 +248,7 @@ public class ParseServices {
 								}
 						totalList=total;
 						lecListRetrieved=true;
+						if(lectureListDirty) lectureListDirty=false;
 						lecListRetrievedTime=Calendar.getInstance().getTimeInMillis();
 						}
 					});
