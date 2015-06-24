@@ -13,12 +13,13 @@ public class Lecture {
 		private String prof;
 		private String dayOfTheWeek;
 		private String classroom;
-		private HashMap<Integer,String> topicsList;
+		private String topicsList;
 		
-		public Lecture(){};
+		public Lecture(){}
+
 		public Lecture(String objectId, String title, String topics,
 				String from, String to, String prof, String dayOfTheWeek,
-				String classroom, HashMap<Integer, String> topicsList) {
+				String classroom, String topicsList) {
 			super();
 			this.objectId = objectId;
 			this.title = title;
@@ -28,6 +29,78 @@ public class Lecture {
 			this.prof = prof;
 			this.dayOfTheWeek = dayOfTheWeek;
 			this.classroom = classroom;
+			this.topicsList = topicsList;
+		}
+
+		public String getObjectId() {
+			return objectId;
+		}
+
+		public void setObjectId(String objectId) {
+			this.objectId = objectId;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+
+		public String getTopics() {
+			return topics;
+		}
+
+		public void setTopics(String topics) {
+			this.topics = topics;
+		}
+
+		public String getFrom() {
+			return from;
+		}
+
+		public void setFrom(String from) {
+			this.from = from;
+		}
+
+		public String getTo() {
+			return to;
+		}
+
+		public void setTo(String to) {
+			this.to = to;
+		}
+
+		public String getProf() {
+			return prof;
+		}
+
+		public void setProf(String prof) {
+			this.prof = prof;
+		}
+
+		public String getDayOfTheWeek() {
+			return dayOfTheWeek;
+		}
+
+		public void setDayOfTheWeek(String dayOfTheWeek) {
+			this.dayOfTheWeek = dayOfTheWeek;
+		}
+
+		public String getClassroom() {
+			return classroom;
+		}
+
+		public void setClassroom(String classroom) {
+			this.classroom = classroom;
+		}
+
+		public String getTopicsList() {
+			return topicsList;
+		}
+
+		public void setTopicsList(String topicsList) {
 			this.topicsList = topicsList;
 		}
 
@@ -107,79 +180,8 @@ public class Lecture {
 			} else if (!topicsList.equals(other.topicsList))
 				return false;
 			return true;
-		}
-
-		public String getObjectId() {
-			return objectId;
-		}
-
-		public void setObjectId(String objectId) {
-			this.objectId = objectId;
-		}
-
-		public String getTitle() {
-			return title;
-		}
-
-		public void setTitle(String title) {
-			this.title = title;
-		}
-
-		public String getTopics() {
-			return topics;
-		}
-
-		public void setTopics(String topics) {
-			this.topics = topics;
-		}
-
-		public String getFrom() {
-			return from;
-		}
-
-		public void setFrom(String from) {
-			this.from = from;
-		}
-
-		public String getTo() {
-			return to;
-		}
-
-		public void setTo(String to) {
-			this.to = to;
-		}
-
-		public String getProf() {
-			return prof;
-		}
-
-		public void setProf(String prof) {
-			this.prof = prof;
-		}
-
-		public String getDayOfTheWeek() {
-			return dayOfTheWeek;
-		}
-
-		public void setDayOfTheWeek(String dayOfTheWeek) {
-			this.dayOfTheWeek = dayOfTheWeek;
-		}
-
-		public String getClassroom() {
-			return classroom;
-		}
-
-		public void setClassroom(String classroom) {
-			this.classroom = classroom;
-		}
-
-		public HashMap<Integer, String> getTopicsList() {
-			return topicsList;
-		}
-
-		public void setTopicsList(HashMap<Integer, String> topicsList) {
-			this.topicsList = topicsList;
-		}
+		};
+		
 		
 		
 		

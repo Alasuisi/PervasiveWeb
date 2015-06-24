@@ -8,12 +8,16 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
+import org.parse4j.ParseObject;
+import org.parse4j.ParseQuery;
 import org.parse4j.callback.FunctionCallback;
+import org.parse4j.callback.GetCallback;
 
 import com.stupidmonkeys.pervasiveweb.PervasivewebUI;
 import com.vaadin.ui.UI;
@@ -39,6 +43,8 @@ public class ParseServices {
 	private static HashMap<String,Noise> classesNoiseMap= new HashMap<String,Noise>();
 	private static HashMap<String,Boolean> classesNoiseMapRetrieved=new HashMap<String,Boolean>();
 	private static HashMap<String,Boolean> classNoiseMapPending = new HashMap<String,Boolean>();
+	
+	String topicsForLecture=null;
 	
 	private Calendar cal = Calendar.getInstance();
 	
@@ -177,6 +183,13 @@ public class ParseServices {
 								 String className = row.getString("classroom_name");
 								 String profName = row.getString("prof_name");
 								 String summary = row.getString("summary");
+								 String topicsList =new String();
+								 try{
+								  topicsList=row.getString("topics");
+								 }catch(Exception e)
+								 	{
+									 //System.out.println(e.getMessage());
+								 	}
 								 long lecStart=baseDate+(startHour*60);
 								 long lecEnd=baseDate+(endHour*60);
 								 /*if(java.util.Locale.getDefault().toString().equals("en_US"))
@@ -196,7 +209,12 @@ public class ParseServices {
 								 toAdd.setTo(hours.format(endDate));
 								 toAdd.setProf(profName);
 								 toAdd.setTitle(summary);
-								 toAdd.setTopics("---");
+								 if(topicsList.length()>0)
+								 	{
+									 toAdd.setTopics("Topics");
+									 toAdd.setTopicsList(topicsList);
+								 	}else toAdd.setTopics("---");
+								 
 								 if((lecStart*1000)<now && (lecEnd*1000)<now)
 								 	{
 									 pastList.add(toAdd);
@@ -338,4 +356,99 @@ public class ParseServices {
 				
 			}});
 		}
+	
+	
+	public void saveTopicsListForLecture(String objectId,final String topicsList)
+	{
+	ParseQuery<ParseObject> query = ParseQuery.getQuery("new_schedule");
+	System.out.println("IN SAVE ON PARSE "+objectId+" "+topicsList);
+    query.getInBackground(objectId, new GetCallback<ParseObject>(){
+
+		@Override
+		public void done(ParseObject t, ParseException parseException) {
+			if(parseException==null)
+			{
+				System.out.println(t.get("summary"));
+			t.put("topics", topicsList);
+			t.saveInBackground();
+			}else System.out.println("orcamadò "+parseException.getMessage());
+			
+		}});
+	}
+	/*public void saveTopicsListForLecture(String objectId,final HashMap<Integer,String> topicsList)
+	{
+	ParseQuery<ParseObject> query = ParseQuery.getQuery("new_schedule");
+    query.getInBackground("objectId", new GetCallback<ParseObject>(){
+
+		@Override
+		public void done(ParseObject t, ParseException parseException) {
+			if(parseException==null)
+			{
+			System.out.println("Sono nel done");
+			Iterator<Entry<Integer, String>> it = topicsList.entrySet().iterator();
+			String result = new String();
+			while(it.hasNext())
+				{
+				Entry<Integer, String> temp=it.next();
+				String tempString="{"+temp.getKey().toString()+":"+temp.getValue().toString()+"}";
+				result=result+tempString+"|";
+				it.remove();
+				}
+			//t.put("topics", test.toString());
+			t.put("topics", result);
+			t.saveInBackground();
+			}else System.out.println("orcamadò "+parseException.getMessage());
+			
+		}});
+	}*/
+	
+	public String getTopicsForLecture(String objectID)
+	{
+	final HashMap<Integer,String> map=new HashMap<Integer,String>();
+	 ParseQuery<ParseObject> query = ParseQuery.getQuery("new_schedule");
+	 
+	    query.getInBackground(objectID, new GetCallback<ParseObject>(){
+
+			@Override
+			public void done(ParseObject t, ParseException parseException) {
+				if(parseException==null)
+				{
+				topicsForLecture =t.getString("topics");
+				}else System.out.println("orcamadò "+parseException.getMessage());
+				
+				
+			}});
+	    
+	return topicsForLecture;
+	
+	}
+	/*public HashMap<Integer,String> getTopicsForLecture(String objectID)
+	{
+	final HashMap<Integer,String> map=new HashMap<Integer,String>();
+	 ParseQuery<ParseObject> query = ParseQuery.getQuery("new_schedule");
+	    query.getInBackground(objectID, new GetCallback<ParseObject>(){
+
+			@Override
+			public void done(ParseObject t, ParseException parseException) {
+				if(parseException==null)
+				{
+				System.out.println("Sono nel done");
+				String result =t.getString("topics");
+				String[] split=result.split("\\|");
+				for(int i=0;i<split.length;i++)
+				{
+					String temp=split[i];
+					temp=temp.replaceAll("[{}]", "");
+					String[] entry=temp.split(":");
+					map.put(new Integer(entry[0]), entry[1]);
+				}
+				System.out.println(map.toString());
+				}else System.out.println("orcamadò "+parseException.getMessage());
+				
+				
+			}});
+	    return map;
+	
+	
+	}*/
 }

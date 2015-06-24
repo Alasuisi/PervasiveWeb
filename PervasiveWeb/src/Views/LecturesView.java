@@ -9,13 +9,17 @@ import com.stupidmonkeys.pervasiveweb.PervasivewebUI;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ItemClickEvent;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 import domainEntities.Lecture;
@@ -372,7 +376,34 @@ public class LecturesView extends VerticalLayout{
 			public void itemClick(ItemClickEvent event) {
 				BeanItem<?> selected =(BeanItem<?>) event.getItem();
 				Lecture lecture = (Lecture) selected.getBean();
-				Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.HUMANIZED_MESSAGE);
+				if(!lecture.getTopicsList().equals("---"))
+					{
+					Window subWin = new Window("Lecture Topics List");
+					VerticalLayout winLay = new VerticalLayout();
+					Panel subPanel = new Panel();
+					subPanel.setSizeFull();
+					Label topicsLabel = new Label();
+					topicsLabel.setContentMode(ContentMode.HTML);
+					topicsLabel.setValue(lecture.getTopicsList());
+					winLay.setImmediate(true);
+					winLay.setSizeFull();
+					topicsLabel.setImmediate(true);
+					topicsLabel.setSizeUndefined();
+					winLay.addComponent(topicsLabel);
+					winLay.setComponentAlignment(topicsLabel, Alignment.TOP_CENTER);
+					winLay.setSpacing(true);
+					subPanel.setContent(winLay);
+					subWin.setWidth("800px");
+					subWin.setHeight("600px");
+					subWin.setModal(true);
+					subWin.setResizable(true);
+					subWin.setImmediate(true);
+					subWin.setContent(subPanel);
+					UI.getCurrent().addWindow(subWin);
+					}else
+						{
+						Notification.show("Hey ya!", "You selected lesson of professor "+lecture.getProf()+" which talks about "+lecture.getTopics(), Notification.Type.HUMANIZED_MESSAGE);
+						}
 			}
 		});
 	}
