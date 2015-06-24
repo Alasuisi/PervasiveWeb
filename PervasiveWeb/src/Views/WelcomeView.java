@@ -254,7 +254,8 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 				wip.addStyleName(ValoTheme.LABEL_COLORED);
 				wip.addStyleName(ValoTheme.LABEL_HUGE);
 				wip.addStyleName(ValoTheme.LABEL_H1);
-				midLayout.addComponent(wip);
+				ProfessorView profView = new ProfessorView();
+				midLayout.addComponents(wip,profView);
 				midLayout.setComponentAlignment(wip, Alignment.MIDDLE_CENTER);
 				
 			}

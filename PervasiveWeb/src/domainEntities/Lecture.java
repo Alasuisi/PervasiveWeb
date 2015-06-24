@@ -1,9 +1,11 @@
 package domainEntities;
 
 import java.util.Date;
+import java.util.HashMap;
 
 public class Lecture {
-
+		
+		private String objectId;
 		private String title;
 		private String topics;
 		private String from;
@@ -11,80 +13,24 @@ public class Lecture {
 		private String prof;
 		private String dayOfTheWeek;
 		private String classroom;
-		
+		private HashMap<Integer,String> topicsList;
 		
 		public Lecture(){};
-		public Lecture(String prof,String title,String topics,String from,String to,String classroom,String day)
-			{
-			this.setTitle(title);
-			this.setTopics(topics);
-			this.setFrom(from);
-			this.setTo(to);
-			this.setProf(prof);
-			this.setClassroom(classroom);
-			this.setDayOfTheWeek(day);
-			}
-
-
-		public String getTitle() {
-			return title;
-		}
-
-		public void setTitle(String title) {
+		public Lecture(String objectId, String title, String topics,
+				String from, String to, String prof, String dayOfTheWeek,
+				String classroom, HashMap<Integer, String> topicsList) {
+			super();
+			this.objectId = objectId;
 			this.title = title;
-		}
-
-		public String getTopics() {
-			return topics;
-		}
-
-		public void setTopics(String topics) {
 			this.topics = topics;
-		}
-
-		public String getFrom() {
-			return from;
-		}
-
-		public void setFrom(String from2) {
-			this.from = from2;
-		}
-
-		public String getTo() {
-			return to;
-		}
-
-		public void setTo(String to2) {
-			this.to = to2;
-		}
-
-		public String getProf() {
-			return prof;
-		}
-
-		public void setProf(String prof2) {
-			this.prof = prof2;
-		}
-		public String getDayOfTheWeek() {
-			return dayOfTheWeek;
-		}
-		public void setDayOfTheWeek(String dayOfTheWeek) {
+			this.from = from;
+			this.to = to;
+			this.prof = prof;
 			this.dayOfTheWeek = dayOfTheWeek;
-		}
-		public String getClassroom() {
-			return classroom;
-		}
-		public void setClassroom(String classroom) {
 			this.classroom = classroom;
+			this.topicsList = topicsList;
 		}
-		
-		@Override
-		public String toString() {
-			return "Lecture [title=" + title + ", topics=" + topics + ", from="
-					+ from + ", to=" + to + ", prof=" + prof
-					+ ", dayOfTheWeek=" + dayOfTheWeek + ", classroom="
-					+ classroom + "]";
-		}
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -94,13 +40,18 @@ public class Lecture {
 			result = prime * result
 					+ ((dayOfTheWeek == null) ? 0 : dayOfTheWeek.hashCode());
 			result = prime * result + ((from == null) ? 0 : from.hashCode());
+			result = prime * result
+					+ ((objectId == null) ? 0 : objectId.hashCode());
 			result = prime * result + ((prof == null) ? 0 : prof.hashCode());
 			result = prime * result + ((title == null) ? 0 : title.hashCode());
 			result = prime * result + ((to == null) ? 0 : to.hashCode());
 			result = prime * result
 					+ ((topics == null) ? 0 : topics.hashCode());
+			result = prime * result
+					+ ((topicsList == null) ? 0 : topicsList.hashCode());
 			return result;
 		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
@@ -125,6 +76,11 @@ public class Lecture {
 					return false;
 			} else if (!from.equals(other.from))
 				return false;
+			if (objectId == null) {
+				if (other.objectId != null)
+					return false;
+			} else if (!objectId.equals(other.objectId))
+				return false;
 			if (prof == null) {
 				if (other.prof != null)
 					return false;
@@ -145,8 +101,87 @@ public class Lecture {
 					return false;
 			} else if (!topics.equals(other.topics))
 				return false;
+			if (topicsList == null) {
+				if (other.topicsList != null)
+					return false;
+			} else if (!topicsList.equals(other.topicsList))
+				return false;
 			return true;
 		}
+
+		public String getObjectId() {
+			return objectId;
+		}
+
+		public void setObjectId(String objectId) {
+			this.objectId = objectId;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+
+		public String getTopics() {
+			return topics;
+		}
+
+		public void setTopics(String topics) {
+			this.topics = topics;
+		}
+
+		public String getFrom() {
+			return from;
+		}
+
+		public void setFrom(String from) {
+			this.from = from;
+		}
+
+		public String getTo() {
+			return to;
+		}
+
+		public void setTo(String to) {
+			this.to = to;
+		}
+
+		public String getProf() {
+			return prof;
+		}
+
+		public void setProf(String prof) {
+			this.prof = prof;
+		}
+
+		public String getDayOfTheWeek() {
+			return dayOfTheWeek;
+		}
+
+		public void setDayOfTheWeek(String dayOfTheWeek) {
+			this.dayOfTheWeek = dayOfTheWeek;
+		}
+
+		public String getClassroom() {
+			return classroom;
+		}
+
+		public void setClassroom(String classroom) {
+			this.classroom = classroom;
+		}
+
+		public HashMap<Integer, String> getTopicsList() {
+			return topicsList;
+		}
+
+		public void setTopicsList(HashMap<Integer, String> topicsList) {
+			this.topicsList = topicsList;
+		}
+		
+		
 		
 		
 		

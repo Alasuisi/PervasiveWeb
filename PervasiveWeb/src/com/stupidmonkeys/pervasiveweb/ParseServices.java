@@ -3,6 +3,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Timer;
@@ -35,8 +36,9 @@ public class ParseServices {
 	private static boolean classListPending=false;
 	private static long classListRetrievedTime;
 	
-	private static HashMap<String,Noise> classesNoiseMap;
-	private static HashMap<String,Boolean> classesNoiseMapRetrieved;
+	private static HashMap<String,Noise> classesNoiseMap= new HashMap<String,Noise>();
+	private static HashMap<String,Boolean> classesNoiseMapRetrieved=new HashMap<String,Boolean>();
+	private static HashMap<String,Boolean> classNoiseMapPending = new HashMap<String,Boolean>();
 	
 	private Calendar cal = Calendar.getInstance();
 	
@@ -104,6 +106,42 @@ public class ParseServices {
 			}else return null;
 		}
 	
+	public LinkedList<Long> getNoiseForRoom(String classroom)
+		{
+		Boolean pending =classNoiseMapPending.get(classroom);
+		 if (pending==null) 
+		 	{
+			 System.out.println("pending not initialized, returning null");
+			 classNoiseMapPending.put(classroom, false);
+			 return null;
+			}
+		 if(pending.booleanValue()==true) {System.out.println("update pending returning null");return null;}
+		 long tenMinutes=600000;
+		 long thisTime = Calendar.getInstance().getTimeInMillis();
+		 Noise noise =classesNoiseMap.get(classroom);
+		 if(noise==null)
+		 	{
+			 System.out.println("noiselist not present, invoking retrieve");
+			 retrieveNoiseForRoom(classroom);
+			 return null; //TODO check if needed
+		 	}else
+		 		{
+		 		long noiseAge = thisTime-classesNoiseMap.get(classroom).getTimeStamp();
+		 		if(noiseAge>tenMinutes)
+		 			{
+		 			classNoiseMapPending.put(classroom, true);
+		 			retrieveNoiseForRoom(classroom);
+		 			}
+		 		}
+		 if(classesNoiseMap.get(classroom).getTimeStamp()-thisTime<15000)
+		 	{
+			 classNoiseMapPending.put(classroom, false);
+			 System.out.println("noiselist ready and updated");
+			 LinkedList<Long> result =classesNoiseMap.get(classroom).getNoiseList();
+			 return result;
+		 	}else return null;
+		}
+	
 	/*
 	 * This method calls a remote procedure on parse.com asking for the list of all the lectures
 	 * ad returns an array linkedlist of objects "Lecture" properly formatted in this manner:
@@ -132,6 +170,7 @@ public class ParseServices {
 								{
 								 
 								 JSONObject row=result.getJSONObject(i);
+								 String objId= row.getString("objectId");
 								 long baseDate = row.getLong("start_date");
 								 long startHour = row.getLong("starttime");
 								 long endHour = row.getLong("endtime");
@@ -150,6 +189,7 @@ public class ParseServices {
 								 Date endDate = new Date(Long.parseLong(String.valueOf(lecEnd))*1000);
 								 
 								 Lecture toAdd = new Lecture();
+								 toAdd.setObjectId(objId);
 								 toAdd.setClassroom(className);
 								 toAdd.setDayOfTheWeek(days.format(startDate));
 								 toAdd.setFrom(hours.format(startDate));
@@ -176,10 +216,6 @@ public class ParseServices {
 						totalList=total;
 						lecListRetrieved=true;
 						lecListRetrievedTime=Calendar.getInstance().getTimeInMillis();
-						/*thisUI.setLecList(total);
-						thisUI.setLecListRetrievedTrue();
-						thisUI.setLecListRetrievedTime();
-						System.out.println("Lecture list retrieved");*/
 						}
 					});
 				

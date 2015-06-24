@@ -266,8 +266,9 @@ public class LecturesView extends VerticalLayout{
 		else nextTable.setPageLength(10);
 		nextTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		nextTable.addStyleName(ValoTheme.TABLE_SMALL);
-		nextTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
 		nextTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		nextTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		
 		nextTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
 		nextTable.setColumnWidth("classroom", 170);
 		nextTable.setColumnWidth("from", 50);
@@ -307,8 +308,9 @@ public class LecturesView extends VerticalLayout{
 		else nowTable.setPageLength(10);
 		nowTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		nowTable.addStyleName(ValoTheme.TABLE_SMALL);
-		nowTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
 		nowTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		nowTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		
 		nowTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
 		nowTable.setColumnWidth("classroom", 170);
 		nowTable.setColumnWidth("from", 50);
@@ -348,8 +350,9 @@ public class LecturesView extends VerticalLayout{
 		else prevTable.setPageLength(10);
 		prevTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		prevTable.addStyleName(ValoTheme.TABLE_SMALL);
-		prevTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
 		prevTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		prevTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
+		
 		prevTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
 		prevTable.setColumnWidth("classroom", 170);
 		prevTable.setColumnWidth("from", 50);

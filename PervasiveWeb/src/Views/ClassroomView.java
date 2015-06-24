@@ -110,6 +110,7 @@ public class ClassroomView extends VerticalLayout{
 	private Label actLabel5 = new Label();
 	
 	private PervasivewebUI thisUI;
+	private long scheduleRate=1500;
 	
 	public ClassroomView()
 		{
@@ -208,7 +209,7 @@ public class ClassroomView extends VerticalLayout{
 				getActualStudentNumber(classValue);
 				getClassroomSeats(classValue);
 				getActualLecture(classValue);
-				//TODO getNoiseForRoom(classValue);
+				getNoiseForRoom(classValue);
 				genValue2="43%";
 				genValue3="28°";
 				genValue4="6";
@@ -602,7 +603,7 @@ public class ClassroomView extends VerticalLayout{
 		}
 	
 	
-	private void getNoiseForRoom(final String classLabel)
+	/*private void getNoiseForRoom(final String classLabel)
 		{
 		final Timer timer = new Timer();
 		TimerTask task = new TimerTask(){
@@ -640,47 +641,42 @@ public class ClassroomView extends VerticalLayout{
 				
 			}};
 			timer.scheduleAtFixedRate(task, 0, 500);
-		}
-	/*private void getNoiseForRoom(String classLabel)
+		}*/
+	private void getNoiseForRoom(final String classLabel)
 		{
-		HashMap<String, String> map = new HashMap<String, String>();
-		map.put("room", classLabel);
-		ParseCloud.callFunctionInBackground("getNoiseForRoomRecursive", map, new FunctionCallback<JSONArray>(){
+		System.out.println("Called ClassroomView.populateComboBox()");
+		final Timer timer = new Timer();
+		TimerTask task = new TimerTask(){
 
 			@Override
-			public void done(final JSONArray result, ParseException parseException) {
-				if(parseException==null)
+			public void run() {
+				final LinkedList<Long> noiseList = ParseServices.getInstance().getNoiseForRoom(classLabel);
+				if(noiseList!=null)
 					{
+					timer.cancel();
 					thisUI.access(new Runnable(){
 
 						@Override
 						public void run() {
-							int length=result.length();
-							for(int i=0;i<length;i++)
+							Iterator<Long> iter =noiseList.iterator();
+							while(iter.hasNext())
 								{
-								JSONObject obj = result.getJSONObject(i);
-								long noise = obj.getLong("Decibel");
-								noiseSeries.addData(noise);
-								UI.getCurrent().push();
-								 try {
+								long point=iter.next().longValue();
+								noiseSeries.addData(point);
+								thisUI.push();
+								try {
 									Thread.sleep(500);
 								} catch (InterruptedException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
-								
 								}
 							
 						}});
-					
-					}else
-						{
-						System.err.println(parseException.getMessage());
-						}
-				
-			}});
-		}*/
-	
+					}
+			}};
+			timer.scheduleAtFixedRate(task, 0, scheduleRate);
+		}
 	private void populateComboBox()
 		{
 		 System.out.println("Called ClassroomView.populateComboBox()");
@@ -707,7 +703,7 @@ public class ClassroomView extends VerticalLayout{
 					//ParseServices.getInstance().
 					}*/
 			}};
-			timer.scheduleAtFixedRate(task, 0, 1500);
+			timer.scheduleAtFixedRate(task, 0, scheduleRate);
 		}
 
 			
