@@ -45,6 +45,8 @@ public class ParseServices {
 	private static HashMap<String,Boolean> classesNoiseMapRetrieved=new HashMap<String,Boolean>();
 	private static HashMap<String,Boolean> classNoiseMapPending = new HashMap<String,Boolean>();
 	
+	private String test;
+	
 	String topicsForLecture=null;
 	
 	private Calendar cal = Calendar.getInstance();

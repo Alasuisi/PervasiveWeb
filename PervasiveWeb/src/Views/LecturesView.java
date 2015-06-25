@@ -292,7 +292,8 @@ public class LecturesView extends VerticalLayout{
 			public void itemClick(ItemClickEvent event) {
 				BeanItem<?> selected =(BeanItem<?>) event.getItem();
 				Lecture lecture = (Lecture) selected.getBean();
-				if(!lecture.getTopicsList().equals("---"))
+				String lectureField=lecture.getTopicsList();
+				if(lectureField!=null)
 				{
 				Window subWin = new Window("Lecture Topics List");
 				VerticalLayout winLay = new VerticalLayout();
@@ -361,7 +362,8 @@ public class LecturesView extends VerticalLayout{
 			public void itemClick(ItemClickEvent event) {
 				BeanItem<?> selected =(BeanItem<?>) event.getItem();
 				Lecture lecture = (Lecture) selected.getBean();
-				if(!lecture.getTopicsList().equals("---"))
+				String lectureField=lecture.getTopicsList();
+				if(lectureField!=null)
 				{
 				Window subWin = new Window("Lecture Topics List");
 				VerticalLayout winLay = new VerticalLayout();
@@ -430,7 +432,9 @@ public class LecturesView extends VerticalLayout{
 			public void itemClick(ItemClickEvent event) {
 				BeanItem<?> selected =(BeanItem<?>) event.getItem();
 				Lecture lecture = (Lecture) selected.getBean();
-				if(!lecture.getTopicsList().equals("---"))
+				String lectureField=lecture.getTopicsList();
+				//if(!lecture.getTopicsList().equals("---"))
+				if(lectureField!=null)
 				{
 				Window subWin = new Window("Lecture Topics List");
 				VerticalLayout winLay = new VerticalLayout();
