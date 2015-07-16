@@ -62,7 +62,12 @@ public class ParseServices {
 	      System.out.println("VECCHIAAAA ISTANZAAAAAAAA");
 	      return instance;
 	   }
+	
 	   
+	   
+	/*
+	 * Questo metodo e i successivi vanno corretti e riscritti per correggere i problemi di sincronizzazione
+	 */
 	public LinkedList<Lecture>[] getLectures()
 		{
 		if(lecListPending==true) 
