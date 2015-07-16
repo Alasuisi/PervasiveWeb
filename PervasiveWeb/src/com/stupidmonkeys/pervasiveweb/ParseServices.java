@@ -48,6 +48,7 @@ public class ParseServices {
 	private  HashMap<String,Boolean> classNoiseMapPending = new HashMap<String,Boolean>();
 	
 	private final Semaphore updatePermitClassList = new Semaphore(1);
+	private final Semaphore updatePermitNoiseList = new Semaphore(1);
 	
 	private String test;
 	
@@ -120,6 +121,7 @@ public class ParseServices {
 	
 	public synchronized LinkedList<String> getClassroomList()
 		{
+		if (updatePermitClassList.tryAcquire()) {
 		if(classListPending==true)
 			{ 
 			System.out.println("list is NOT pending");
@@ -146,9 +148,20 @@ public class ParseServices {
 			classListPending=false;
 			return classroomList;
 			}else return null;
+		 } else {
+		        System.out.println("Classroom list update already running, wait");
+		    	try {
+					updatePermitClassList.acquire();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		        //release the permit immediately
+		    	updatePermitClassList.release();
+		    }
+		return null;
 		}
 	
-	public LinkedList<Long> getNoiseForRoom(String classroom)
+	public synchronized LinkedList<Long> getNoiseForRoom(String classroom)
 		{
 		Boolean pending =classNoiseMapPending.get(classroom);
 		 if (pending==null) 
@@ -182,6 +195,7 @@ public class ParseServices {
 			 LinkedList<Long> result =classesNoiseMap.get(classroom).getNoiseList();
 			 return result;
 		 	}else return null;
+		
 		}
 	
 	/*
@@ -283,7 +297,7 @@ public class ParseServices {
 	private void retrieveClassroomList()
 		{
 		
-		if (updatePermitClassList.tryAcquire()) {
+		
 
 			System.out.println("called retrieveClassroomList");
 			classListRetrieved =false;
@@ -306,16 +320,7 @@ public class ParseServices {
 				updatePermitClassList.release();
 			}});
 			
-	    } else {
-	        System.out.println("Classroom list update already running, wait");
-	    	try {
-				updatePermitClassList.acquire();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-	        //release the permit immediately
-	    	updatePermitClassList.release();
-	    }
+	   
 		
 		
 			
@@ -324,6 +329,8 @@ public class ParseServices {
 	
 	private void retrieveNoiseForRoom(final String classRoom)
 		{
+		
+		if(updatePermitNoiseList.tryAcquire()){
 		System.out.println("called retrieveNoiseForRoom("+classRoom+")");
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("room", classRoom);
@@ -348,6 +355,7 @@ public class ParseServices {
 					classesNoiseMap.put(classRoom, toSet);
 					classesNoiseMapRetrieved.put(classRoom, true);
 					//thisUI.setNoiseForRoomRetrievedTrue(classRoom);
+					updatePermitNoiseList.release();
 					System.out.println(" retrieved noise for room "+classRoom);
 					
 					}else
@@ -356,6 +364,17 @@ public class ParseServices {
 						}
 				
 			}});
+		}else {
+	        System.out.println("Noise list update already running, wait");
+	    	try {
+				updatePermitNoiseList.acquire();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+	        //release the permit immediately
+	    	updatePermitNoiseList.release();
+	    }
+	
 		}
 	
 	
