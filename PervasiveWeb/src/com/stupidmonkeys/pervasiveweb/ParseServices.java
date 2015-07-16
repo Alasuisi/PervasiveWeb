@@ -9,6 +9,8 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Map.Entry;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,20 +32,22 @@ public class ParseServices {
 	private static ParseServices instance = null;
 	//private PervasivewebUI thisUI = (PervasivewebUI) UI.getCurrent();
 	
-	private static LinkedList<Lecture>[] totalList;
-	private static boolean lecListRetrieved;
-	private static boolean lecListPending=false;
-	private static boolean lectureListDirty=false;
-	private static long lecListRetrievedTime;
+	private  LinkedList<Lecture>[] totalList;
+	private  boolean lecListRetrieved;
+	private  boolean lecListPending=false;
+	private  boolean lectureListDirty=false;
+	private  long lecListRetrievedTime;
 	
-	private static LinkedList<String> classroomList;
-	private static boolean classListRetrieved;
-	private static boolean classListPending=false;
-	private static long classListRetrievedTime;
+	private  LinkedList<String> classroomList;
+	private  boolean classListRetrieved;
+	private  boolean classListPending=false;
+	private  long classListRetrievedTime;
 	
-	private static HashMap<String,Noise> classesNoiseMap= new HashMap<String,Noise>();
-	private static HashMap<String,Boolean> classesNoiseMapRetrieved=new HashMap<String,Boolean>();
-	private static HashMap<String,Boolean> classNoiseMapPending = new HashMap<String,Boolean>();
+	private  HashMap<String,Noise> classesNoiseMap= new HashMap<String,Noise>();
+	private  HashMap<String,Boolean> classesNoiseMapRetrieved=new HashMap<String,Boolean>();
+	private  HashMap<String,Boolean> classNoiseMapPending = new HashMap<String,Boolean>();
+	
+	private final Semaphore updatePermitClassList = new Semaphore(1);
 	
 	private String test;
 	
@@ -110,14 +114,23 @@ public class ParseServices {
 		{
 		lectureListDirty=true;
 		}
-	public LinkedList<String> getClassroomList()
+	
+	
+	
+	
+	public synchronized LinkedList<String> getClassroomList()
 		{
-		if(classListPending==true) return null;
+		if(classListPending==true)
+			{ 
+			System.out.println("list is NOT pending");
+			return null;
+			}
 		long twentyforHours=86400000;
 		long thisTime=cal.getTimeInMillis();
 		if(classroomList==null)
 			{
 			retrieveClassroomList();
+			System.out.println("Chiamata 1");
 			}else
 				{
 				 long listAge=thisTime-classListRetrievedTime;
@@ -125,6 +138,7 @@ public class ParseServices {
 				 	{
 					 classListPending=true;
 					 retrieveClassroomList();
+					 System.out.println("Chiamata 2");
 				 	}
 				}
 		if(classListRetrievedTime-thisTime<twentyforHours)
@@ -263,36 +277,14 @@ public class ParseServices {
 		}
 	
 	/*
-	 * This method simply invokes periodically retrieveLectureList(),
-	 * this is to be used in the main UI class, in order to create-update
-	 * a global shared variable for all the instances of the web-app
-	 * 
-	 * ---PROBABLY DEPRECATED---
-	 */
-	private void periodicallyRetrieveLectureList(final long intervalMillis)
-		{
-			final Timer timer = new Timer();
-			TimerTask task = new TimerTask(){
-			
-						@Override
-						public void run() {
-							//thisUI.setLecListRetrievedFalse();
-							lecListRetrieved=false;
-							System.out.println("Called lecture retrieve periodically every "+intervalMillis/(60*1000)+" minutes");
-							retrieveLectureList();
-
-						}};
-						
-						timer.scheduleAtFixedRate(task, intervalMillis, intervalMillis);
-						
-		}
-	
-	/*
 	 * This method simply retrieve from parse, the list of the classrooms
 	 * defined in the system
 	 */
 	private void retrieveClassroomList()
 		{
+		
+		if (updatePermitClassList.tryAcquire()) {
+
 			System.out.println("called retrieveClassroomList");
 			classListRetrieved =false;
 			final LinkedList<String> lista=new LinkedList<String>();
@@ -310,39 +302,25 @@ public class ParseServices {
 				classroomList=lista;
 				classListRetrieved = true;
 				classListRetrievedTime=Calendar.getInstance().getTimeInMillis();
-				/*thisUI.setClassList(lista);
-				thisUI.setClassListRetrievedTrue();
-				thisUI.setClassListRetrievedTime();*/
 				System.out.println("ClassroomList retrieved");
-				
+				updatePermitClassList.release();
 			}});
-		}
-	/*
-	 * Even if its very unlikely that classrooms changes, still a method
-	 * has been defined for polling at regular intervals for update the cached
-	 * data about che classroom list, it executes every 24 hour at 20:00
-	 * 
-	 * ---PROBABLY DEPRECATED---
-	 */
-	private void periodicallyRetrieveClassroomList(final int hours)
-		{
-			Timer timer = new Timer();
-			TimerTask task = new TimerTask(){
-
-				@Override
-				public void run() {
-					//thisUI.setClassListRetrievedFalse();
-					classListRetrieved=false;
-					System.out.println("Called lecture retrieve periodically every "+hours+" hours");
-					retrieveClassroomList();
-				}};
-				long timeMillis=hours*60*60*1000;
-				Calendar cal = Calendar.getInstance();
-				cal.set(Calendar.HOUR_OF_DAY, 20);
-				Date startDate = cal.getTime();
-				timer.scheduleAtFixedRate(task, startDate, timeMillis);
+			
+	    } else {
+	        System.out.println("Classroom list update already running, wait");
+	    	try {
+				updatePermitClassList.acquire();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+	        //release the permit immediately
+	    	updatePermitClassList.release();
+	    }
+		
+		
 			
 		}
+
 	
 	private void retrieveNoiseForRoom(final String classRoom)
 		{

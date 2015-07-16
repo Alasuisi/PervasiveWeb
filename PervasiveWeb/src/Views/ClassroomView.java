@@ -110,7 +110,7 @@ public class ClassroomView extends VerticalLayout{
 	private Label actLabel5 = new Label();
 	
 	private PervasivewebUI thisUI;
-	private long scheduleRate=1500;
+	private long scheduleRate=150;//private long scheduleRate=1500;
 	
 	public ClassroomView()
 		{
@@ -685,7 +685,8 @@ public class ClassroomView extends VerticalLayout{
 
 			@Override
 			public void run() {
-				LinkedList<String> classList = ParseServices.getInstance().getClassroomList();
+				LinkedList<String> classList;
+				classList = ParseServices.getInstance().getClassroomList();
 				if(classList!=null)
 					{
 					BeanItemContainer<String> container = new BeanItemContainer<String>(String.class,classList);
