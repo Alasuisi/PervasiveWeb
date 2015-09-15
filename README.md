@@ -31,21 +31,21 @@ Mainly the webApp interfaces with Parse.com services and is designed in such a w
 (objects that are not private such as class schedule for example is shared system wide among all the connected users)
 
 #Web application funcionalities description
--Secure Login screen (mockup only, functionality still not implemented)
--Classroom section:
+- Secure Login screen (mockup only, functionality still not implemented)
+- Classroom section:
     Classroom selector (implemented)
     Seats occupancy (interface implemented, logic missing)
     Noise levels history (web application side logic implemented, decoupled from actual data on parse services)
     Actual noise meter (web application side logic implemented, decoupled from actual data on parse services)
     Classroom synthetics (partially implemented)
--Lectures section:
+- Lectures section:
     Past, present and future lessons (implemented)
     Topics list (if present) (implemented)
--Professor section:
+- Professor section:
   This section will most certainly have some secure mesure to ensure that only professors could access this view and edit only
   the content they should own
     Topics fo lecture editing (implemented with html capabilities, such as hypertext, links and image support)
--Administration section:
+- Administration section:
     Reserved fo future purposes
 
 # Requirements 
