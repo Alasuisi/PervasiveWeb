@@ -12,10 +12,8 @@ the estimote beacons(www.estimote.com), and date are managed with Parse (www.par
 
 #web application compiling and deployment
 - to compile and deploy a correct WAR file for the web application portion of the software you need eclipse IDE 
-  (version LUNA and above) and add as component the VAADIN plugin, plus the usual packages to work with webApp servers
-  at this point you could safely import from git the project and compile it (all the neede data and classess should be there,
-  plus ivyDe should download the required dependancies) you could then try to build and launch the project in eclipse or esport
-  it as a war file and deploy it on a service of your choise, said that it offers apache tomcat as web app container
+  (version LUNA and above) and add as component the VAADIN plugin, plus the usual packages to work with webApp servers.
+  At this point you should safely import from git the project and compile it (all the neede data and classess should be there,plus ivyDe should download the required dependancies) you could then try to build and launch the project in eclipse or export it as a war file and deploy it on a service of your choice, said that it offers apache tomcat as web app container
 - If the progect runs but instead of some components you see in the webBrowser windows some strange error messages, this means
   that for some reason the widgetset is broken and need recompiling (vaadin technology is similar to GWT so you need to compile
   the project, compile the css (if you have modified them) and also compile the widgetset if yoo add a new widget or if, for some
