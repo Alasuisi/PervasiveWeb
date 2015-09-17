@@ -32,19 +32,25 @@ Mainly the webApp interfaces with Parse.com services and is designed in such a w
 
 #Web application funcionalities description
 - Secure Login screen (mockup only, functionality still not implemented)
-- Classroom section:
-Classroom selector (implemented).
-Seats occupancy (interface implemented, logic missing).
-Noise levels history (web application side logic implemented, decoupled from actual data on parse services).
-Actual noise meter (web application side logic implemented, decoupled from actual data on parse services).
-Classroom synthetics (partially implemented).
+![alt tag](https://cloud.githubusercontent.com/assets/11620145/9933191/82aa6dbe-5d49-11e5-837e-8ae1b233f07a.jpg)
+- Classroom section:  
+  Classroom selector (implemented).  
+![alt tag](https://cloud.githubusercontent.com/assets/11620145/9933194/87a23838-5d49-11e5-8866-e4f2e045b258.jpg)
+  Seats occupancy (interface implemented, logic missing).  
+  Noise levels history (web application side logic implemented, decoupled from actual data on parse services).  
+  Actual noise meter (web application side logic implemented, decoupled from actual data on parse services).  
+  Classroom synthetics (partially implemented).  
+![alt tag](https://cloud.githubusercontent.com/assets/11620145/9933196/89b368fe-5d49-11e5-830c-274ff822c077.jpg)
 - Lectures section:
-Past, present and future lessons (implemented).
-Topics list (if present) (implemented).
+Past, present and future lessons (implemented).  
+![alt tag](https://cloud.githubusercontent.com/assets/11620145/9933197/8afc3060-5d49-11e5-9394-94e8e15e076d.jpg)
+Topics list (if present) (implemented).  
+![alt tag](https://cloud.githubusercontent.com/assets/11620145/9933200/8c75fe26-5d49-11e5-881a-deb5b6cc57fb.jpg)
 - Professor section:
 This section will most certainly have some secure mesure to ensure that only professors could access this view and edit only
   the content they should own.
-Topics fo lecture editing (implemented with html capabilities, such as hypertext, links and image support).
+Topics fo lecture editing (implemented with html capabilities, such as hypertext, links and image support).  
+![alt tag](https://cloud.githubusercontent.com/assets/11620145/9933202/8e6f8440-5d49-11e5-97a1-0aaa79ec2a7e.jpg)
 - Administration section:
 Reserved fo future purposes.
 
@@ -52,3 +58,6 @@ Reserved fo future purposes.
 
 - A modern web browser basically
 
+# Android portion
+For the android portion of the system please refer to this repo:  
+https://github.com/Loris89/ParseStarterProject  
