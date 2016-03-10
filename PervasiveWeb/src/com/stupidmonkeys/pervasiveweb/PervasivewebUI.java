@@ -44,8 +44,11 @@ public class PervasivewebUI extends UI {
 	@Override
 	protected void init(VaadinRequest request) {
 		//UI.getCurrent().setLocale(new Locale("it"));
-		parseAppId = "gjDmHU8kCWGxlmcJP97iCfDWXrH5zxtBZRC8kDMM";
-		parseRestKey = "MKEJ4APJFnq7srnzpjPFvRW3vdkP3g1IOwbO53Yl";
+	//	OLD_parseAppId = "gjDmHU8kCWGxlmcJP97iCfDWXrH5zxtBZRC8kDMM";
+	//	OLD_parseRestKey = "MKEJ4APJFnq7srnzpjPFvRW3vdkP3g1IOwbO53Yl";
+		
+		parseAppId = "WYN5XzaG0B7TdkyUGVKuW1kKOZICxdLdoK4Xw8G9";
+		parseRestKey = "k6h8B8vH0wivUTSumBYrCROu2HtQooih3b3SoXgn";
 		
 		Parse.initialize(parseAppId, parseRestKey);
 		

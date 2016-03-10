@@ -132,7 +132,7 @@ public class ParseServices {
 		if(classroomList==null)
 			{
 			retrieveClassroomList();
-			System.out.println("Chiamata 1");
+			System.out.println("Chiamata 1 (nuova lista)");
 			}else
 				{
 				 long listAge=thisTime-classListRetrievedTime;
@@ -140,7 +140,7 @@ public class ParseServices {
 				 	{
 					 classListPending=true;
 					 retrieveClassroomList();
-					 System.out.println("Chiamata 2");
+					 System.out.println("Chiamata 2 (lista obsoleta)");
 				 	}
 				}
 		if(classListRetrievedTime-thisTime<twentyforHours)
