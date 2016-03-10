@@ -65,6 +65,8 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+import domainEntities.Classroom;
+
 public class ClassroomView extends VerticalLayout{
 	
 	/**
@@ -685,11 +687,11 @@ public class ClassroomView extends VerticalLayout{
 
 			@Override
 			public void run() {
-				LinkedList<String> classList;
+				LinkedList<Classroom> classList;
 				classList = ParseServices.getInstance().getClassroomList();
 				if(classList!=null)
 					{
-					BeanItemContainer<String> container = new BeanItemContainer<String>(String.class,classList);
+					BeanItemContainer<Classroom> container = new BeanItemContainer<Classroom>(Classroom.class,classList);
 					combo.setContainerDataSource(container);
 					timer.cancel();
 					}else System.out.println("List wasn't there or is being updated, rescheduling populateComboBox()");

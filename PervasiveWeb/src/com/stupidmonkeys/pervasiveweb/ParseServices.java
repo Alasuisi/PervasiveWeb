@@ -1,4 +1,5 @@
 package com.stupidmonkeys.pervasiveweb;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
@@ -24,6 +26,7 @@ import org.parse4j.callback.GetCallback;
 import com.stupidmonkeys.pervasiveweb.PervasivewebUI;
 import com.vaadin.ui.UI;
 
+import domainEntities.Classroom;
 import domainEntities.Lecture;
 import domainEntities.Noise;
 
@@ -38,7 +41,7 @@ public class ParseServices {
 	private  boolean lectureListDirty=false;
 	private  long lecListRetrievedTime;
 	
-	private  LinkedList<String> classroomList;
+	private  LinkedList<Classroom> classroomList;
 	private  boolean classListRetrieved;
 	private  boolean classListPending=false;
 	private  long classListRetrievedTime;
@@ -119,7 +122,7 @@ public class ParseServices {
 	
 	
 	
-	public synchronized LinkedList<String> getClassroomList()
+	public synchronized LinkedList<Classroom> getClassroomList()
 		{
 		if (updatePermitClassList.tryAcquire()) {
 		if(classListPending==true)
@@ -301,18 +304,92 @@ public class ParseServices {
 
 			System.out.println("called retrieveClassroomList");
 			classListRetrieved =false;
-			final LinkedList<String> lista=new LinkedList<String>();
+		//	final LinkedList<String> lista=new LinkedList<String>();
+			final LinkedList<Classroom> lista = new LinkedList<Classroom>();
 			ParseCloud.callFunctionInBackground("getClassroomList", null, new FunctionCallback<JSONArray>(){
 
 			@Override
 			public void done(final JSONArray result, ParseException parseException) {
-				
+				System.out.println("PORCADDIOOOOOOOOOO    "+result.length());
 				for(int i=0;i<result.length();i++)
 				{
 				
 				JSONObject obj =result.getJSONObject(i);
-				lista.add(new String(obj.getString("Name")));
+				Classroom toAdd = new Classroom();
+				try{
+				toAdd.setClassName(obj.getString("Name"));
+				}catch(JSONException e)
+					{
+					
+					System.err.println("Object with key:"+obj.getString("objectId")+" has 'Name' field not initialized, "
+							+ "it will be assigned the NULL value to that field in the web app representation "
+							+ "(nothing will be touched in the BaaS)");
+					toAdd.setClassName(null);
+					}
+				try{
+				toAdd.setSeatsOfclass(obj.getInt("seatsNumber"));
+				}catch(JSONException e)
+					{
+					System.err.println("Object with key:"+obj.getString("objectId")+" has 'SeatsNumber' field not initialized, "
+							+ "it will be assigned the 0 value to that field in the web app representation "
+							+ "(nothing will be touched in the BaaS)");
+					toAdd.setSeatsOfclass(0);
+					}
+				try{
+				toAdd.setSeatsTaken(obj.getInt("seatsOccupied"));
+				}catch(JSONException e)
+					{
+					System.err.println("Object with key:"+obj.getString("objectId")+" has 'SeastOccupied' field not initialized, "
+							+ "it will be assigned the 0 value to that field in the web app representation "
+							+ "(nothing will be touched in the BaaS)");
+					toAdd.setSeatsTaken(0);
+					}
+				try{
+				toAdd.setAssignedBeacon(obj.getString("beacon"));
+				}catch(JSONException e)
+					{
+					System.err.println("Object with key:"+obj.getString("objectId")+" has 'beacon' field not initialized, "
+							+ "it will be assigned the NULL value to that field in the web app representation "
+							+ "(nothing will be touched in the BaaS)");
+					toAdd.setAssignedBeacon(null);
+					}
+				try{
+				toAdd.setClassNoise(obj.getLong("actual_noise"));
+				}catch(JSONException e)
+					{
+					System.err.println("Object with key:"+obj.getString("objectId")+" has 'actual_noise' field not initialized, "
+							+ "it will be assigned the 0 value to that field in the web app representation "
+							+ "(nothing will be touched in the BaaS)");
+					toAdd.setClassNoise(0);
+					}
+				try{
+				toAdd.setClassTemp(obj.getLong("actual_temp"));
+				}catch(JSONException e)
+				{
+					System.err.println("Object with key:"+obj.getString("objectId")+" has 'actual_temp' field not initialized, "
+							+ "it will be assigned the 0 value to that field in the web app representation "
+							+ "(nothing will be touched in the BaaS)");
+					toAdd.setClassTemp(0);
 				}
+				try{
+				toAdd.setActualCourse(obj.get("Course").toString());
+				}catch(JSONException e)
+					{
+					System.err.println("Object with key:"+obj.getString("objectId")+" has 'Course' field not initialized, "
+							+ "it will be assigned the NULL value to that field in the web app representation "
+							+ "(nothing will be touched in the BaaS)");
+					toAdd.setAssignedBeacon(null);
+					}
+				
+				//lista.add(new String(obj.getString("Name")));
+				lista.add(toAdd);
+				
+				}
+				Iterator<Classroom> iter = lista.iterator();
+				while (iter.hasNext())
+					{
+						System.out.println(iter.next().toString());
+					}
 				classroomList=lista;
 				classListRetrieved = true;
 				classListRetrievedTime=Calendar.getInstance().getTimeInMillis();
