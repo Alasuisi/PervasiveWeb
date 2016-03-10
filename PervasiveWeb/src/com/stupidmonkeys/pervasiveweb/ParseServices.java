@@ -311,7 +311,7 @@ public class ParseServices {
 				{
 				
 				JSONObject obj =result.getJSONObject(i);
-				lista.add(new String(obj.getString("Label")));
+				lista.add(new String(obj.getString("Name")));
 				}
 				classroomList=lista;
 				classListRetrieved = true;
