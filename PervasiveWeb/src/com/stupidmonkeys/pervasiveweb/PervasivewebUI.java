@@ -9,6 +9,8 @@ import java.util.TimerTask;
 import javax.servlet.annotation.WebServlet;
 
 import org.parse4j.Parse;
+import org.parse4j.ParseCloud;
+import org.parse4j.ParsePush;
 
 import Views.LoginView;
 import Views.WelcomeView;
@@ -51,6 +53,7 @@ public class PervasivewebUI extends UI {
 		parseRestKey = "k6h8B8vH0wivUTSumBYrCROu2HtQooih3b3SoXgn";
 		
 		Parse.initialize(parseAppId, parseRestKey);
+		
 		
 		navi = new Navigator(this,this);
 		navi.addView("", (Class<? extends View>) this.getClass());

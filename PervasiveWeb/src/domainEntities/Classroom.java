@@ -8,7 +8,7 @@ public class Classroom {
 	private String assignedBeacon;
 	private long classTemp;
 	private long classNoise;
-	private String actualCourse;
+	private Course actualCourse;
 	
 	
 	public Classroom(){};
@@ -60,10 +60,10 @@ public class Classroom {
 	public void setClassNoise(long classNoise) {
 		this.classNoise = classNoise;
 	}
-	public String getActualCourse() {
+	public Course getActualCourse() {
 		return actualCourse;
 	}
-	public void setActualCourse(String actualCourse) {
+	public void setActualCourse(Course actualCourse) {
 		this.actualCourse = actualCourse;
 	}
 	

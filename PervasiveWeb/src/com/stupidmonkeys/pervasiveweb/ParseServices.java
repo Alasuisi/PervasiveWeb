@@ -26,7 +26,9 @@ import org.parse4j.callback.GetCallback;
 import com.stupidmonkeys.pervasiveweb.PervasivewebUI;
 import com.vaadin.ui.UI;
 
+import domainEntities.Board;
 import domainEntities.Classroom;
+import domainEntities.Course;
 import domainEntities.Lecture;
 import domainEntities.Noise;
 
@@ -45,6 +47,8 @@ public class ParseServices {
 	private  boolean classListRetrieved;
 	private  boolean classListPending=false;
 	private  long classListRetrievedTime;
+	
+	private LinkedList<Course> courseList;
 	
 	private  HashMap<String,Noise> classesNoiseMap= new HashMap<String,Noise>();
 	private  HashMap<String,Boolean> classesNoiseMapRetrieved=new HashMap<String,Boolean>();
@@ -372,7 +376,12 @@ public class ParseServices {
 					toAdd.setClassTemp(0);
 				}
 				try{
-				toAdd.setActualCourse(obj.get("Course").toString());
+					JSONObject jcour=obj.getJSONObject("Course");
+					Course actual = new Course();
+					actual.setObjectId(jcour.getString("objectId"));
+					actual.setName(jcour.getString("name"));
+					
+				toAdd.setActualCourse(actual);
 				}catch(JSONException e)
 					{
 					System.err.println("Object with key:"+obj.getString("objectId")+" has 'Course' field not initialized, "
