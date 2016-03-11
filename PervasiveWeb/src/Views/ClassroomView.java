@@ -207,7 +207,8 @@ public class ClassroomView extends VerticalLayout{
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				final String classValue = combo.getValue().toString();
+				Classroom classroom = (Classroom) combo.getValue();
+				final String classValue=classroom.getClassName();
 				getActualStudentNumber(classValue);
 				getClassroomSeats(classValue);
 				getActualLecture(classValue);

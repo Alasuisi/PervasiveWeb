@@ -69,9 +69,10 @@ public class Classroom {
 	
 	@Override
 	public String toString() {
-		return "Classroom [className=" + className + ", seatsOfclass=" + seatsOfclass + ", seatsTaken=" + seatsTaken
+		/*return "Classroom [className=" + className + ", seatsOfclass=" + seatsOfclass + ", seatsTaken=" + seatsTaken
 				+ ", assignedBeacon=" + assignedBeacon + ", classTemp=" + classTemp + ", classNoise=" + classNoise
-				+ ", actualCourse=" + actualCourse + "]";
+				+ ", actualCourse=" + actualCourse + "]";*/
+		return className;
 	}
 	@Override
 	public int hashCode() {
