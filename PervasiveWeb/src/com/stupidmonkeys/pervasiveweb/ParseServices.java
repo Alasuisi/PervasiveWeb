@@ -477,7 +477,7 @@ public class ParseServices {
 				System.out.println(t.get("summary"));
 			t.put("topics", topicsList);
 			t.saveInBackground();
-			}else System.out.println("orcamadò "+parseException.getMessage());
+			}else System.out.println("Something bad happened "+parseException.getMessage());
 			
 		}});
 	}

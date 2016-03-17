@@ -3,18 +3,24 @@ package Views;
 import java.io.Serializable;
 
 import org.apache.catalina.core.ApplicationContext;
+import org.parse4j.ParseException;
 //import org.vaadin.jouni.animator.Animator;
 //import org.vaadin.jouni.animator.client.CssAnimation;
 //import org.vaadin.jouni.dom.client.Css;
+import org.parse4j.ParseUser;
+import org.parse4j.callback.LoginCallback;
+import org.parse4j.callback.SignUpCallback;
 
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -127,6 +133,27 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 		registration.setComponentAlignment(loginBtn, Alignment.MIDDLE_CENTER);
 		registration.setComponentAlignment(registerBtn, Alignment.MIDDLE_CENTER);
 		
+		registerBtn.addClickListener(new Button.ClickListener() {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 5880482295950207097L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				subWindow = new Window("Please login with your credential");
+				subWindow.setContent(registerLayout());
+				subWindow.setModal(true);
+				subWindow.setResizable(false);
+				subWindow.setDraggable(false);
+				subWindow.setClosable(true);
+				subWindow.setWidth("400px");
+				subWindow.setHeight("300px");
+				UI.getCurrent().addWindow(subWindow);
+				
+			}
+		});
 		
 		loginBtn.addClickListener(new Button.ClickListener() {
 			
@@ -137,7 +164,7 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				subWindow = new Window("Please login with your credential");
+				subWindow = new Window("Please Register");
 				subWindow.setContent(loginLayout());
 				subWindow.setModal(true);
 				subWindow.setResizable(false);
@@ -159,8 +186,8 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 		 VerticalLayout thisWindow = new VerticalLayout();
 		 thisWindow.setSizeFull();
 		 thisWindow.setMargin(true);
-		 TextField userField = new TextField("Username");
-		 TextField passField = new TextField("Password");
+		 final TextField userField = new TextField("Username");
+		 final TextField passField = new TextField("Password");
 		 Button loginBtn = new Button("Login!");
 		 userField.setSizeUndefined();
 		 passField.setSizeUndefined();
@@ -177,6 +204,9 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 
 			@Override
 			public void buttonClick(ClickEvent event) {
+				//ParseUser.loginInBackground(userField.getValue(), passField.getValue(), new LoginCallback(){});
+				LoginCallback callback = new LoginCallback(){};
+				ParseUser.loginInBackground("dio", "cane", new LoginCallback(){});
 				navi.navigateTo("Welcome");
 				subWindow.close();
 				
@@ -184,5 +214,65 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 		});
 		 return thisWindow;
 		}
+	
+	private VerticalLayout registerLayout()
+	{
+	 VerticalLayout thisWindow = new VerticalLayout();
+	 thisWindow.setSizeFull();
+	 thisWindow.setMargin(true);
+	 final TextField userField = new TextField("Username");
+	 final TextField passField = new TextField("Password");
+	 final TextField emailField = new TextField("Institutional eMail");
+	 Button loginBtn = new Button("Register!");
+	 userField.setSizeUndefined();
+	 passField.setSizeUndefined();
+	 loginBtn.setSizeUndefined();
+	 loginBtn.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+	 thisWindow.addComponents(userField,passField,emailField,loginBtn);
+	 thisWindow.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+	 loginBtn.addClickListener(new Button.ClickListener() {
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 5880482295950207097L;
+
+		@Override
+		public void buttonClick(ClickEvent event) {
+			if(userField.isEmpty()||passField.isEmpty()||emailField.isEmpty())
+				{
+				if(userField.isEmpty()) userField.setComponentError(new UserError("This field must be filled!"));
+				if(passField.isEmpty()) passField.setComponentError(new UserError("This field must be filled!"));
+				if(emailField.isEmpty()) emailField.setComponentError(new UserError("This field must be filled!"));
+				}else
+					{
+					userField.setComponentError(null);
+					passField.setComponentError(null);
+					emailField.setComponentError(null);
+					ParseUser user = new ParseUser();
+					user.setUsername(userField.getValue());
+					user.setPassword(passField.getValue());
+					user.setEmail(emailField.getValue());
+					System.out.println("CALLING REGISTER");
+					user.signUpInBackground(new SignUpCallback(){
+
+						@Override
+						public void done(ParseException parseException) {
+							    if (parseException == null) {
+							      System.out.println("Account Created Successfully");
+							    } else {
+							      // Sign up didn't succeed. Look at the ParseException
+							      // to figure out what went wrong
+							    	System.out.println(parseException.getMessage());
+							    }
+							
+						}});
+					subWindow.close();
+					}
+			
+		}
+	});
+	 return thisWindow;
+	}
 
 }
