@@ -2,7 +2,7 @@ package Views;
 
 import java.io.Serializable;
 
-import org.apache.catalina.core.ApplicationContext;
+
 import org.parse4j.ParseException;
 //import org.vaadin.jouni.animator.Animator;
 //import org.vaadin.jouni.animator.client.CssAnimation;
@@ -21,6 +21,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -55,7 +56,8 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 		{
 		this.setSizeFull();
 		this.setSpacing(true);
-		welcomeLabel=new Label("Welcome to Pervasive Classes");
+		welcomeLabel=new Label(FontAwesome.UNIVERSITY.getHtml()+"	   Welcome to SmartU	"+FontAwesome.UNIVERSITY.getHtml());
+		welcomeLabel.setContentMode(ContentMode.HTML);
 		welcomeLabel.addStyleName(ValoTheme.LABEL_BOLD);
 		welcomeLabel.addStyleName(ValoTheme.LABEL_COLORED);
 		welcomeLabel.addStyleName(ValoTheme.LABEL_H1);
@@ -142,15 +144,7 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				subWindow = new Window("Please login with your credential");
-				subWindow.setContent(registerLayout());
-				subWindow.setModal(true);
-				subWindow.setResizable(false);
-				subWindow.setDraggable(false);
-				subWindow.setClosable(true);
-				subWindow.setWidth("400px");
-				subWindow.setHeight("300px");
-				UI.getCurrent().addWindow(subWindow);
+				Notification.show("Alert", "You should register through the mobile app! then you can login also into the webapp", Type.ERROR_MESSAGE);
 				
 			}
 		});
@@ -188,14 +182,14 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 		 thisWindow.setMargin(true);
 		 final TextField userField = new TextField("Username");
 		 final TextField passField = new TextField("Password");
-		 Button loginBtn = new Button("Login!");
+		 Button signinBtn = new Button("Login!");
 		 userField.setSizeUndefined();
 		 passField.setSizeUndefined();
-		 loginBtn.setSizeUndefined();
-		 loginBtn.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		 thisWindow.addComponents(userField,passField,loginBtn);
+		 signinBtn.setSizeUndefined();
+		 signinBtn.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		 thisWindow.addComponents(userField,passField,signinBtn);
 		 thisWindow.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		 loginBtn.addClickListener(new Button.ClickListener() {
+		 signinBtn.addClickListener(new Button.ClickListener() {
 			
 			/**
 			 * 
@@ -204,75 +198,28 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				//ParseUser.loginInBackground(userField.getValue(), passField.getValue(), new LoginCallback(){});
-				LoginCallback callback = new LoginCallback(){};
-				ParseUser.loginInBackground("dio", "cane", new LoginCallback(){});
-				navi.navigateTo("Welcome");
-				subWindow.close();
+				System.out.println("testing login");
+				try {
+					
+					ParseUser user =ParseUser.login(userField.getValue(), passField.getValue());
+					UI.getCurrent().getSession().setAttribute("ParseUser", user);
+					System.out.println("PORCADDIO"+user.getUsername());
+					navi.navigateTo("Welcome");
+					subWindow.close();
+				} catch (ParseException e) {
+					//Notification dafuq = new Notification("Invalid login parameters");
+					Notification.show("Login error", "shit hit the fan", Type.WARNING_MESSAGE);
+					loginBtn.setComponentError(null);
+					e.printStackTrace();
+				}
+				//System.out.println(user.toString());
+				ParseUser test =(ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
+				if(test!=null)System.out.println("PORTANNAAAAAA "+test.toString());
+				
 				
 			}
 		});
 		 return thisWindow;
 		}
-	
-	private VerticalLayout registerLayout()
-	{
-	 VerticalLayout thisWindow = new VerticalLayout();
-	 thisWindow.setSizeFull();
-	 thisWindow.setMargin(true);
-	 final TextField userField = new TextField("Username");
-	 final TextField passField = new TextField("Password");
-	 final TextField emailField = new TextField("Institutional eMail");
-	 Button loginBtn = new Button("Register!");
-	 userField.setSizeUndefined();
-	 passField.setSizeUndefined();
-	 loginBtn.setSizeUndefined();
-	 loginBtn.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-	 thisWindow.addComponents(userField,passField,emailField,loginBtn);
-	 thisWindow.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-	 loginBtn.addClickListener(new Button.ClickListener() {
-		
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 5880482295950207097L;
-
-		@Override
-		public void buttonClick(ClickEvent event) {
-			if(userField.isEmpty()||passField.isEmpty()||emailField.isEmpty())
-				{
-				if(userField.isEmpty()) userField.setComponentError(new UserError("This field must be filled!"));
-				if(passField.isEmpty()) passField.setComponentError(new UserError("This field must be filled!"));
-				if(emailField.isEmpty()) emailField.setComponentError(new UserError("This field must be filled!"));
-				}else
-					{
-					userField.setComponentError(null);
-					passField.setComponentError(null);
-					emailField.setComponentError(null);
-					ParseUser user = new ParseUser();
-					user.setUsername(userField.getValue());
-					user.setPassword(passField.getValue());
-					user.setEmail(emailField.getValue());
-					System.out.println("CALLING REGISTER");
-					user.signUpInBackground(new SignUpCallback(){
-
-						@Override
-						public void done(ParseException parseException) {
-							    if (parseException == null) {
-							      System.out.println("Account Created Successfully");
-							    } else {
-							      // Sign up didn't succeed. Look at the ParseException
-							      // to figure out what went wrong
-							    	System.out.println(parseException.getMessage());
-							    }
-							
-						}});
-					subWindow.close();
-					}
-			
-		}
-	});
-	 return thisWindow;
-	}
 
 }

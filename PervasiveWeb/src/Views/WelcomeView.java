@@ -6,6 +6,8 @@ import java.io.Serializable;
 import javax.swing.JApplet;
 
 import org.apache.tools.ant.taskdefs.Java;
+import org.parse4j.ParseException;
+import org.parse4j.ParseUser;
 import org.vaadin.jouni.restrain.Restrain;
 
 import com.askvikrant.digitalclock.DigitalClock;
@@ -174,7 +176,8 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		//topText.addStyleName(ValoTheme.LABEL_LARGE);
 		//topText.setImmediate(true);
 		
-		Label titleLabel = new Label(FontAwesome.CLOUD.getHtml()+" Pervasive Classess "+FontAwesome.CLOUD.getHtml());
+		String username =(String) ((ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser")).getUsername();
+		Label titleLabel = new Label(FontAwesome.CLOUD.getHtml()+" "+username+"'s SmartU Web Panel "+FontAwesome.CLOUD.getHtml());
 		titleLabel.setContentMode(ContentMode.HTML);
 		titleLabel.addStyleName(ValoTheme.LABEL_HUGE);
 		titleLabel.addStyleName(ValoTheme.LABEL_LIGHT);
@@ -291,7 +294,53 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 				wip.addStyleName(ValoTheme.LABEL_HUGE);
 				wip.addStyleName(ValoTheme.LABEL_H1);
 				midLayout.addComponent(wip);
+				final Button logoutBtn = new Button(FontAwesome.SIGN_OUT.getHtml()+"     Logout");
+				logoutBtn.setCaptionAsHtml(true);
+				logoutBtn.setImmediate(true);
+				logoutBtn.setWidth("120px");
+				logoutBtn.addStyleName("animated");
+				logoutBtn.addStyleName("flipInY");
+				logoutBtn.addStyleName("delay05");
+				new java.util.Timer().schedule( 
+				        new java.util.TimerTask() {
+				            @Override
+				            public void run() {
+				            	logoutBtn.removeStyleName("flipInY");
+				            	logoutBtn.addStyleName("infinite");
+				            	logoutBtn.addStyleName("pulse");
+				            	logoutBtn.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+				            	logoutBtn.markAsDirty();
+				                UI.getCurrent().push();
+				            }
+				        }, 
+				        2000 
+				);
+				logoutBtn.addClickListener(new Button.ClickListener() {
+					
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1229453562659075234L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						ParseUser user = (ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
+						try {
+							user.logout();
+							UI.getCurrent().getSession().setAttribute("ParseUser", null);
+							user=null;
+							navi.navigateTo("Login");
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+					}
+				});
 				midLayout.setComponentAlignment(wip, Alignment.MIDDLE_CENTER);
+				midLayout.addComponent(logoutBtn);
+				midLayout.setComponentAlignment(logoutBtn, Alignment.MIDDLE_CENTER);
+		
 			}
 		});
 		
