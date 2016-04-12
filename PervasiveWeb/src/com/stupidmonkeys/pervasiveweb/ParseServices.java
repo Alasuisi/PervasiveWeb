@@ -244,20 +244,14 @@ public class ParseServices {
 								 Instant startInstant = Instant.parse(startHour1);
 								 Instant endInstant = Instant.parse(endHour1);
 								 System.out.println("inizio "+Date.from(startInstant)+" fine "+Date.from(endInstant));
-								 JSONObject course = row.getJSONObject("Course");
+								 JSONObject courseJSON = row.getJSONObject("Course");
+								 
 								 
 								 JSONObject classJSON = row.getJSONObject("classroom_name");
 								 Classroom className = new Classroom();
 								 Course actualCourse = new Course();
-								 try{
-								 actualCourse.setObjectId(classJSON.getString("Course"));
-								 System.out.println(actualCourse+"PORCADDDIIOOOOOOOOOOOOOOOOOO");
-								 }catch(JSONException e)
-								 	{
-									 System.err.println("Object with key:"+classJSON.getString("objectId")+" has 'Course' field not initialized, "
-												+ "it will be assigned the empty string value to that field in the web app representation "
-												+ "(nothing will be touched in the BaaS)");
-								 	}
+								 actualCourse.setName(courseJSON.getString("name"));
+								 actualCourse.setObjectId(courseJSON.getString("objectId"));
 								 className.setActualCourse(actualCourse);
 								 try{
 								 className.setAssignedBeacon(classJSON.getString("beacon"));
@@ -343,6 +337,7 @@ public class ParseServices {
 								 toAdd.setTo(hours.format(endDate));
 								 toAdd.setProf(prof);
 								 toAdd.setTitle(summary);
+								 toAdd.setCourse(actualCourse);
 								 if(topicsList.length()>0)
 								 	{
 									 toAdd.setTopics("Topics");

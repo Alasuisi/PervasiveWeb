@@ -271,7 +271,7 @@ public class LecturesView extends VerticalLayout{
 		else nextTable.setPageLength(10);
 		nextTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		nextTable.addStyleName(ValoTheme.TABLE_SMALL);
-		nextTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		nextTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","course","topics");
 		nextTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
 		
 		nextTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
@@ -341,7 +341,7 @@ public class LecturesView extends VerticalLayout{
 		else nowTable.setPageLength(10);
 		nowTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		nowTable.addStyleName(ValoTheme.TABLE_SMALL);
-		nowTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		nowTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","course","topics");
 		nowTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
 		
 		nowTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");
@@ -411,7 +411,7 @@ public class LecturesView extends VerticalLayout{
 		else prevTable.setPageLength(10);
 		prevTable.addStyleName(ValoTheme.TABLE_COMPACT);
 		prevTable.addStyleName(ValoTheme.TABLE_SMALL);
-		prevTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","title","topics");
+		prevTable.setVisibleColumns("classroom","dayOfTheWeek","from","to","prof","course","topics");
 		prevTable.setColumnAlignments(Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER,Align.CENTER);
 		
 		prevTable.setColumnHeaders("Classroom","Day","From","To","Professor","Lecture","Topics");

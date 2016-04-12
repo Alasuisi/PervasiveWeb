@@ -16,6 +16,7 @@ public class Lecture {
 		private String dayOfTheWeek;
 		private Classroom classroom;
 		private String topicsList;
+		private Course course;
 		
 		public Lecture(){}
 
@@ -78,8 +79,8 @@ public class Lecture {
 			return prof;
 		}
 
-		public void setProf(Professor profName) {
-			this.prof = profName;
+		public void setProf(Professor prof) {
+			this.prof = prof;
 		}
 
 		public String getDayOfTheWeek() {
@@ -94,8 +95,8 @@ public class Lecture {
 			return classroom;
 		}
 
-		public void setClassroom(Classroom className) {
-			this.classroom = className;
+		public void setClassroom(Classroom classroom) {
+			this.classroom = classroom;
 		}
 
 		public String getTopicsList() {
@@ -106,11 +107,20 @@ public class Lecture {
 			this.topicsList = topicsList;
 		}
 
+		public Course getCourse() {
+			return course;
+		}
+
+		public void setCourse(Course course) {
+			this.course = course;
+		}
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((classroom == null) ? 0 : classroom.hashCode());
+			result = prime * result + ((course == null) ? 0 : course.hashCode());
 			result = prime * result + ((dayOfTheWeek == null) ? 0 : dayOfTheWeek.hashCode());
 			result = prime * result + ((from == null) ? 0 : from.hashCode());
 			result = prime * result + ((objectId == null) ? 0 : objectId.hashCode());
@@ -135,6 +145,11 @@ public class Lecture {
 				if (other.classroom != null)
 					return false;
 			} else if (!classroom.equals(other.classroom))
+				return false;
+			if (course == null) {
+				if (other.course != null)
+					return false;
+			} else if (!course.equals(other.course))
 				return false;
 			if (dayOfTheWeek == null) {
 				if (other.dayOfTheWeek != null)
@@ -179,11 +194,6 @@ public class Lecture {
 			return true;
 		}
 
-		
-		
-		
-		
-		
 		
 
 		

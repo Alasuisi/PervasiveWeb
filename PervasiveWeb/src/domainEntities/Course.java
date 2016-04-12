@@ -71,9 +71,7 @@ public class Course {
 
 	@Override
 	public String toString() {
-		return "Course [objectId=" + objectId + ", name=" + name + ", courseBoard=" + courseBoard + ", rating=" + rating
-				+ ", professor=" + professor + ", creationDate=" + creationDate + ", latestUpdate=" + latestUpdate
-				+ "]";
+		return name;
 	}
 
 	@Override
