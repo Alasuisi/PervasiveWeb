@@ -1,6 +1,7 @@
 package com.stupidmonkeys.pervasiveweb;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -234,10 +235,19 @@ public class ParseServices {
 								 JSONObject row=result.getJSONObject(i);
 								 String objId= row.getString("objectId");
 								// long baseDate = row.getLong("start_date");
-								 String startHour1 = row.getString("start_time");
-								 String endHour1 = row.getString("end_time");
-								 long startHour= Date.parse(startHour1);
-								 long ednHour = Date.parse(endHour1);
+								 JSONObject diocane = (JSONObject) row.get("start_time");
+								 String madonna =(String) diocane.get("iso");
+								 System.out.println("PARSE MADONNAAAAAA  "+madonna);
+								 Instant instant = Instant.parse(madonna);
+								 Date portanna = Date.from(instant);
+								 
+								 String startHour1 =  row.get("start_time").toString();
+								 String endHour1 =  row.get("end_time").toString();
+								 Instant startInstant = Instant.parse(startHour1);
+								 Instant endInstatn = Instant.parse(endHour1);
+								 String lecStart = String.valueOf(Date.from(startInstant).getTime());
+								 String lecEnd = String.valueOf(Date.from(endInstatn).getTime());
+								 System.out.println("MANNAGGIA CRISTOOOOOOOO "+startHour1+" e pure san giuseppe "+portanna.getTime());
 								 String course = row.getString("Course");
 								 String className = row.getString("classroom_name");
 								 String profName = row.getString("prof_name");
