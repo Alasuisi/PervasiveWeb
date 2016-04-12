@@ -8,6 +8,7 @@ public class Professor {
 	private String Understanding_score;
 	private String Usefull_score;
 	
+	public Professor(){};
 	public Professor(String n,String c,String h,String i,String un,String us)
 		{
 		setName(n);

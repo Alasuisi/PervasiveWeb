@@ -3,6 +3,8 @@ package domainEntities;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.json.JSONObject;
+
 public class Lecture {
 		
 		private String objectId;
@@ -10,16 +12,16 @@ public class Lecture {
 		private String topics;
 		private String from;
 		private String to;
-		private String prof;
+		private Professor prof;
 		private String dayOfTheWeek;
-		private String classroom;
+		private Classroom classroom;
 		private String topicsList;
 		
 		public Lecture(){}
 
 		public Lecture(String objectId, String title, String topics,
-				String from, String to, String prof, String dayOfTheWeek,
-				String classroom, String topicsList) {
+				String from, String to, Professor prof, String dayOfTheWeek,
+				Classroom classroom, String topicsList) {
 			super();
 			this.objectId = objectId;
 			this.title = title;
@@ -72,12 +74,12 @@ public class Lecture {
 			this.to = to;
 		}
 
-		public String getProf() {
+		public Professor getProf() {
 			return prof;
 		}
 
-		public void setProf(String prof) {
-			this.prof = prof;
+		public void setProf(Professor profName) {
+			this.prof = profName;
 		}
 
 		public String getDayOfTheWeek() {
@@ -88,12 +90,12 @@ public class Lecture {
 			this.dayOfTheWeek = dayOfTheWeek;
 		}
 
-		public String getClassroom() {
+		public Classroom getClassroom() {
 			return classroom;
 		}
 
-		public void setClassroom(String classroom) {
-			this.classroom = classroom;
+		public void setClassroom(Classroom className) {
+			this.classroom = className;
 		}
 
 		public String getTopicsList() {
@@ -108,20 +110,15 @@ public class Lecture {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result
-					+ ((classroom == null) ? 0 : classroom.hashCode());
-			result = prime * result
-					+ ((dayOfTheWeek == null) ? 0 : dayOfTheWeek.hashCode());
+			result = prime * result + ((classroom == null) ? 0 : classroom.hashCode());
+			result = prime * result + ((dayOfTheWeek == null) ? 0 : dayOfTheWeek.hashCode());
 			result = prime * result + ((from == null) ? 0 : from.hashCode());
-			result = prime * result
-					+ ((objectId == null) ? 0 : objectId.hashCode());
+			result = prime * result + ((objectId == null) ? 0 : objectId.hashCode());
 			result = prime * result + ((prof == null) ? 0 : prof.hashCode());
 			result = prime * result + ((title == null) ? 0 : title.hashCode());
 			result = prime * result + ((to == null) ? 0 : to.hashCode());
-			result = prime * result
-					+ ((topics == null) ? 0 : topics.hashCode());
-			result = prime * result
-					+ ((topicsList == null) ? 0 : topicsList.hashCode());
+			result = prime * result + ((topics == null) ? 0 : topics.hashCode());
+			result = prime * result + ((topicsList == null) ? 0 : topicsList.hashCode());
 			return result;
 		}
 
@@ -180,7 +177,8 @@ public class Lecture {
 			} else if (!topicsList.equals(other.topicsList))
 				return false;
 			return true;
-		};
+		}
+
 		
 		
 		

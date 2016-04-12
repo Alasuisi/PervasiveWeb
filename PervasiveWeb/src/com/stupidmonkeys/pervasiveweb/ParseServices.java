@@ -32,6 +32,7 @@ import domainEntities.Classroom;
 import domainEntities.Course;
 import domainEntities.Lecture;
 import domainEntities.Noise;
+import domainEntities.Professor;
 
 public class ParseServices {
 	
@@ -222,7 +223,9 @@ public class ParseServices {
 		final LinkedList<Lecture> nextList = new LinkedList<Lecture>();
 		final SimpleDateFormat hours = new SimpleDateFormat("HH:mm",Locale.ITALIAN);
 		final SimpleDateFormat days = new SimpleDateFormat("EEEE dd MMM YYYY",Locale.ENGLISH);
-		final long now=Calendar.getInstance().getTimeInMillis();	
+		//final SimpleDateFormat days = new SimpleDateFormat("MMM dd HH:mm:ss 'CEST' YYYY",Locale.ENGLISH);
+		//final SimpleDateFormat hours = new SimpleDateFormat("HH:mm",Locale.ITALIAN);
+		final Date now=Calendar.getInstance().getTime();	
 		final LinkedList<Lecture>[] total = new LinkedList[3];
 				ParseCloud.callFunctionInBackground("getNewWeeklySchedule", null, new FunctionCallback<JSONArray>(){
 
@@ -234,30 +237,90 @@ public class ParseServices {
 								{
 								 JSONObject row=result.getJSONObject(i);
 								 String objId= row.getString("objectId");
-								// long baseDate = row.getLong("start_date");
-								 JSONObject diocane = (JSONObject) row.get("start_time");
-								 String madonna =(String) diocane.get("iso");
-								 System.out.println("PARSE MADONNAAAAAA  "+madonna);
-								 Instant instant = Instant.parse(madonna);
-								 Date portanna = Date.from(instant);
-								 
-								 String startHour1 =  row.get("start_time").toString();
-								 String endHour1 =  row.get("end_time").toString();
+								 JSONObject startJSON = row.getJSONObject("start_time");
+								 JSONObject endJSON = row.getJSONObject("end_time");
+								 String startHour1 =  startJSON.getString("iso");
+								 String endHour1 =  endJSON.getString("iso");
 								 Instant startInstant = Instant.parse(startHour1);
-								 Instant endInstatn = Instant.parse(endHour1);
-								 String lecStart = String.valueOf(Date.from(startInstant).getTime());
-								 String lecEnd = String.valueOf(Date.from(endInstatn).getTime());
-								 System.out.println("MANNAGGIA CRISTOOOOOOOO "+startHour1+" e pure san giuseppe "+portanna.getTime());
-								 String course = row.getString("Course");
-								 String className = row.getString("classroom_name");
-								 String profName = row.getString("prof_name");
-								 String summary = row.getString("summary");
+								 Instant endInstant = Instant.parse(endHour1);
+								 System.out.println("inizio "+Date.from(startInstant)+" fine "+Date.from(endInstant));
+								 JSONObject course = row.getJSONObject("Course");
+								 
+								 JSONObject classJSON = row.getJSONObject("classroom_name");
+								 Classroom className = new Classroom();
+								 Course actualCourse = new Course();
+								 try{
+								 actualCourse.setObjectId(classJSON.getString("Course"));
+								 System.out.println(actualCourse+"PORCADDDIIOOOOOOOOOOOOOOOOOO");
+								 }catch(JSONException e)
+								 	{
+									 System.err.println("Object with key:"+classJSON.getString("objectId")+" has 'Course' field not initialized, "
+												+ "it will be assigned the empty string value to that field in the web app representation "
+												+ "(nothing will be touched in the BaaS)");
+								 	}
+								 className.setActualCourse(actualCourse);
+								 try{
+								 className.setAssignedBeacon(classJSON.getString("beacon"));
+								 }catch(JSONException e)	
+								 {
+									 System.err.println("Object with key:"+classJSON.getString("objectId")+" has 'beacon' field not initialized, "
+												+ "it will be assigned the empty string value to that field in the web app representation "
+												+ "(nothing will be touched in the BaaS)");
+								 }
+								 try{
+								 className.setClassNoise(Long.parseLong(classJSON.getString("actual_noise")));
+								 }catch(JSONException e )	
+								 {
+									 System.err.println("Object with key:"+classJSON.getString("objectId")+" has 'actual_noise' field not initialized, "
+												+ "it will be assigned the empty string value to that field in the web app representation "
+												+ "(nothing will be touched in the BaaS)");
+								 }
+								 className.setClassName(classJSON.getString("Name"));
+								 try{
+								 className.setClassTemp(classJSON.getLong("actual_temp"));
+								 }catch(JSONException e)
+								 	{
+									 System.err.println("Object with key:"+classJSON.getString("objectId")+" has 'actual_temp' field not initialized, "
+												+ "it will be assigned the empty string value to that field in the web app representation "
+												+ "(nothing will be touched in the BaaS)");
+								 	}
+								 try{
+								 className.setSeatsOfclass(classJSON.getInt("seatsNumber"));
+								 }catch(JSONException e)
+								 {
+									 System.err.println("Object with key:"+classJSON.getString("objectId")+" has 'seatsNumber' field not initialized, "
+												+ "it will be assigned the empty string value to that field in the web app representation "
+												+ "(nothing will be touched in the BaaS)"); 
+								 }
+								 try{
+								 className.setSeatsTaken(classJSON.getInt("seatsOccupied"));
+								 }catch(JSONException e)
+								 	{
+									 System.err.println("Object with key:"+classJSON.getString("objectId")+" has 'seatsOccupied' field not initialized, "
+												+ "it will be assigned the empty string value to that field in the web app representation "
+												+ "(nothing will be touched in the BaaS)"); 
+								 	}
+								 
+								 JSONObject profName = row.getJSONObject("prof_name");
+								 Professor prof = new Professor();
+								 prof.setName(profName.getString("username"));
+								 String summary ="";
+								 try{
+								 summary = row.getString("summary");
+								 }catch(JSONException e)
+								 	{
+									 System.err.println("Object with key:"+row.getString("objectId")+" has 'summary' field not initialized, "
+												+ "it will be assigned the empty string value to that field in the web app representation "
+												+ "(nothing will be touched in the BaaS)");
+								 	}
 								 String topicsList =new String();
 								 try{
 								  topicsList=row.getString("topics");
 								 }catch(Exception e)
 								 	{
-									 //System.out.println(e.getMessage());
+									 System.err.println("Object with key:"+row.getString("objectId")+" has 'topics' field not initialized, "
+												+ "it will be assigned the empty string value to that field in the web app representation "
+												+ "(nothing will be touched in the BaaS)");
 								 	}
 							//	 long lecStart=baseDate+(startHour*60);
 							//	 long lecEnd=baseDate+(endHour*60);
@@ -267,8 +330,10 @@ public class ParseServices {
 									 lecEnd=lecEnd+21600;
 									// now=now+21600000;
 								 	}*/
-								 Date startDate = new Date(Long.parseLong(String.valueOf(lecStart))*1000);
-								 Date endDate = new Date(Long.parseLong(String.valueOf(lecEnd))*1000);
+								 //Date startDate = new Date(Long.parseLong(String.valueOf(lecStart)));
+								 //Date endDate = new Date(Long.parseLong(String.valueOf(lecEnd)));
+								 Date startDate =Date.from(startInstant);
+								 Date endDate = Date.from(endInstant);
 								 
 								 Lecture toAdd = new Lecture();
 								 toAdd.setObjectId(objId);
@@ -276,7 +341,7 @@ public class ParseServices {
 								 toAdd.setDayOfTheWeek(days.format(startDate));
 								 toAdd.setFrom(hours.format(startDate));
 								 toAdd.setTo(hours.format(endDate));
-								 toAdd.setProf(profName);
+								 toAdd.setProf(prof);
 								 toAdd.setTitle(summary);
 								 if(topicsList.length()>0)
 								 	{
@@ -284,13 +349,20 @@ public class ParseServices {
 									 toAdd.setTopicsList(topicsList);
 								 	}else toAdd.setTopics("---");
 								 
-								 if((lecStart*1000)<now && (lecEnd*1000)<now)
+								 if(startDate.before(now) && endDate.before(now))
+								 	{
+									 pastList.add(toAdd);
+								 	}else if(startDate.before(now) && endDate.after(now))
+								 		{
+								 		nowList.add(toAdd);
+								 		}else if(startDate.after(now)) nextList.add(toAdd);
+								 /*if((lecStart*1000)<now && (lecEnd*1000)<now)
 								 	{
 									 pastList.add(toAdd);
 								 	}else if((lecStart*1000)<=now && (lecEnd*1000)>now)
 								 		{
 								 		nowList.add(toAdd);
-								 		}else if((lecStart*1000)>now) nextList.add(toAdd);
+								 		}else if((lecStart*1000)>now) nextList.add(toAdd);*/
 								total[0]=pastList;
 								total[1]=nowList;
 								total[2]=nextList;
