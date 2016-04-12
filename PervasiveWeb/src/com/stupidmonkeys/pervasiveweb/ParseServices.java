@@ -231,12 +231,14 @@ public class ParseServices {
 							{
 							for(int i=0;i<result.length();i++)
 								{
-								 
 								 JSONObject row=result.getJSONObject(i);
 								 String objId= row.getString("objectId");
-								 long baseDate = row.getLong("start_date");
-								 long startHour = row.getLong("starttime");
-								 long endHour = row.getLong("endtime");
+								// long baseDate = row.getLong("start_date");
+								 String startHour1 = row.getString("start_time");
+								 String endHour1 = row.getString("end_time");
+								 long startHour= Date.parse(startHour1);
+								 long ednHour = Date.parse(endHour1);
+								 String course = row.getString("Course");
 								 String className = row.getString("classroom_name");
 								 String profName = row.getString("prof_name");
 								 String summary = row.getString("summary");
@@ -247,8 +249,8 @@ public class ParseServices {
 								 	{
 									 //System.out.println(e.getMessage());
 								 	}
-								 long lecStart=baseDate+(startHour*60);
-								 long lecEnd=baseDate+(endHour*60);
+							//	 long lecStart=baseDate+(startHour*60);
+							//	 long lecEnd=baseDate+(endHour*60);
 								 /*if(java.util.Locale.getDefault().toString().equals("en_US"))
 								 	{
 									 lecStart=lecStart+21600;

@@ -545,8 +545,8 @@ public class ClassroomView extends VerticalLayout{
 			}});
 			
 			HashMap<String, String> map = new HashMap<String, String>();
-			map.put("getSeats", classLabel);
-			ParseCloud.callFunctionInBackground("getSeatsNumber", map, new FunctionCallback<Integer>(){
+			map.put("getClassroomName", classLabel);
+			ParseCloud.callFunctionInBackground("getSeats", map, new FunctionCallback<Integer>(){
 
 				@Override
 				public void done(final Integer result, ParseException parseException) {
