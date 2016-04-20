@@ -20,7 +20,6 @@ import org.dussan.vaadin.dcharts.metadata.renderers.AxisRenderers;
 import org.dussan.vaadin.dcharts.options.Axes;
 import org.dussan.vaadin.dcharts.options.Highlighter;
 import org.dussan.vaadin.dcharts.options.Options;
-import org.dussan.vaadin.dcharts.options.SeriesDefaults;
 import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -114,12 +113,25 @@ public class ClassroomView extends VerticalLayout{
 	
 	private PervasivewebUI thisUI;
 	private long scheduleRate=150;
-	private long scheduleRateNoise=1000;
+	private long scheduleRateNoise=3000;
 	private int noiseChartCounter=0;
 	
-	public ClassroomView()
+	boolean firstTimeGetList=true;
+	private LinkedList<Long> noiseList = new LinkedList<Long>();
+	
+	Timer noiseTimer;
+	Timer comboTimer;
+	
+	public ClassroomView(Timer noiseT,Timer comboT)
 		{
+
 		 thisUI=(PervasivewebUI) UI.getCurrent();
+		 this.noiseTimer=noiseT;
+		 this.comboTimer=comboT;
+		 ///////////////
+		// thisUI.getSession().setAttribute("noiseTimer", noiseTimer);
+		// thisUI.getSession().setAttribute("comboTimer", comboTimer);
+		 //////////////
 		 desc.addStyleName(ValoTheme.LABEL_BOLD);
 		 desc.addStyleName(ValoTheme.LABEL_LARGE);
 		 desc.setSizeUndefined();
@@ -210,6 +222,10 @@ public class ClassroomView extends VerticalLayout{
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
+			
+				noiseTimer.cancel();
+				comboTimer.cancel();
+				firstTimeGetList=true;
 				Classroom classroom = (Classroom) combo.getValue();
 				final String classValue=classroom.getClassName();
 				getActualStudentNumber(classValue);
@@ -383,7 +399,7 @@ public class ClassroomView extends VerticalLayout{
         configuration.getChart().setPlotBackgroundImage(null);
         configuration.getChart().setPlotBorderWidth(0);
         configuration.getChart().setPlotShadow(false);
-        configuration.setTitle("Actual Noise (Demo)");
+        configuration.setTitle("Actual Noise");
 
         GradientColor gradient1 = GradientColor.createLinear(0, 0, 0, 1);
         gradient1.addColorStop(0, new SolidColor("#FFF"));
@@ -417,7 +433,7 @@ public class ClassroomView extends VerticalLayout{
         YAxis yAxis = configuration.getyAxis();
         yAxis.setTitle(new Title("dB"));
         yAxis.setMin(0);
-        yAxis.setMax(150);
+        yAxis.setMax(100);
         yAxis.setMinorTickInterval("auto");
         yAxis.setMinorTickWidth(1);
         yAxis.setMinorTickLength(10);
@@ -434,9 +450,9 @@ public class ClassroomView extends VerticalLayout{
         yAxis.getLabels().setRotationPerpendicular();
 
         PlotBand[] plotBands = new PlotBand[3];
-        plotBands[0] = new PlotBand(0, 50, new SolidColor("#55BF3B"));
-        plotBands[1] = new PlotBand(50, 100, new SolidColor("#DDDF0D"));
-        plotBands[2] = new PlotBand(100, 150, new SolidColor("#DF5353"));
+        plotBands[0] = new PlotBand(0, 40, new SolidColor("#55BF3B"));
+        plotBands[1] = new PlotBand(40, 70, new SolidColor("#DDDF0D"));
+        plotBands[2] = new PlotBand(70, 100, new SolidColor("#DF5353"));
         yAxis.setPlotBands(plotBands);
 
         final ListSeries series = new ListSeries("db level", 80);
@@ -450,9 +466,9 @@ public class ClassroomView extends VerticalLayout{
 
             @Override
             public void run() {
-                Integer oldValue = series.getData()[0].intValue();
-                Integer newValue = (int) (oldValue + (r.nextDouble() - 0.5) * 20.0);
-                series.updatePoint(0, newValue);
+
+            	if(noiseList==null) series.updatePoint(0, 0);
+            	else series.updatePoint(0, noiseList.getLast());
             }
         }, 1000, 1000);
        
@@ -668,45 +684,76 @@ public class ClassroomView extends VerticalLayout{
 	
 	private void getNoiseForRoom(final String classLabel)
 		{
-		final Random randomGenerator = new Random();
+		noiseTimer = new Timer();
 		System.out.println("Called ClassroomView.getNoiseForRoom");
-		final Timer timer = new Timer();
 		TimerTask task = new TimerTask(){
 
 			@Override
 			public void run() {
-				int random = randomGenerator.nextInt(100);
+
 				thisUI.access(new Runnable(){
 
 					@Override
 					public void run() {
+						noiseList=ParseServices.getInstance().getNoiseForRoom(classLabel);
 						if(noiseChartCounter>15)
 							{
-							DataSeriesItem item = new DataSeriesItem();
-							item.setY(randomGenerator.nextInt(100));
-							item.setX(noiseChartCounter);
-							noiseSeries.add(item,true,true);
-							noiseChartCounter++;
-							thisUI.push();
-							}else{
-									
-									//noiseSeries.addData(randomGenerator.nextInt(100));
-									DataSeriesItem item = new DataSeriesItem();
-									item.setY(randomGenerator.nextInt(100));
-									item.setX(noiseChartCounter);
-									noiseSeries.add(item,true,false);
-									noiseChartCounter++;
-									thisUI.push();
-								 }
+							if(noiseList!=null){
+							Iterator<Long> iter = noiseList.iterator();
+							if(firstTimeGetList){
+							while(iter.hasNext())
+								{
+								DataSeriesItem item = new DataSeriesItem();
+								item.setY(iter.next().longValue());
+								item.setX(noiseChartCounter);
+								noiseChartCounter++;
+								noiseSeries.add(item, true, true);
+								firstTimeGetList=false;
+								thisUI.push();
+								}}else
+								{
+								DataSeriesItem item = new DataSeriesItem();
+								item.setY(noiseList.getLast().longValue());
+								item.setX(noiseChartCounter);
+								noiseChartCounter++;
+								noiseSeries.add(item, true, true);
+								thisUI.push();
+								}}
+								}else{
+									if(noiseList!=null){
+									Iterator<Long> iter = noiseList.iterator();
+									if(firstTimeGetList){
+									while(iter.hasNext())
+										{
+										DataSeriesItem item = new DataSeriesItem();
+										item.setY(iter.next().longValue());
+										item.setX(noiseChartCounter);
+										noiseChartCounter++;
+										noiseSeries.add(item, true, false);
+										firstTimeGetList=false;
+										thisUI.push();
+										}}else
+											{
+											DataSeriesItem item = new DataSeriesItem();
+											item.setY(noiseList.getLast().longValue());
+											item.setX(noiseChartCounter);
+											noiseChartCounter++;
+											noiseSeries.add(item, true, false);
+											thisUI.push();
+											}
+								 }}
 					}});
-				System.out.println("tic, toc"+ random);
 				
 			}};
 			System.out.println("rescheduling noise data update");
-			timer.scheduleAtFixedRate(task, 0, scheduleRateNoise);
+			noiseTimer.scheduleAtFixedRate(task, 0, scheduleRateNoise);
 		}
 	
-	/*private void getNoiseForRoomOLD(final String classLabel)
+	/*
+	 * OLD METHOD DEPRECATED
+	 * 
+	 * 
+	 * private void getNoiseForRoom(final String classLabel)
 		{
 		System.out.println("Called ClassroomView.getNoiseForRoom");
 		final Timer timer = new Timer();
@@ -747,18 +794,19 @@ public class ClassroomView extends VerticalLayout{
 	private void populateComboBox()
 		{
 		 System.out.println("Called ClassroomView.populateComboBox()");
-		 final Timer timer = new Timer();
+		comboTimer=new Timer();
 		 TimerTask task = new TimerTask(){
 
 			@Override
 			public void run() {
 				LinkedList<Classroom> classList;
 				classList = ParseServices.getInstance().getClassroomList();
+				System.out.println("lista classi nulla "+classList==null);
 				if(classList!=null)
 					{
 					BeanItemContainer<Classroom> container = new BeanItemContainer<Classroom>(Classroom.class,classList);
 					combo.setContainerDataSource(container);
-					timer.cancel();
+					comboTimer.cancel();
 					}else System.out.println("List wasn't there or is being updated, rescheduling populateComboBox()");
 				/*if(thisUI.isClassListRetrieved())
 					{
@@ -771,7 +819,7 @@ public class ClassroomView extends VerticalLayout{
 					//ParseServices.getInstance().
 					}*/
 			}};
-			timer.scheduleAtFixedRate(task, 0, scheduleRate);
+			comboTimer.scheduleAtFixedRate(task, 0, scheduleRate);
 		}
 
 			

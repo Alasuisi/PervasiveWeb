@@ -43,21 +43,27 @@ public class ParseServices {
 	private  boolean lecListRetrieved;
 	private  boolean lecListPending=false;
 	private  boolean lectureListDirty=false;
+	private	 boolean studentsNumberPending=false;
 	private  long lecListRetrievedTime;
 	
 	private  LinkedList<Classroom> classroomList;
 	private  boolean classListRetrieved;
 	private  boolean classListPending=false;
 	private  long classListRetrievedTime;
+	private  long attendingStudentsRetrievedTime;
 	
 	private LinkedList<Course> courseList;
 	
 	private  HashMap<String,Noise> classesNoiseMap= new HashMap<String,Noise>();
 	private  HashMap<String,Boolean> classesNoiseMapRetrieved=new HashMap<String,Boolean>();
 	private  HashMap<String,Boolean> classNoiseMapPending = new HashMap<String,Boolean>();
+	private HashMap<String,Integer> classStudentMap = new HashMap<String,Integer>();
 	
 	private final Semaphore updatePermitClassList = new Semaphore(1);
 	private final Semaphore updatePermitNoiseList = new Semaphore(1);
+	private final Semaphore updatePermitStudentsNumber = new Semaphore(1);
+	
+	private LinkedList<Long> noiseList= new LinkedList<Long>();
 	
 	private String test;
 	
@@ -71,9 +77,9 @@ public class ParseServices {
 	   public static ParseServices getInstance() {
 	      if(instance == null) {
 	         instance = new ParseServices();
-	         System.out.println("NUOOOOVA ISTANZAAAAAAAA");
+	       //  System.out.println("NUOOOOVA ISTANZAAAAAAAA");
 	      }
-	      System.out.println("VECCHIAAAA ISTANZAAAAAAAA");
+	     // System.out.println("VECCHIAAAA ISTANZAAAAAAAA");
 	      return instance;
 	   }
 	
@@ -126,7 +132,41 @@ public class ParseServices {
 		}
 	
 	
-	
+	public synchronized Integer getAttendingStudents(String classroom)
+		{
+		if(updatePermitStudentsNumber.tryAcquire())
+			{
+			 if(studentsNumberPending==true)
+			 	{
+				 System.out.println("Students number update pending, releasing the lock");
+				 updatePermitStudentsNumber.release();
+				 return null;
+			 	}
+			 long tenSeconds=10000;
+			 long thisTime=cal.getTimeInMillis();
+			 if(classStudentMap.get(classroom)==null)
+			 	{
+				 System.out.println("calling for retrieving students number");
+				 studentsNumberPending=true;
+				 retrieveAttendings(classroom);
+			 	}else
+			 		{
+			 		long valueAge =thisTime-attendingStudentsRetrievedTime;
+			 		if(valueAge>tenSeconds)
+			 			{
+			 			studentsNumberPending=true;
+			 			retrieveAttendings(classroom);
+			 			System.out.println("old value for attendings, updating...");
+			 			}
+			 		}
+			 if(thisTime-attendingStudentsRetrievedTime<tenSeconds)
+			 	{
+				 studentsNumberPending=false;
+				 updatePermitStudentsNumber.release();
+				 return classStudentMap.get(classroom);
+			 	}
+			}
+		}
 	
 	public synchronized LinkedList<Classroom> getClassroomList()
 		{
@@ -134,6 +174,7 @@ public class ParseServices {
 		if(classListPending==true)
 			{ 
 			System.out.println("list is NOT pending");
+			updatePermitClassList.release(); ///aggiunto questo
 			return null;
 			}
 		long twentyforHours=86400000;
@@ -152,9 +193,10 @@ public class ParseServices {
 					 System.out.println("Chiamata 2 (lista obsoleta)");
 				 	}
 				}
-		if(classListRetrievedTime-thisTime<twentyforHours)
+		if((thisTime-classListRetrievedTime)<twentyforHours)  ///INVERTITO thisTime con classLIstretrievedtime
 			{
 			classListPending=false;
+			updatePermitClassList.release();   //aggiunto questo
 			return classroomList;
 			}else return null;
 		 } else {
@@ -180,7 +222,7 @@ public class ParseServices {
 			 return null;
 			}
 		 if(pending.booleanValue()==true) {System.out.println("update pending returning null");return null;}
-		 long tenMinutes=600000;
+		 long sixSeconds=6000;
 		 long thisTime = Calendar.getInstance().getTimeInMillis();
 		 Noise noise =classesNoiseMap.get(classroom);
 		 if(noise==null)
@@ -191,7 +233,7 @@ public class ParseServices {
 		 	}else
 		 		{
 		 		long noiseAge = thisTime-classesNoiseMap.get(classroom).getTimeStamp();
-		 		if(noiseAge>tenMinutes)
+		 		if(noiseAge>sixSeconds)
 		 			{
 		 			classNoiseMapPending.put(classroom, true);
 		 			retrieveNoiseForRoom(classroom);
@@ -497,8 +539,115 @@ public class ParseServices {
 			
 		}
 
+	private void retrieveAttendings(String classRoom)
+		{
+		HashMap<String,String> map = new HashMap();
+		map.put("getClassRoomName", classRoom);
+		ParseCloud.callFunctionInBackground("getStudentsNumber", map, new FunctionCallback<Integer>(){
+
+			@Override
+			public void done(Integer result, ParseException parseException) {
+				if(parseException==null)
+					{
+					
+					}else
+						{
+						System.err.println("Error in ParseServices.retrieveAttendings "+parseException.getMessage());
+						}
+				
+			}});
+		}
 	
 	private void retrieveNoiseForRoom(final String classRoom)
+	{
+	
+	if(updatePermitNoiseList.tryAcquire()){
+	System.out.println("called retrieveNoiseForRoom("+classRoom+")");
+	Iterator<Classroom> classIter = classroomList.iterator();
+	Classroom room = classIter.next();
+	while(!room.getClassName().equals(classRoom))
+		{
+		room=classIter.next();
+		}
+	System.out.println("ECCO LA CLASSE RICERCATA  "+room.getClassName()+" "+room.getObjectId());
+	
+	ParseQuery<ParseObject> query =ParseQuery.getQuery("Classroom");
+	query.getInBackground(room.getObjectId(), new GetCallback<ParseObject>(){
+
+		@Override
+		public void done(ParseObject t, ParseException parseException) {
+			if(parseException==null)
+				{
+					if(noiseList.size()>=10) noiseList=new LinkedList<Long>();
+					noiseList.addLast(Long.parseLong(t.getString("actual_noise")));
+					Noise toSet = new Noise(Calendar.getInstance().getTimeInMillis(), noiseList);
+					classesNoiseMap.put(classRoom, toSet);
+					classesNoiseMapRetrieved.put(classRoom, true);
+					updatePermitNoiseList.release();
+					
+					System.out.println("Ecco la temperatura"+t.getString("actual_noise"));
+					System.out.println("Ecco la lunghezza della lista delle temperature "+noiseList.size());
+					Iterator<Long> iter = noiseList.iterator();
+					while(iter.hasNext())
+						{
+						System.out.print(" "+iter.next());
+						}
+				}else System.err.println("Error in method retrieveNoiseForRoom "+parseException.getMessage());
+			
+			
+		}});
+	
+	/*HashMap<String, String> map = new HashMap<String, String>();
+	map.put("room", classRoom);
+	//thisUI.setNoiseForRoomRetrievedFalse(classRoom);
+	classesNoiseMapRetrieved.put(classRoom, false);
+	ParseCloud.callFunctionInBackground("getNoiseForRoomRecursive", map, new FunctionCallback<JSONArray>(){
+
+		@Override
+		public void done(final JSONArray result, ParseException parseException) {
+			if(parseException==null)
+				{
+				int length = result.length();
+				LinkedList<Long> noiseList=new LinkedList<Long>();
+				for(int i=0;i<length;i++)
+					{
+					JSONObject obj = result.getJSONObject(i);
+					Long temp = new Long(obj.getLong("Decibel"));
+					noiseList.add(temp);
+					}
+				Noise toSet = new Noise(Calendar.getInstance().getTimeInMillis(), noiseList);
+				//thisUI.setNoiseForRoom(classRoom,toSet);
+				classesNoiseMap.put(classRoom, toSet);
+				classesNoiseMapRetrieved.put(classRoom, true);
+				//thisUI.setNoiseForRoomRetrievedTrue(classRoom);
+				updatePermitNoiseList.release();
+				System.out.println(" retrieved noise for room "+classRoom);
+				
+				}else
+					{
+					System.err.println("error in retrievenoiseforroom "+parseException.getMessage());
+					}
+			
+		}});*/
+	}else {
+        System.out.println("Noise list update already running, wait");
+    	try {
+			updatePermitNoiseList.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+        //release the permit immediately
+    	updatePermitNoiseList.release();
+    }
+
+	}
+	
+	
+	/*
+	 * 
+	 * OLD DEPRECATED METHOD
+	 * 
+	 * private void retrieveNoiseForRoom(final String classRoom)
 		{
 		
 		if(updatePermitNoiseList.tryAcquire()){
@@ -546,7 +695,7 @@ public class ParseServices {
 	    	updatePermitNoiseList.release();
 	    }
 	
-		}
+		}*/
 	
 	
 	public void saveTopicsListForLecture(String objectId,final String topicsList)

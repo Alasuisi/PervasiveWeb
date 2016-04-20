@@ -2,6 +2,7 @@ package Views;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Timer;
 
 import javax.swing.JApplet;
 
@@ -59,6 +60,8 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 	
 	
 	private boolean initialized=false;
+	private Timer noiseTimer=new Timer();
+	private Timer comboTimer=new Timer();
 	
 	public WelcomeView(Navigator navi)
 		{
@@ -200,7 +203,7 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				midLayout.removeAllComponents();
-				ClassroomView view =new ClassroomView();
+				ClassroomView view =new ClassroomView(noiseTimer,comboTimer);
 				midLayout.addComponent(view);
 				midLayout.setComponentAlignment(view, Alignment.TOP_CENTER);
 			}
@@ -285,6 +288,9 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
+			
+				noiseTimer.cancel();
+				comboTimer.cancel();
 				midLayout.removeAllComponents();
 				Label wip = new Label(FontAwesome.COFFEE.getHtml()+" Work in progress..");
 				wip.setContentMode(ContentMode.HTML);
