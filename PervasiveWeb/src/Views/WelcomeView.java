@@ -60,8 +60,8 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 	
 	
 	private boolean initialized=false;
-	private Timer noiseTimer=new Timer();
-	private Timer comboTimer=new Timer();
+	
+	private ClassroomView classView;
 	
 	public WelcomeView(Navigator navi)
 		{
@@ -203,9 +203,10 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				midLayout.removeAllComponents();
-				ClassroomView view =new ClassroomView(noiseTimer,comboTimer);
-				midLayout.addComponent(view);
-				midLayout.setComponentAlignment(view, Alignment.TOP_CENTER);
+			    if(classView==null)classView =new ClassroomView();
+			    else classView.killTaskAndTimers();
+				midLayout.addComponent(classView);
+				midLayout.setComponentAlignment(classView, Alignment.TOP_CENTER);
 			}
 		});
 		
@@ -226,6 +227,7 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				midLayout.removeAllComponents();
+				if(classView!=null) classView.killTaskAndTimers();
 				LecturesView view = new LecturesView();
 				midLayout.addComponent(view);
 				midLayout.setComponentAlignment(view, Alignment.TOP_CENTER);
@@ -253,6 +255,7 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				midLayout.removeAllComponents();
+				if(classView!=null)classView.killTaskAndTimers();
 				Label wip = new Label(FontAwesome.COFFEE.getHtml()+" Work in progress..");
 				wip.setContentMode(ContentMode.HTML);
 				wip.setSizeUndefined();
@@ -289,9 +292,8 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 			@Override
 			public void buttonClick(ClickEvent event) {
 			
-				noiseTimer.cancel();
-				comboTimer.cancel();
 				midLayout.removeAllComponents();
+				if(classView!=null)classView.killTaskAndTimers();
 				Label wip = new Label(FontAwesome.COFFEE.getHtml()+" Work in progress..");
 				wip.setContentMode(ContentMode.HTML);
 				wip.setSizeUndefined();

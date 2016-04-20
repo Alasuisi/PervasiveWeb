@@ -117,19 +117,22 @@ public class ClassroomView extends VerticalLayout{
 	private long attendingRate = 5000;
 	private int noiseChartCounter=0;
 	
-	boolean firstTimeGetList=true;
+	private boolean firstTimeGetList=true;
+	private boolean newSelection;
 	private LinkedList<Long> noiseList = new LinkedList<Long>();
 	private String attendingStudents;
 	
 	private Timer noiseTimer;
 	private Timer comboTimer;
+	private Timer attendingTimer;
+	private TimerTask attendingTask;
+	private TimerTask noiseTask;
+	private TimerTask comboTask;
 	
-	public ClassroomView(Timer noiseT,Timer comboT)
+	public ClassroomView()
 		{
 
 		 thisUI=(PervasivewebUI) UI.getCurrent();
-		 this.noiseTimer=noiseT;
-		 this.comboTimer=comboT;
 		 ///////////////
 		// thisUI.getSession().setAttribute("noiseTimer", noiseTimer);
 		// thisUI.getSession().setAttribute("comboTimer", comboTimer);
@@ -224,9 +227,8 @@ public class ClassroomView extends VerticalLayout{
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-			
-				noiseTimer.cancel();
-				comboTimer.cancel();
+				killTaskAndTimers();
+				newSelection=true;
 				firstTimeGetList=true;
 				Classroom classroom = (Classroom) combo.getValue();
 				final String classValue=classroom.getClassName();
@@ -517,8 +519,8 @@ public class ClassroomView extends VerticalLayout{
 	
 	private void getActualStudentNumber(final String classLabel)
 		{
-		Timer attendingTimer = new Timer();
-		TimerTask task = new TimerTask(){
+		attendingTimer = new Timer();
+		 attendingTask = new TimerTask(){
 
 			@Override
 			public void run() {
@@ -535,7 +537,6 @@ public class ClassroomView extends VerticalLayout{
 		        attendingStudents ="UpdateRequest";
 		        if(studentsNumber!=null) 
 		        	{
-					System.out.println("mannaggia il bambinello tonnato "+ studentsNumber.toString());
 		        	attendingStudents=studentsNumber.toString();
 		        	}
 				thisUI.access(new Runnable(){
@@ -549,7 +550,7 @@ public class ClassroomView extends VerticalLayout{
 				
 			}};
 			System.out.println("Rescheduling getActualStudentNumber");
-			attendingTimer.scheduleAtFixedRate(task, 0, attendingRate);
+			attendingTimer.scheduleAtFixedRate(attendingTask, 0, attendingRate);
 		/*HashMap<String, String> map = new HashMap<String, String>();
 		map.put("getClassroom", classLabel);
 		ParseCloud.callFunctionInBackground("getStudentsNumber", map, new FunctionCallback<Integer>() {
@@ -709,9 +710,18 @@ public class ClassroomView extends VerticalLayout{
 	
 	private void getNoiseForRoom(final String classLabel)
 		{
+		Runnable test = new Runnable(){
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				
+			}};
+			
+		
 		noiseTimer = new Timer();
 		System.out.println("Called ClassroomView.getNoiseForRoom");
-		TimerTask task = new TimerTask(){
+	    noiseTask = new TimerTask(){
 
 			@Override
 			public void run() {
@@ -727,24 +737,28 @@ public class ClassroomView extends VerticalLayout{
 							Iterator<Long> iter = noiseList.iterator();
 							if(firstTimeGetList){
 							while(iter.hasNext())
-								{
-								DataSeriesItem item = new DataSeriesItem();
-								item.setY(iter.next().longValue());
-								item.setX(noiseChartCounter);
-								noiseChartCounter++;
-								noiseSeries.add(item, true, true);
-								firstTimeGetList=false;
-								thisUI.push();
-								}}else
-								{
-								DataSeriesItem item = new DataSeriesItem();
-								item.setY(noiseList.getLast().longValue());
-								item.setX(noiseChartCounter);
-								noiseChartCounter++;
-								noiseSeries.add(item, true, true);
-								thisUI.push();
-								}}
+									{
+									DataSeriesItem item = new DataSeriesItem();
+									item.setY(iter.next().longValue());
+									item.setX(noiseChartCounter);
+									noiseChartCounter++;
+									if(newSelection)noiseSeries.add(item, true, false);
+									else noiseSeries.add(item, true, true);
+									firstTimeGetList=false;
+									thisUI.push();
+									}
+								}else
+									{
+									DataSeriesItem item = new DataSeriesItem();
+									item.setY(noiseList.getLast().longValue());
+									item.setX(noiseChartCounter);
+									noiseChartCounter++;
+									noiseSeries.add(item, true, true);
+									thisUI.push();
+									}
+							}
 								}else{
+									newSelection=false;
 									if(noiseList!=null){
 									Iterator<Long> iter = noiseList.iterator();
 									if(firstTimeGetList){
@@ -771,7 +785,8 @@ public class ClassroomView extends VerticalLayout{
 				
 			}};
 			System.out.println("rescheduling noise data update");
-			noiseTimer.scheduleAtFixedRate(task, 0, scheduleRateNoise);
+			noiseTimer.scheduleAtFixedRate(noiseTask, 0, scheduleRateNoise);
+
 		}
 	
 	/*
@@ -820,7 +835,7 @@ public class ClassroomView extends VerticalLayout{
 		{
 		 System.out.println("Called ClassroomView.populateComboBox()");
 		comboTimer=new Timer();
-		 TimerTask task = new TimerTask(){
+		 comboTask = new TimerTask(){
 
 			@Override
 			public void run() {
@@ -844,9 +859,18 @@ public class ClassroomView extends VerticalLayout{
 					//ParseServices.getInstance().
 					}*/
 			}};
-			comboTimer.scheduleAtFixedRate(task, 0, scheduleRate);
+			comboTimer.scheduleAtFixedRate(comboTask, 0, scheduleRate);
 		}
 
-			
+			public void killTaskAndTimers()
+				{
+				System.out.println("called killTaskAndTimers");
+				if(attendingTask!=null)attendingTask.cancel();
+				if(attendingTimer!=null)attendingTimer.cancel();
+				if(noiseTask!=null) noiseTask.cancel();
+				if(noiseTimer!=null)noiseTimer.cancel();
+				if(comboTask!=null)comboTask.cancel();
+				if(comboTimer!=null)comboTimer.cancel();
+				}
 		
 }

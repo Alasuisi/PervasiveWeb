@@ -131,8 +131,15 @@ public class ParseServices {
 		lectureListDirty=true;
 		}
 	
-	
-	public synchronized Integer getAttendingStudents(String classroom)
+	public Integer getAttendingStudents(String classroom)
+		{
+		retrieveAttendings(classroom);
+		return classStudentMap.get(classroom);
+		}
+	/*
+	 * Eventually to be used
+	 * 
+	 * public synchronized Integer getAttendingStudents(String classroom)
 		{
 		if(updatePermitStudentsNumber.tryAcquire())
 			{
@@ -167,7 +174,7 @@ public class ParseServices {
 			 	}
 			}
 		return null;
-		}
+		}*/
 	
 	public synchronized LinkedList<Classroom> getClassroomList()
 		{
@@ -542,6 +549,27 @@ public class ParseServices {
 
 	private void retrieveAttendings(final String classRoom)
 		{
+		HashMap<String,String> map = new HashMap<String, String>();
+		map.put("getClassroomName", classRoom);
+		ParseCloud.callFunctionInBackground("getStudentsNumber", map, new FunctionCallback<Integer>(){
+
+			@Override
+			public void done(Integer result, ParseException parseException) {
+				if(parseException==null)
+					{
+					System.out.println("IL RISULTATO DELLA CHIAMATA ATTENDNDING E' "+result);
+					classStudentMap.put(classRoom, result);
+					}else
+						{
+						System.err.println("Error in ParseServices.retrieveAttendings "+parseException.getMessage());
+						
+						}
+				
+			}});
+		}
+	/*private void retrieveAttendings(final String classRoom)
+		{
+		if(updatePermitStudentsNumber.tryAcquire()){
 		HashMap<String,String> map = new HashMap();
 		map.put("getClassRoomName", classRoom);
 		ParseCloud.callFunctionInBackground("getStudentsNumber", map, new FunctionCallback<Integer>(){
@@ -550,6 +578,7 @@ public class ParseServices {
 			public void done(Integer result, ParseException parseException) {
 				if(parseException==null)
 					{
+					System.out.println("IL RISULTATO DELLA CHIAMATA ATTENDNDING E' "+result);
 					classStudentMap.put(classRoom, result);
 					studentsNumberPending=false;
 					updatePermitStudentsNumber.release();
@@ -562,7 +591,20 @@ public class ParseServices {
 						}
 				
 			}});
-		}
+		}else
+			{
+			System.out.println("attending list update already running, wait");
+	    	try {
+	    		updatePermitStudentsNumber.acquire();
+				} catch (InterruptedException e)
+	    			{
+					e.printStackTrace();
+	    			}
+	        //release the permit immediately
+	    	updatePermitStudentsNumber.release();
+			}
+			
+		}*/
 	
 	private void retrieveNoiseForRoom(final String classRoom)
 	{
