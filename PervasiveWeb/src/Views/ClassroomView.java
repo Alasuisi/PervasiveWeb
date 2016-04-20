@@ -48,6 +48,7 @@ import com.vaadin.addon.charts.model.TickPosition;
 import com.vaadin.addon.charts.model.Title;
 import com.vaadin.addon.charts.model.Tooltip;
 import com.vaadin.addon.charts.model.YAxis;
+import com.vaadin.addon.charts.model.ZoomType;
 import com.vaadin.addon.charts.model.style.GradientColor;
 import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.data.Property;
@@ -83,7 +84,7 @@ public class ClassroomView extends VerticalLayout{
 	private Chart distChart;
 	private Chart noiseChart;
 	private Chart noiseGauge;
-	private ListSeries noiseSeries;
+	private DataSeries noiseSeries;
 	private String genString1 = "Averages of classroom: ";
 	private String genString2 = "Mean percentage of room occupation: ";
 	private String genString3 = "Mean temperature of room: ";
@@ -112,7 +113,9 @@ public class ClassroomView extends VerticalLayout{
 	private Label actLabel5 = new Label();
 	
 	private PervasivewebUI thisUI;
-	private long scheduleRate=150;//private long scheduleRate=1500;
+	private long scheduleRate=150;
+	private long scheduleRateNoise=1000;
+	private int noiseChartCounter=0;
 	
 	public ClassroomView()
 		{
@@ -213,10 +216,10 @@ public class ClassroomView extends VerticalLayout{
 				getClassroomSeats(classValue);
 				getActualLecture(classValue);
 				getNoiseForRoom(classValue);
-				genValue2="43%";
-				genValue3="28°";
-				genValue4="6";
-				actValue4="value_here (4)";
+				genValue2="43% (placeholder fo future implementation)";
+				genValue3="28° (placeholder fo future implementation)";
+				genValue4="6 (placeholder fo future implementation)";
+				actValue4="Waiting value";
 				setDistanceChart(100,78,20);
 				
 				
@@ -354,14 +357,14 @@ public class ClassroomView extends VerticalLayout{
 	noiseChart = new Chart();
 	noiseChart.setHeight("450px");
 	noiseChart.setWidth("100%");
-	noiseSeries = new ListSeries();
+	noiseSeries = new DataSeries();
     final Configuration configuration = noiseChart.getConfiguration();
     configuration.setTitle("Noise Levels");
 
     configuration.getChart().setType(ChartType.SPLINE);
+    configuration.getChart().setReflow(true);
 
-    /*final ListSeries series = new ListSeries(29.9, 71.5, 106.4, 129.2,
-            144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4);*/
+    configuration.getChart().setZoomType(ZoomType.X);
     configuration.setSeries(noiseSeries);
 
     noiseChart.drawChart(configuration);
@@ -573,7 +576,8 @@ public class ClassroomView extends VerticalLayout{
 	private void getActualLecture(String classLabel)
 		{
 		HashMap<String, String> map = new HashMap<String, String>();
-		map.put("getLabel", classLabel);
+		map.put("Name", classLabel); //getLabel
+		System.out.println("la label della classe è "+ classLabel);
 		thisUI.access(new Runnable(){
 
 			@Override
@@ -583,10 +587,10 @@ public class ClassroomView extends VerticalLayout{
 				thisUI.push();
 				
 			}});
-		ParseCloud.callFunctionInBackground("getCurrentLesson", map, new FunctionCallback<String>(){
+		ParseCloud.callFunctionInBackground("getCourseFromClassroom", map, new FunctionCallback<String>(){ //getCurrentLesson
 
 			@Override
-			public void done(final String result, ParseException parseException) {
+			public void done(final String result, final ParseException parseException) {
 				if(parseException==null){
 					thisUI.access(new Runnable(){
 
@@ -597,10 +601,23 @@ public class ClassroomView extends VerticalLayout{
 							thisUI.push();
 							
 						}});
-					System.out.println("fucking lecture= "+result.toString());
-				}else{
-					System.err.println(parseException.getMessage());
-				}
+					System.out.println("actual lecture= "+result.toString());
+				}else if(parseException.getMessage().equals("No lecture"))
+					{
+					thisUI.access(new Runnable(){
+
+						@Override
+						public void run() {
+							actValue5=parseException.getMessage();
+							actLabel5.setValue(actString5+actValue5);
+							thisUI.push();
+							
+						}});
+					
+					}else
+						{
+						 System.err.println("error in ClassroomView.getActualLecture "+parseException.getMessage());
+						}
 				
 			}});
 		}
@@ -645,9 +662,53 @@ public class ClassroomView extends VerticalLayout{
 			}};
 			timer.scheduleAtFixedRate(task, 0, 500);
 		}*/
+	
+	
+	
+	
 	private void getNoiseForRoom(final String classLabel)
 		{
-		System.out.println("Called ClassroomView.populateComboBox()");
+		final Random randomGenerator = new Random();
+		System.out.println("Called ClassroomView.getNoiseForRoom");
+		final Timer timer = new Timer();
+		TimerTask task = new TimerTask(){
+
+			@Override
+			public void run() {
+				int random = randomGenerator.nextInt(100);
+				thisUI.access(new Runnable(){
+
+					@Override
+					public void run() {
+						if(noiseChartCounter>15)
+							{
+							DataSeriesItem item = new DataSeriesItem();
+							item.setY(randomGenerator.nextInt(100));
+							item.setX(noiseChartCounter);
+							noiseSeries.add(item,true,true);
+							noiseChartCounter++;
+							thisUI.push();
+							}else{
+									
+									//noiseSeries.addData(randomGenerator.nextInt(100));
+									DataSeriesItem item = new DataSeriesItem();
+									item.setY(randomGenerator.nextInt(100));
+									item.setX(noiseChartCounter);
+									noiseSeries.add(item,true,false);
+									noiseChartCounter++;
+									thisUI.push();
+								 }
+					}});
+				System.out.println("tic, toc"+ random);
+				
+			}};
+			System.out.println("rescheduling noise data update");
+			timer.scheduleAtFixedRate(task, 0, scheduleRateNoise);
+		}
+	
+	/*private void getNoiseForRoomOLD(final String classLabel)
+		{
+		System.out.println("Called ClassroomView.getNoiseForRoom");
 		final Timer timer = new Timer();
 		TimerTask task = new TimerTask(){
 
@@ -678,8 +739,11 @@ public class ClassroomView extends VerticalLayout{
 						}});
 					}
 			}};
+			System.out.println("rescheduling noise data update");
 			timer.scheduleAtFixedRate(task, 0, scheduleRate);
-		}
+		}*/
+	
+	
 	private void populateComboBox()
 		{
 		 System.out.println("Called ClassroomView.populateComboBox()");

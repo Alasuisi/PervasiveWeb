@@ -365,7 +365,7 @@ public class ParseServices {
 								}
 							}else
 								{
-								System.out.println(parseException.getMessage());
+								System.out.println("error in retrievelecturelist "+parseException.getMessage());
 								}
 						totalList=total;
 						lecListRetrieved=true;
@@ -525,7 +525,7 @@ public class ParseServices {
 					
 					}else
 						{
-						System.err.println(parseException.getMessage());
+						System.err.println("error in retrievenoiseforroom "+parseException.getMessage());
 						}
 				
 			}});
@@ -556,7 +556,7 @@ public class ParseServices {
 				System.out.println(t.get("summary"));
 			t.put("topics", topicsList);
 			t.saveInBackground();
-			}else System.out.println("Something bad happened "+parseException.getMessage());
+			}else System.out.println("Something bad happened in saveTopicsListForLecture "+parseException.getMessage());
 			
 		}});
 	}
@@ -599,7 +599,7 @@ public class ParseServices {
 				if(parseException==null)
 				{
 				topicsForLecture =t.getString("topics");
-				}else System.out.println("orcamadò "+parseException.getMessage());
+				}else System.out.println("error in method getTopicsForLecture "+parseException.getMessage());
 				
 				
 			}});
