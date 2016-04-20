@@ -400,6 +400,12 @@ public class ParseServices {
 				JSONObject obj =result.getJSONObject(i);
 				Classroom toAdd = new Classroom();
 				try{
+				toAdd.setObjectId(obj.getString("objectId"));
+				}catch(JSONException e)
+					{
+					System.err.println("error in retrieveclassroomlist "+ e.getMessage());
+					}
+				try{
 				toAdd.setClassName(obj.getString("Name"));
 				}catch(JSONException e)
 					{

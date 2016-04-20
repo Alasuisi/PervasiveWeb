@@ -9,8 +9,17 @@ public class Classroom {
 	private long classTemp;
 	private long classNoise;
 	private Course actualCourse;
+	private String ObjectId;
 	
 	
+	public String getObjectId() {
+		return ObjectId;
+	}
+
+	public void setObjectId(String objectId) {
+		ObjectId = objectId;
+	}
+
 	public Classroom(){};
 	
 	/*public Classroom(String className, int seatsOfclass, int seatsTaken, String assignedBeacon, float classTemp,
