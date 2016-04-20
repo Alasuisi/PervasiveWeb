@@ -166,6 +166,7 @@ public class ParseServices {
 				 return classStudentMap.get(classroom);
 			 	}
 			}
+		return null;
 		}
 	
 	public synchronized LinkedList<Classroom> getClassroomList()
@@ -539,7 +540,7 @@ public class ParseServices {
 			
 		}
 
-	private void retrieveAttendings(String classRoom)
+	private void retrieveAttendings(final String classRoom)
 		{
 		HashMap<String,String> map = new HashMap();
 		map.put("getClassRoomName", classRoom);
@@ -549,10 +550,15 @@ public class ParseServices {
 			public void done(Integer result, ParseException parseException) {
 				if(parseException==null)
 					{
-					
+					classStudentMap.put(classRoom, result);
+					studentsNumberPending=false;
+					updatePermitStudentsNumber.release();
 					}else
 						{
+						studentsNumberPending=false;
+						updatePermitStudentsNumber.release();
 						System.err.println("Error in ParseServices.retrieveAttendings "+parseException.getMessage());
+						
 						}
 				
 			}});
@@ -569,7 +575,7 @@ public class ParseServices {
 		{
 		room=classIter.next();
 		}
-	System.out.println("ECCO LA CLASSE RICERCATA  "+room.getClassName()+" "+room.getObjectId());
+	//System.out.println("ECCO LA CLASSE RICERCATA  "+room.getClassName()+" "+room.getObjectId());
 	
 	ParseQuery<ParseObject> query =ParseQuery.getQuery("Classroom");
 	query.getInBackground(room.getObjectId(), new GetCallback<ParseObject>(){
@@ -585,8 +591,8 @@ public class ParseServices {
 					classesNoiseMapRetrieved.put(classRoom, true);
 					updatePermitNoiseList.release();
 					
-					System.out.println("Ecco la temperatura"+t.getString("actual_noise"));
-					System.out.println("Ecco la lunghezza della lista delle temperature "+noiseList.size());
+					//System.out.println("Ecco la temperatura"+t.getString("actual_noise"));
+					//System.out.println("Ecco la lunghezza della lista delle temperature "+noiseList.size());
 					Iterator<Long> iter = noiseList.iterator();
 					while(iter.hasNext())
 						{

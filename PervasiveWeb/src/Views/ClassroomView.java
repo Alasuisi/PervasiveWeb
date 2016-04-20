@@ -114,13 +114,15 @@ public class ClassroomView extends VerticalLayout{
 	private PervasivewebUI thisUI;
 	private long scheduleRate=150;
 	private long scheduleRateNoise=3000;
+	private long attendingRate = 5000;
 	private int noiseChartCounter=0;
 	
 	boolean firstTimeGetList=true;
 	private LinkedList<Long> noiseList = new LinkedList<Long>();
+	private String attendingStudents;
 	
-	Timer noiseTimer;
-	Timer comboTimer;
+	private Timer noiseTimer;
+	private Timer comboTimer;
 	
 	public ClassroomView(Timer noiseT,Timer comboT)
 		{
@@ -515,17 +517,40 @@ public class ClassroomView extends VerticalLayout{
 	
 	private void getActualStudentNumber(final String classLabel)
 		{
-		thisUI.access(new Runnable(){
+		Timer attendingTimer = new Timer();
+		TimerTask task = new TimerTask(){
 
 			@Override
 			public void run() {
-				actValue3="Waiting value..";
-				actLabel3.setValue(actString3+actValue3);
-				thisUI.push();
-				
-			}});
+				thisUI.access(new Runnable(){
 
-		HashMap<String, String> map = new HashMap<String, String>();
+					@Override
+					public void run() {
+						actValue3="Waiting value..";
+						actLabel3.setValue(actString3+actValue3);
+						thisUI.push();
+						
+					}});
+				Integer studentsNumber = ParseServices.getInstance().getAttendingStudents(classLabel);
+		        attendingStudents ="UpdateRequest";
+		        if(studentsNumber!=null) 
+		        	{
+					System.out.println("mannaggia il bambinello tonnato "+ studentsNumber.toString());
+		        	attendingStudents=studentsNumber.toString();
+		        	}
+				thisUI.access(new Runnable(){
+
+					@Override
+					public void run() {
+						actValue3=attendingStudents;
+						actLabel3.setValue(actString3+actValue3);
+						
+					}});
+				
+			}};
+			System.out.println("Rescheduling getActualStudentNumber");
+			attendingTimer.scheduleAtFixedRate(task, 0, attendingRate);
+		/*HashMap<String, String> map = new HashMap<String, String>();
 		map.put("getClassroom", classLabel);
 		ParseCloud.callFunctionInBackground("getStudentsNumber", map, new FunctionCallback<Integer>() {
 			
@@ -548,7 +573,7 @@ public class ClassroomView extends VerticalLayout{
 					System.err.println("Error in ClassroomView.getActualStudentNumber() "+parseException.getMessage());
 				}
 			}
-		});
+		});*/
 		}
 	
 	private void getClassroomSeats(final String classLabel)
