@@ -7,6 +7,13 @@ import org.json.JSONObject;
 
 public class Lecture {
 		
+		@Override
+	public String toString() {
+		return "Lecture [objectId=" + objectId + ", title=" + title + ", topics=" + topics + ", from=" + from + ", to="
+				+ to + ", prof=" + prof + ", dayOfTheWeek=" + dayOfTheWeek + ", classroom=" + classroom
+				+ ", topicsList=" + topicsList + ", course=" + course + "]";
+	}
+
 		private String objectId;
 		private String title;
 		private String topics;

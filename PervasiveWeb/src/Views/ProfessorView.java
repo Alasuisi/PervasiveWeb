@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.parse4j.ParseUser;
+
 import com.stupidmonkeys.pervasiveweb.ParseServices;
 import com.vaadin.data.Item;
 import com.vaadin.data.Item.PropertySetChangeEvent;
@@ -130,30 +132,33 @@ public class ProfessorView extends VerticalLayout {
 							while(iter0.hasNext())
 								{
 									Lecture temp=iter0.next();
-									if(temp.getTitle().equals(lecTitleString) && temp.getDayOfTheWeek().equals(lecDayString))
+									//System.out.println(temp.toString());
+									if(temp.getCourse().getName().equals(lecTitleString) && temp.getDayOfTheWeek().equals(lecDayString))
 										{
 										selObjectID=temp.getObjectId();
-										System.out.println(temp.getObjectId());
+										System.out.println("past lec"+temp.toString());
 										}
 								}
 							Iterator<Lecture> iter1 =lecList[1].iterator();
 							while(iter1.hasNext())
 								{
 								Lecture temp=iter1.next();
-								if(temp.getTitle().equals(lecTitleString) && temp.getDayOfTheWeek().equals(lecDayString))
+								//System.out.println(temp.toString());
+								if(temp.getCourse().getName().equals(lecTitleString) && temp.getDayOfTheWeek().equals(lecDayString))
 									{
 									selObjectID=temp.getObjectId();
-									System.out.println(temp.getObjectId());
+									System.out.println("now lec"+temp.toString());
 									}
 								}
 							Iterator<Lecture> iter2 =lecList[2].iterator();
 							while(iter2.hasNext())
 								{
 								Lecture temp=iter2.next();
-								if(temp.getTitle().equals(lecTitleString) && temp.getDayOfTheWeek().equals(lecDayString))
+								//System.out.println(temp.toString());
+								if(temp.getCourse().getName().equals(lecTitleString) && temp.getDayOfTheWeek().equals(lecDayString))
 									{
 									selObjectID=temp.getObjectId();
-									System.out.println(temp.getObjectId());
+									System.out.println("prox lec"+temp.toString());
 									}
 								}
 						}
@@ -178,8 +183,8 @@ public class ProfessorView extends VerticalLayout {
 					}else
 						{
 						System.out.println("OBJID NEL DONEBTN "+selObjectID);
-						ParseServices.getInstance().saveTopicsListForLecture(selObjectID, topicsText);
-						ParseServices.getInstance().markLectureListAsDirty();
+						//ParseServices.getInstance().saveTopicsListForLecture(selObjectID, topicsText);
+						//ParseServices.getInstance().markLectureListAsDirty();
 						System.out.println(topicsText);
 						}
 			}
@@ -201,7 +206,6 @@ public class ProfessorView extends VerticalLayout {
 	private void setLecListCombo()
 		{
 			lecList=ParseServices.getInstance().getLectures();
-			
 			final Timer timer = new Timer();
 			TimerTask task = new TimerTask(){
 
@@ -215,58 +219,64 @@ public class ProfessorView extends VerticalLayout {
 							@Override
 							public void run() {
 								Iterator<Lecture> iter =lecList[0].iterator();
+								ParseUser user = (ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
+								System.out.println(user.getString("surname"));
 								while(iter.hasNext())
 									{
 									Lecture temp = iter.next();
-									HashSet<String> dates=lecDayMap.get(temp.getTitle());
+									if(user.getString("surname").equals(temp.getProf().getName())){
+									HashSet<String> dates=lecDayMap.get(temp.getCourse().getName()); //old value temp.getTitle()
 									if(dates==null)
 										{
+	
 										HashSet<String> set =new HashSet<String>();
 										set.add(temp.getDayOfTheWeek());
-										lecDayMap.put(temp.getTitle(),set);
+										lecDayMap.put(temp.getCourse().getName(),set); //old value temp.getTitle()
 										}else
 										{
-											HashSet<String> set =lecDayMap.get(temp.getTitle());
+											HashSet<String> set =lecDayMap.get(temp.getCourse().getName()); //old value temp.getTitle()
 											set.add(temp.getDayOfTheWeek());
-											lecDayMap.put(temp.getTitle(), set);
+											lecDayMap.put(temp.getCourse().getName(), set); //old value temp.getTitle()
 										}
-									}
+									}}
 								
 								Iterator<Lecture> iter1 =lecList[1].iterator();
 								while(iter1.hasNext())
 									{
 									Lecture temp = iter1.next();
-									HashSet<String> dates=lecDayMap.get(temp.getTitle());
+									if(user.getString("surname").equals(temp.getProf().getName())){
+									HashSet<String> dates=lecDayMap.get(temp.getCourse().getName());//old value temp.getTitle()
 									if(dates==null)
 										{
 										HashSet<String> set =new HashSet<String>();
 										set.add(temp.getDayOfTheWeek());
-										lecDayMap.put(temp.getTitle(),set);
+										lecDayMap.put(temp.getCourse().getName(),set); //old value temp.getTitle()
 										}else
 										{
-											HashSet<String> set =lecDayMap.get(temp.getTitle());
+											HashSet<String> set =lecDayMap.get(temp.getCourse().getName());//old value temp.getTitle()
 											set.add(temp.getDayOfTheWeek());
-											lecDayMap.put(temp.getTitle(), set);
+											lecDayMap.put(temp.getCourse().getName(), set); //old value temp.getTitle()
 										}
-									}
+									}}
 								
 								Iterator<Lecture> iter2 =lecList[2].iterator();
 								while(iter2.hasNext())
 									{
 									Lecture temp = iter2.next();
-									HashSet<String> dates=lecDayMap.get(temp.getTitle());
+									if(user.getString("surname").equals(temp.getProf().getName())){
+									HashSet<String> dates=lecDayMap.get(temp.getCourse().getName());//old value temp.getTitle()
 									if(dates==null)
 										{
 										HashSet<String> set =new HashSet<String>();
 										set.add(temp.getDayOfTheWeek());
-										lecDayMap.put(temp.getTitle(),set);
+										lecDayMap.put(temp.getCourse().getName(),set); //old value temp.getTitle()
 										}else
 										{
-											HashSet<String> set =lecDayMap.get(temp.getTitle());
+											HashSet<String> set =lecDayMap.get(temp.getCourse().getName());//old value temp.getTitle()
 											set.add(temp.getDayOfTheWeek());
-											lecDayMap.put(temp.getTitle(), set);
+											lecDayMap.put(temp.getCourse().getName(), set); //old value temp.getTitle()
 										}
-									}
+									}}
 								Iterator<Entry<String, HashSet<String>>> mapIter =lecDayMap.entrySet().iterator();
 								LinkedList<String> lecTitleList = new LinkedList<String>();
 								while(mapIter.hasNext())

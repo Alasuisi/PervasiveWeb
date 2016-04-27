@@ -2,6 +2,10 @@ package com.stupidmonkeys.pervasiveweb;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -289,10 +293,14 @@ public class ParseServices {
 								 String objId= row.getString("objectId");
 								 JSONObject startJSON = row.getJSONObject("start_time");
 								 JSONObject endJSON = row.getJSONObject("end_time");
+								 System.out.println("StarttimeJSONNNNNNN"+startJSON);
 								 String startHour1 =  startJSON.getString("iso");
 								 String endHour1 =  endJSON.getString("iso");
 								 Instant startInstant = Instant.parse(startHour1);
 								 Instant endInstant = Instant.parse(endHour1);
+								 LocalDateTime local = LocalDateTime.ofInstant(startInstant, ZoneId.systemDefault());
+								 local=local.minusHours(2);
+								 System.out.println("ora aggiustata"+local);
 								 System.out.println("inizio "+Date.from(startInstant)+" fine "+Date.from(endInstant));
 								 JSONObject courseJSON = row.getJSONObject("Course");
 								 
@@ -376,8 +384,12 @@ public class ParseServices {
 								 	}*/
 								 //Date startDate = new Date(Long.parseLong(String.valueOf(lecStart)));
 								 //Date endDate = new Date(Long.parseLong(String.valueOf(lecEnd)));
-								 Date startDate =Date.from(startInstant);
-								 Date endDate = Date.from(endInstant);
+								// Date startDate =Date.from(startInstant);
+								 LocalDateTime startLocal = LocalDateTime.ofInstant(startInstant, ZoneId.systemDefault()).minusHours(4);
+								 LocalDateTime endLocal = LocalDateTime.ofInstant(endInstant, ZoneId.systemDefault()).minusHours(4);
+								 
+								 Date startDate = Date.from(startLocal.toInstant(ZoneOffset.ofHours(0)));
+								 Date endDate = Date.from(endLocal.toInstant(ZoneOffset.ofHours(0)));
 								 
 								 Lecture toAdd = new Lecture();
 								 toAdd.setObjectId(objId);

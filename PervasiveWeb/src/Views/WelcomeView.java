@@ -2,13 +2,17 @@ package Views;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Timer;
 
 import javax.swing.JApplet;
 
 import org.apache.tools.ant.taskdefs.Java;
+import org.json.JSONArray;
+import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
 import org.parse4j.ParseUser;
+import org.parse4j.callback.FunctionCallback;
 import org.vaadin.jouni.restrain.Restrain;
 
 import com.askvikrant.digitalclock.DigitalClock;
@@ -36,6 +40,8 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.ValoTheme;
+
+import domainEntities.User;
 
 public class WelcomeView extends VerticalLayout implements View, Serializable {
 	/**
@@ -345,8 +351,34 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 						
 					}
 				});
+				Button testButton = new Button();
+				testButton.setCaption("Test Portanna");
+				testButton.addClickListener(new Button.ClickListener() {
+					
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = -5292034164277225792L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						ParseUser user = (ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
+						System.out.println("utente attuale= "+user.getUsername()+" "+user.getObjectId());
+						HashMap<String,String> map = new HashMap<String,String>();
+						map.put("getUserObjId", user.getObjectId());
+						ParseCloud.callFunctionInBackground("possibleCourses", map, new FunctionCallback<JSONArray>(){
+
+							@Override
+							public void done(JSONArray result, ParseException parseException) {
+								System.out.println("risultato della chiamata a possibleCourses: "+result.toString());
+								
+							}});
+						
+					}
+				});
 				midLayout.setComponentAlignment(wip, Alignment.MIDDLE_CENTER);
 				midLayout.addComponent(logoutBtn);
+				midLayout.addComponent(testButton);
 				midLayout.setComponentAlignment(logoutBtn, Alignment.MIDDLE_CENTER);
 		
 			}
