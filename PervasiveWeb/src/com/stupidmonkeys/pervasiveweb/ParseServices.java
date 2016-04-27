@@ -293,15 +293,14 @@ public class ParseServices {
 								 String objId= row.getString("objectId");
 								 JSONObject startJSON = row.getJSONObject("start_time");
 								 JSONObject endJSON = row.getJSONObject("end_time");
-								 System.out.println("StarttimeJSONNNNNNN"+startJSON);
 								 String startHour1 =  startJSON.getString("iso");
 								 String endHour1 =  endJSON.getString("iso");
 								 Instant startInstant = Instant.parse(startHour1);
 								 Instant endInstant = Instant.parse(endHour1);
 								 LocalDateTime local = LocalDateTime.ofInstant(startInstant, ZoneId.systemDefault());
 								 local=local.minusHours(2);
-								 System.out.println("ora aggiustata"+local);
-								 System.out.println("inizio "+Date.from(startInstant)+" fine "+Date.from(endInstant));
+								// System.out.println("ora aggiustata"+local);
+								// System.out.println("inizio "+Date.from(startInstant)+" fine "+Date.from(endInstant));
 								 JSONObject courseJSON = row.getJSONObject("Course");
 								 
 								 
@@ -455,7 +454,7 @@ public class ParseServices {
 
 			@Override
 			public void done(final JSONArray result, ParseException parseException) {
-				System.out.println("PORCADDIOOOOOOOOOO    "+result.length());
+				System.out.println("retrieveClassroomList jsonLength "+result.length());
 				for(int i=0;i<result.length();i++)
 				{
 				
@@ -768,7 +767,7 @@ public class ParseServices {
 		public void done(ParseObject t, ParseException parseException) {
 			if(parseException==null)
 			{
-				System.out.println(t.get("summary"));
+				System.out.println("summary field reports: "+t.get("summary"));
 			t.put("topics", topicsList);
 			t.saveInBackground();
 			}else System.out.println("Something bad happened in saveTopicsListForLecture "+parseException.getMessage());

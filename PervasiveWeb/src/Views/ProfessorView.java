@@ -51,7 +51,7 @@ public class ProfessorView extends VerticalLayout {
 	
 	private HashMap<String,HashSet<String>> lecDayMap = new HashMap<String,HashSet<String>>();
 	private LinkedList<Lecture>[] lecList;
-	private String selObjectID=new String();
+	private LinkedList<String> selObjectID=new LinkedList<String>();
 	
 	private VerticalLayout thisLayout=this;
 	
@@ -135,7 +135,7 @@ public class ProfessorView extends VerticalLayout {
 									//System.out.println(temp.toString());
 									if(temp.getCourse().getName().equals(lecTitleString) && temp.getDayOfTheWeek().equals(lecDayString))
 										{
-										selObjectID=temp.getObjectId();
+										selObjectID.add(temp.getObjectId());
 										System.out.println("past lec"+temp.toString());
 										}
 								}
@@ -146,7 +146,7 @@ public class ProfessorView extends VerticalLayout {
 								//System.out.println(temp.toString());
 								if(temp.getCourse().getName().equals(lecTitleString) && temp.getDayOfTheWeek().equals(lecDayString))
 									{
-									selObjectID=temp.getObjectId();
+									selObjectID.add(temp.getObjectId());
 									System.out.println("now lec"+temp.toString());
 									}
 								}
@@ -157,7 +157,7 @@ public class ProfessorView extends VerticalLayout {
 								//System.out.println(temp.toString());
 								if(temp.getCourse().getName().equals(lecTitleString) && temp.getDayOfTheWeek().equals(lecDayString))
 									{
-									selObjectID=temp.getObjectId();
+									selObjectID.add(temp.getObjectId());
 									System.out.println("prox lec"+temp.toString());
 									}
 								}
@@ -183,8 +183,15 @@ public class ProfessorView extends VerticalLayout {
 					}else
 						{
 						System.out.println("OBJID NEL DONEBTN "+selObjectID);
+						Iterator<String> lecListIter = selObjectID.iterator();
+						while(lecListIter.hasNext())
+							{
+							 String temp = lecListIter.next();
+							 ParseServices.getInstance().saveTopicsListForLecture(temp, topicsText);
+							}
 						//ParseServices.getInstance().saveTopicsListForLecture(selObjectID, topicsText);
-						//ParseServices.getInstance().markLectureListAsDirty();
+						ParseServices.getInstance().markLectureListAsDirty();
+						selObjectID = new LinkedList<String>();
 						System.out.println(topicsText);
 						}
 			}
