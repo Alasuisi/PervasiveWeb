@@ -2,6 +2,7 @@ package Views;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Timer;
 
@@ -17,6 +18,11 @@ import org.vaadin.jouni.restrain.Restrain;
 
 import com.askvikrant.digitalclock.DigitalClock;
 import com.vaadin.client.ui.FontIcon;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.FieldEvents;
 import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
@@ -39,6 +45,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.themes.ValoTheme;
 
 import domainEntities.User;
@@ -351,8 +358,13 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 						
 					}
 				});
+				
+				//////CODICE DI TEST QUI/////////////////////////////////////////
+				final ComboBox courseCombo = new ComboBox();
+				courseCombo.setNullSelectionAllowed(false);
+				courseCombo.setImmediate(true);
 				Button testButton = new Button();
-				testButton.setCaption("Test Portanna");
+				testButton.setCaption("Carica lista corsi");
 				testButton.addClickListener(new Button.ClickListener() {
 					
 					/**
@@ -371,14 +383,55 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 							@Override
 							public void done(JSONArray result, ParseException parseException) {
 								System.out.println("risultato della chiamata a possibleCourses: "+result.toString());
+								//BeanItemContainer<JSONArray> container = new BeanItemContainer<JSONArray>(JSONArray.class,(Collection<? extends JSONArray>) result);
+								//courseCombo.setContainerDataSource(container);
+								for(int i=0;i<result.length();i++)
+									{
+									courseCombo.addItem(result.getString(i));
+									
+									}
+							}});
+						
+					}
+				});
+				courseCombo.markAsDirty();
+				UI.getCurrent().push();
+				courseCombo.addValueChangeListener(new Property.ValueChangeListener() {
+					
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 878342940484456280L;
+
+					@Override
+					public void valueChange(ValueChangeEvent event) {
+						System.out.println("valore scelto: "+courseCombo.getValue());
+						HashMap<String,String> map = new HashMap<String,String>();
+						map.put("getName", courseCombo.getValue().toString());
+						ParseCloud.callFunctionInBackground("getMessages", map, new FunctionCallback<JSONArray>(){
+
+							@Override
+							public void done(JSONArray result, ParseException parseException) {
+								System.out.println("Done chiamata getMessages (lunghezza array="+result.length()+"):"+result.toString());
+								for(int i=0;i<result.length();i++)
+									{
+									System.out.println(result.get(i));
+									}
 								
 							}});
 						
 					}
 				});
+				
+				/////////////////////////////////////////////////////////////////////////
+				
 				midLayout.setComponentAlignment(wip, Alignment.MIDDLE_CENTER);
 				midLayout.addComponent(logoutBtn);
-				midLayout.addComponent(testButton);
+				/////////////
+				
+				midLayout.addComponents(testButton,courseCombo);
+				
+				/////////////
 				midLayout.setComponentAlignment(logoutBtn, Alignment.MIDDLE_CENTER);
 		
 			}
