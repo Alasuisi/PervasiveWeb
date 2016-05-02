@@ -62,7 +62,7 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 	private VerticalLayout midLayout= new VerticalLayout();
 	private VerticalLayout bottomLayout= new VerticalLayout();
 	private String projDesc="This project is a service to evaluate global quality of lectures, professors, and classrooms. Mainly developed"
-			+ " by a group of students attending the course of Pervasive Systems at University of Rome La Sapienza (Master degree in computer science and engineering)."
+			+ " by a group of students at University of Rome La Sapienza (Master degree in computer science and engineering)."
 			+ " using sensors available in common smartphones, such as microphones, accelerometer and bluetooth beacons, the main purpose of this project is to estimate"
 			+ " noise levels, people distance from professor desk, and common interest in the lecture throgh correlation between al this data; this all done respecting the"
 			+ " need of anonimity of the single user, and without recording and or correlating in any way any of the data collected with a specific, knowable person";
@@ -75,19 +75,23 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 	private boolean initialized=false;
 	
 	private ClassroomView classView;
+	private ParseUser loggedUser;
 	
 	public WelcomeView(Navigator navi)
 		{
 		this.navi=navi;
+		 
 		}
 	@Override
 	public void enter(ViewChangeEvent event) {
+		
 		if(!initialized)
 			{
 			init();
 			
 			setTopMenu();
 			midText.setCaption("Things to do here...");
+			
 			//bottomText.setValue("Here should go some useful information, about the projects, or maybe links to licensing and things like that, i don't know, something cool..");
 			bottomText.setValue(projDesc);
 			bottomText.setSizeFull();
@@ -102,6 +106,9 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 	
 	private void init()
 		{
+		//mainLayout.removeAllComponents();
+		loggedUser=(ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
+		System.out.println("Dio serpente avvelenat "+loggedUser.toString());
 		this.setWidth("100%");
 		this.setHeight("-1");
 		//this.setSizeUndefined();
@@ -128,6 +135,7 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		DigitalClock clock = new DigitalClock();
 		clock.addStyleName("clockValo");
 		clock.setSizeUndefined();
+		bottomLayout.removeAllComponents();
 		bottomLayout.addComponents(bottomText,clock);
 		//bottomLayout.addComponent(bottomText2);
 		//bottomLayout.setComponentAlignment(bottomText2, Alignment.TOP_CENTER);
@@ -182,17 +190,21 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 	private void setTopMenu()
 		{
 		HorizontalLayout menuLayout = new HorizontalLayout();
+		menuLayout.removeAllComponents();
+		topLayout.removeAllComponents();
+		//bottomLayout.removeAllComponents();
 		menuLayout.setSizeUndefined();
 		final CssLayout classLayout = new CssLayout();
 		CssLayout lecturesLayout = new CssLayout();
-		CssLayout professorLayout = new CssLayout();
+		CssLayout userLayout = new CssLayout();
 		CssLayout adminLayout = new CssLayout();
 		
 		//topText.setCaption("Pervasive Diagsss");
 		//topText.addStyleName(ValoTheme.LABEL_LARGE);
 		//topText.setImmediate(true);
 		
-		String username =(String) ((ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser")).getUsername();
+		//String username =(String) ((ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser")).getUsername();
+		String username = loggedUser.getUsername();
 		Label titleLabel = new Label(FontAwesome.CLOUD.getHtml()+" "+username+"'s SmartU Web Panel "+FontAwesome.CLOUD.getHtml());
 		titleLabel.setContentMode(ContentMode.HTML);
 		titleLabel.addStyleName(ValoTheme.LABEL_HUGE);
@@ -251,14 +263,18 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 	//	lectLabel.addStyleName(ValoTheme.LABEL_HUGE);
 	//	lectLabel.addStyleName(ValoTheme.LABEL_COLORED);
 		
-		Button profLabel = new Button(FontAwesome.MALE.getHtml()+" Professor ");
-		profLabel.setCaptionAsHtml(true);
-		profLabel.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-		profLabel.addStyleName(ValoTheme.BUTTON_QUIET);
-		profLabel.addStyleName("animated");
-		profLabel.addStyleName("lightSpeedIn");
-		profLabel.addStyleName("delay07");
-		profLabel.addClickListener(new Button.ClickListener() {
+		//ParseUser user= (ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
+		String userLabelString = " Student ";
+		if (loggedUser.getBoolean("isProfessor")) userLabelString = " Professor ";
+		
+		Button userLabel = new Button(FontAwesome.MALE.getHtml()+userLabelString);
+		userLabel.setCaptionAsHtml(true);
+		userLabel.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+		userLabel.addStyleName(ValoTheme.BUTTON_QUIET);
+		userLabel.addStyleName("animated");
+		userLabel.addStyleName("lightSpeedIn");
+		userLabel.addStyleName("delay07");
+		userLabel.addClickListener(new Button.ClickListener() {
 			
 			/**
 			 * 
@@ -276,8 +292,19 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 				wip.addStyleName(ValoTheme.LABEL_COLORED);
 				wip.addStyleName(ValoTheme.LABEL_HUGE);
 				wip.addStyleName(ValoTheme.LABEL_H1);
-				ProfessorView profView = new ProfessorView();
-				midLayout.addComponents(wip,profView);
+				midLayout.addComponent(wip);
+				if(loggedUser.getBoolean("isProfessor"))
+					{
+					ProfessorView profView = new ProfessorView();
+					midLayout.addComponent(profView);
+					}else
+						{
+						StudentView studView = new StudentView();
+						midLayout.addComponent(studView);
+						}
+				
+				
+				
 				midLayout.setComponentAlignment(wip, Alignment.MIDDLE_CENTER);
 				
 			}
@@ -345,11 +372,12 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 
 					@Override
 					public void buttonClick(ClickEvent event) {
-						ParseUser user = (ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
+						//ParseUser user = (ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
 						try {
-							user.logout();
+							loggedUser.logout();
 							UI.getCurrent().getSession().setAttribute("ParseUser", null);
-							user=null;
+							loggedUser=null;
+							initialized=false;
 							navi.navigateTo("Login");
 						} catch (ParseException e) {
 							// TODO Auto-generated catch block
@@ -374,10 +402,10 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 
 					@Override
 					public void buttonClick(ClickEvent event) {
-						ParseUser user = (ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
-						System.out.println("utente attuale= "+user.getUsername()+" "+user.getObjectId());
+						//ParseUser user = (ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
+						System.out.println("utente attuale= "+loggedUser.getUsername()+" "+loggedUser.getObjectId());
 						HashMap<String,String> map = new HashMap<String,String>();
-						map.put("getUserObjId", user.getObjectId());
+						map.put("getUserObjId", loggedUser.getObjectId());
 						ParseCloud.callFunctionInBackground("possibleCourses", map, new FunctionCallback<JSONArray>(){
 
 							@Override
@@ -443,10 +471,10 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 		
 		classLayout.addComponent(classLabel);
 		lecturesLayout.addComponent(lectLabel);
-		professorLayout.addComponent(profLabel);
+		userLayout.addComponent(userLabel);
 		adminLayout.addComponent(adminLabel);
 		
-		menuLayout.addComponents(classLayout,lecturesLayout,professorLayout,adminLayout);
+		menuLayout.addComponents(classLayout,lecturesLayout,userLayout,adminLayout);
 		menuLayout.setSpacing(true);
 		topLayout.addComponent(titleLabel);
 		topLayout.addComponent(menuLayout);

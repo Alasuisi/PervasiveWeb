@@ -204,7 +204,7 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 					
 					ParseUser user =ParseUser.login(userField.getValue(), passField.getValue());
 					UI.getCurrent().getSession().setAttribute("ParseUser", user);
-					System.out.println("PORCADDIO"+user.getUsername());
+					System.out.println("Logged user "+user.getUsername()+" prof: "+user.get("isProfessor"));
 					navi.navigateTo("Welcome");
 					subWindow.close();
 				} catch (ParseException e) {
