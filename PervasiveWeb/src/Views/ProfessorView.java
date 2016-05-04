@@ -1,5 +1,8 @@
 package Views;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,6 +49,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.ValoTheme;
 
 import domainEntities.Classroom;
+import domainEntities.Course;
 import domainEntities.Lecture;
 
 public class ProfessorView extends VerticalLayout {
@@ -59,8 +63,11 @@ public class ProfessorView extends VerticalLayout {
 	private HorizontalLayout lecSelLayout=new HorizontalLayout();
 	private ComboBox lecTitle = new ComboBox();
 	private ComboBox lecDay = new ComboBox();
+	private ComboBox addCourseCombo = new ComboBox("Choose course");
+	private ComboBox addCourseRoomCombo = new ComboBox("Choose room");
 	private Button editBtn = new Button("Edit");
 	private Button doneBtn = new Button("Done");
+	private Button addLecBtn = new Button("Create this lecture");
 	private RichTextArea topics = new RichTextArea();
 	
 	private HashMap<String,HashSet<String>> lecDayMap = new HashMap<String,HashSet<String>>();
@@ -138,7 +145,7 @@ public class ProfessorView extends VerticalLayout {
 				String lecDayString = (String) lecDay.getValue();
 				if(lecTitleString==null || lecDayString==null)
 					{
-					Notification.show("Ehm..are you shure?", "It seems that you have not selected one or both of the required fileds, please check your selection", Type.ERROR_MESSAGE);
+					Notification.show("Ehm..are you sure?", "It seems that you have not selected one or both of the required fileds, please check your selection", Type.ERROR_MESSAGE);
 					}else
 						{
 							thisLayout.addComponents(topics,doneBtn);
@@ -349,7 +356,7 @@ public class ProfessorView extends VerticalLayout {
 			timer.scheduleAtFixedRate(task, 0, 1500);
 		}
 	
-	private void addLecturesForProf(ParseUser prof)
+	private void addLecturesForProf(final ParseUser prof)
 	{
 		
 		
@@ -376,15 +383,21 @@ public class ProfessorView extends VerticalLayout {
 								 while(iter.hasNext())
 								 	{
 									 ParseObject tempCourse =iter.next();
-									 System.out.println(tempCourse.getString("name")+" "+tempCourse.getObjectId()+" classroom_name: ");
-									 LinkedList<Classroom> clasList =ParseServices.getInstance().getClassroomList();
-									 Iterator<Classroom> clasIter =clasList.iterator();
-									 while(clasIter.hasNext())
-									 	{
-										 Classroom temp =clasIter.next();
-										 System.out.println("class name: "+temp.getClassName()+" objectid: "+temp.getObjectId());
-									 	}
+									 //System.out.println(tempCourse.getString("name")+" "+tempCourse.getObjectId()+" classroom_name: ");
+									 Course course = new Course();
+									 course.setName(tempCourse.getString("name"));
+									 course.setObjectId(tempCourse.getObjectId());
+									 addCourseCombo.addItem(course);
+									 
 								 	}
+								 		LinkedList<Classroom> clasList =ParseServices.getInstance().getClassroomList();
+								 		Iterator<Classroom> clasIter =clasList.iterator();
+								 		while(clasIter.hasNext())
+								 			{
+								 				Classroom temp =clasIter.next();
+								 				addCourseRoomCombo.addItem(temp);
+								 				//System.out.println("class name: "+temp.getClassName()+" objectid: "+temp.getObjectId());
+								 			}
 								 
 								}else
 									{
@@ -392,9 +405,8 @@ public class ProfessorView extends VerticalLayout {
 									}
 							
 						}});
-					// courseQuery.getInBackground(objectId, callback);
-					//ParseObject courses = t.getParseObject("Courses");
-					 System.out.println(courses.toString());
+
+					 //System.out.println(courses.toString());
 					}else
 						{
 						System.out.println("Erorr in getLecturesForProf (outer query): "+parseException.getMessage());
@@ -406,25 +418,83 @@ public class ProfessorView extends VerticalLayout {
 				
 				HorizontalLayout line1 = new HorizontalLayout();
 				line1.setSpacing(true);
+				line1.setSizeUndefined();
+				
+				HorizontalLayout line2 = new HorizontalLayout();
+				line2.setSpacing(true);
+				line2.setSizeUndefined();
 
+				addCourseCombo.setWidth("697px");
+				addCourseCombo.setNullSelectionAllowed(false);
 				
-				ComboBox courses = new ComboBox("Choose course");
-				ComboBox room = new ComboBox("Choose room");
+				addCourseRoomCombo.setNullSelectionAllowed(false);
 				
-				DateField dayStart = new DateField("Select lecture start");
+				final DateField dayStart = new DateField("Select lecture start");
 				Date now = Calendar.getInstance().getTime();
 				dayStart.setRangeStart(now);
 				dayStart.setResolution(Resolution.MINUTE);
 				dayStart.setImmediate(true);
+				dayStart.setValue(now);
 				
-				DateField dayEnd = new DateField("Select Lecture end");
+				final DateField dayEnd = new DateField("Select Lecture end");
 				dayEnd.setRangeStart(now);
 				dayEnd.setResolution(Resolution.MINUTE);
 				dayEnd.setImmediate(true);
+				dayEnd.setValue(now);
 				
-				line1.addComponents(courses,room,dayStart,dayEnd);
-				subContainer.addComponent(line1);
+				line1.addComponents(addCourseCombo,addCourseRoomCombo);
+				line2.addComponents(dayStart,dayEnd);
+				subContainer.addComponents(line1,line2,addLecBtn);
 				subContainer.setComponentAlignment(line1, Alignment.TOP_CENTER);
+				subContainer.setComponentAlignment(line2, Alignment.TOP_CENTER);
+				subContainer.setComponentAlignment(addLecBtn, Alignment.TOP_CENTER);
+				subContainer.setExpandRatio(line2, 1);
+				subContainer.setExpandRatio(addLecBtn, 1);
+				
+				addLecBtn.addClickListener(new Button.ClickListener() {
+					
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 8180693153675712148L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						if(addCourseCombo.getValue()!=null&&addCourseRoomCombo.getValue()!=null&&(!dayStart.getValue().equals(dayEnd.getValue())))
+						{
+						Course selCourse =(Course) addCourseCombo.getValue();
+						Classroom selRoom = (Classroom) addCourseRoomCombo.getValue();
+						Date start = (Date) dayStart.getValue();
+						Date end = (Date) dayEnd.getValue();
+						
+						 LocalDateTime startLocal = LocalDateTime.ofInstant(start.toInstant(), ZoneId.systemDefault());
+						 LocalDateTime endLocal = LocalDateTime.ofInstant(end.toInstant(), ZoneId.systemDefault());
+						 
+						 Date startDate = Date.from(startLocal.toInstant(ZoneOffset.ofHours(0)));
+						 Date endDate = Date.from(endLocal.toInstant(ZoneOffset.ofHours(0)));
+						
+						System.out.println(selCourse.toString()+" "+selRoom.toString()+" "+start.toString()+" "+end.toString());
+						ParseObject parseLec = new ParseObject("new_schedule");
+						parseLec.put("Course", ParseObject.createWithoutData("Course", selCourse.getObjectId()));
+						parseLec.put("classroom_name",ParseObject.createWithoutData("Classroom", selRoom.getObjectId()));
+						parseLec.put("prof_name", ParseObject.createWithoutData("_User", prof.getObjectId()));
+						parseLec.put("start_time", startDate);
+						parseLec.put("end_time", endDate);
+						try {
+							parseLec.save();
+							ParseServices.getInstance().markLectureListAsDirty();
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							System.out.println("Bad shit happened in saving new lecture:"+e.getMessage());
+						}
+						}else
+							{
+							if(addCourseCombo.getValue()==null) Notification.show("Pay attention", "value course, not selected", Type.WARNING_MESSAGE);
+							if(addCourseRoomCombo.getValue()==null) Notification.show("Pay attention", "value classroom not selected", Type.WARNING_MESSAGE);
+							if(dayStart.getValue().equals(dayEnd.getValue())) Notification.show("Error","Start time and end time cannot be equals",Type.ERROR_MESSAGE);
+							}
+					}
+				});
 				
 				Window subWindow = new Window("Add lectures pop-up");
 				subWindow.setContent(subContainer);
@@ -436,7 +506,6 @@ public class ProfessorView extends VerticalLayout {
 				subWindow.setHeight("400px");
 				subWindow.addStyleName("animated");
 				subWindow.addStyleName("tada");
-				subWindow.markAsDirtyRecursive();
 				thisUI.addWindow(subWindow);
 				thisUI.push();
 				
