@@ -1,5 +1,6 @@
 package Views;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,10 +28,12 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -38,9 +41,11 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.ValoTheme;
 
+import domainEntities.Classroom;
 import domainEntities.Lecture;
 
 public class ProfessorView extends VerticalLayout {
@@ -63,6 +68,8 @@ public class ProfessorView extends VerticalLayout {
 	private LinkedList<String> selObjectID=new LinkedList<String>();
 	
 	private VerticalLayout thisLayout=this;
+	private UI thisUI=UI.getCurrent();
+	
 	
 	
 	public ProfessorView()
@@ -88,6 +95,12 @@ public class ProfessorView extends VerticalLayout {
 		lecDay.addStyleName("flipInX");
 		lecDay.addStyleName("delay07");
 		lecDay.setImmediate(true);
+		
+		editBtn.addStyleName("animated");
+		editBtn.addStyleName("flipInX");
+		editBtn.addStyleName("delay08");
+		editBtn.setImmediate(true);
+		
 		
 		topics.setCaption("Write here the lecture topics, one per line");
 		
@@ -206,9 +219,14 @@ public class ProfessorView extends VerticalLayout {
 			}
 		});
 		//////////TEST CODE//////////
-		Button testBtn = new Button();
-		testBtn.setCaption("testLecturesForProf");
-		testBtn.addClickListener(new Button.ClickListener() {
+		Button addLecBtn = new Button();
+		addLecBtn.setCaption("Add a new Lecture");
+		addLecBtn.addStyleName("animated");
+		addLecBtn.addStyleName("flipInX");
+		addLecBtn.addStyleName("delay09");
+		addLecBtn.setImmediate(true);
+		
+		addLecBtn.addClickListener(new Button.ClickListener() {
 			
 			/**
 			 * 
@@ -218,17 +236,18 @@ public class ProfessorView extends VerticalLayout {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				ParseUser user = (ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
-				getCoursesForProf(user);
+				addLecturesForProf(user);
 				
 			}
 		});
 		/////////////////////////////
-		lecSelLayout.addComponents(lecTitle,lecDay,editBtn,testBtn);
+		lecSelLayout.addComponents(lecTitle,lecDay,editBtn);
 		lecSelLayout.setComponentAlignment(editBtn, Alignment.BOTTOM_LEFT);
 		lecSelLayout.setSpacing(true);
-		this.addComponents(title,lecSelLayout);
+		this.addComponents(title,lecSelLayout,addLecBtn);
 		this.setComponentAlignment(title, Alignment.TOP_CENTER);
 		this.setComponentAlignment(lecSelLayout, Alignment.TOP_CENTER);
+		this.setComponentAlignment(addLecBtn, Alignment.TOP_CENTER);
 		this.setWidth("100%");
 		this.setSpacing(true);
 		this.setMargin(true);
@@ -330,41 +349,12 @@ public class ProfessorView extends VerticalLayout {
 			timer.scheduleAtFixedRate(task, 0, 1500);
 		}
 	
-	private void getCoursesForProf(ParseUser prof)
+	private void addLecturesForProf(ParseUser prof)
 	{
-	//final HashMap<Integer,String> map=new HashMap<Integer,String>();
-	/* ParseQuery<ParseObject> query = ParseQuery.getQuery("new_schedule");
-	 
-	    query.whereEqualTo("prof_name", profObjID);
-	    query.findInBackground(new FindCallback<ParseObject>(){
-
-			@Override
-			public void done(List<ParseObject> list, ParseException parseException) {
-				if(parseException==null)
-					{
-					Iterator<ParseObject> iter = list.iterator();
-					while (iter.hasNext())
-						{
-						ParseObject temp= iter.next();
-						ParseObject prof = temp.getParseObject("prof_name");
-						ParseObject course = temp.getParseObject("Course");
-						ParseObject room = temp.getParseObject("classroom_name");
-						Date startTime = temp.getDate("start_time");
-						Date endTime = temp.getDate("end_time");
-						System.out.println("profname: "+prof.getObjectId()+" "
-											+prof.getString("surname")
-											+" classroom: "+room.getObjectId()+" "
-											+room.getString("name")
-											+" Course: "+course.getObjectId()+" "+course.getString("name")
-											+" startTime: "+startTime+" endTime: "+endTime);
-						}
-					System.out.println(list.toString());
-					}else
-						{
-						System.out.println("Erorr in getLecturesForProf: "+parseException.getMessage());
-						}
-				
-			}});*/
+		
+		
+		
+	
 	    ParseQuery<ParseObject> query =ParseQuery.getQuery("_User");
 	    System.out.println(prof.getObjectId());
 	    query.getInBackground(prof.getObjectId(), new GetCallback<ParseObject>(){
@@ -374,7 +364,6 @@ public class ProfessorView extends VerticalLayout {
 				if(parseException==null)
 					{
 					 ParseRelation<ParseObject> courses= t.getRelation("Courses");
-					//System.out.println(t.getString("objectId")+t.getString("surname"));
 					 ParseQuery<ParseObject> courseQuery = courses.getQuery();
 					 courseQuery.findInBackground(new FindCallback<ParseObject>(){
 
@@ -382,12 +371,21 @@ public class ProfessorView extends VerticalLayout {
 						public void done(List<ParseObject> list, ParseException parseException) {
 							if(parseException==null)
 								{
+								
 								 Iterator<ParseObject> iter = list.iterator();
 								 while(iter.hasNext())
 								 	{
 									 ParseObject tempCourse =iter.next();
-									 System.out.println(tempCourse.getString("name")+" "+tempCourse.getObjectId());
+									 System.out.println(tempCourse.getString("name")+" "+tempCourse.getObjectId()+" classroom_name: ");
+									 LinkedList<Classroom> clasList =ParseServices.getInstance().getClassroomList();
+									 Iterator<Classroom> clasIter =clasList.iterator();
+									 while(clasIter.hasNext())
+									 	{
+										 Classroom temp =clasIter.next();
+										 System.out.println("class name: "+temp.getClassName()+" objectid: "+temp.getObjectId());
+									 	}
 								 	}
+								 
 								}else
 									{
 									System.out.println("Erorr in getLecturesForProf (inner query): "+parseException.getMessage());
@@ -401,6 +399,46 @@ public class ProfessorView extends VerticalLayout {
 						{
 						System.out.println("Erorr in getLecturesForProf (outer query): "+parseException.getMessage());
 						}
+				
+				VerticalLayout subContainer = new VerticalLayout();
+				subContainer.setSpacing(true);
+				subContainer.setSizeFull();
+				
+				HorizontalLayout line1 = new HorizontalLayout();
+				line1.setSpacing(true);
+
+				
+				ComboBox courses = new ComboBox("Choose course");
+				ComboBox room = new ComboBox("Choose room");
+				
+				DateField dayStart = new DateField("Select lecture start");
+				Date now = Calendar.getInstance().getTime();
+				dayStart.setRangeStart(now);
+				dayStart.setResolution(Resolution.MINUTE);
+				dayStart.setImmediate(true);
+				
+				DateField dayEnd = new DateField("Select Lecture end");
+				dayEnd.setRangeStart(now);
+				dayEnd.setResolution(Resolution.MINUTE);
+				dayEnd.setImmediate(true);
+				
+				line1.addComponents(courses,room,dayStart,dayEnd);
+				subContainer.addComponent(line1);
+				subContainer.setComponentAlignment(line1, Alignment.TOP_CENTER);
+				
+				Window subWindow = new Window("Add lectures pop-up");
+				subWindow.setContent(subContainer);
+				subWindow.setModal(true);
+				subWindow.setResizable(false);
+				subWindow.setDraggable(false);
+				subWindow.setClosable(true);
+				subWindow.setWidth("1000px");
+				subWindow.setHeight("400px");
+				subWindow.addStyleName("animated");
+				subWindow.addStyleName("tada");
+				subWindow.markAsDirtyRecursive();
+				thisUI.addWindow(subWindow);
+				thisUI.push();
 				
 			}});
 	

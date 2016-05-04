@@ -11,6 +11,7 @@ import org.parse4j.ParseUser;
 import org.parse4j.callback.LoginCallback;
 import org.parse4j.callback.SignUpCallback;
 
+import com.stupidmonkeys.pervasiveweb.ParseServices;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -205,6 +206,8 @@ public class LoginView extends VerticalLayout implements View, Serializable{
 					ParseUser user =ParseUser.login(userField.getValue(), passField.getValue());
 					UI.getCurrent().getSession().setAttribute("ParseUser", user);
 					System.out.println("Logged user "+user.getUsername()+" prof: "+user.get("isProfessor"));
+					ParseServices.getInstance().getLectures();
+					ParseServices.getInstance().getClassroomList();
 					navi.navigateTo("Welcome");
 					subWindow.close();
 				} catch (ParseException e) {

@@ -44,7 +44,7 @@ public class ParseServices {
 	//private PervasivewebUI thisUI = (PervasivewebUI) UI.getCurrent();
 	
 	private  LinkedList<Lecture>[] totalList;
-	private  boolean lecListRetrieved;
+	private  boolean lecListRetrieved=false;
 	private  boolean lecListPending=false;
 	private  boolean lectureListDirty=false;
 	private	 boolean studentsNumberPending=false;
@@ -66,6 +66,7 @@ public class ParseServices {
 	private final Semaphore updatePermitClassList = new Semaphore(1);
 	private final Semaphore updatePermitNoiseList = new Semaphore(1);
 	private final Semaphore updatePermitStudentsNumber = new Semaphore(1);
+	private final Semaphore updatePermitLecList = new Semaphore(1);
 	
 	private LinkedList<Long> noiseList= new LinkedList<Long>();
 	
@@ -94,9 +95,11 @@ public class ParseServices {
 	 */
 	public LinkedList<Lecture>[] getLectures()
 		{
+		if(updatePermitLecList.tryAcquire()){
 		if(lecListPending==true) 
 			{
 			System.out.println("list pending");
+			updatePermitLecList.release();
 			return null;
 			}
 		long thirtyMin=1800000;
@@ -125,9 +128,22 @@ public class ParseServices {
 			{
 			System.out.println("Lecturelist retrieved");
 			lecListPending=false;
+			updatePermitLecList.release();
 			return totalList;
 			}
 		else return null;
+		}else
+			{
+			System.out.println("LectureList list update already running, wait");
+	    	try {
+				updatePermitLecList.acquire();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+	        //release the permit immediately
+	    	updatePermitLecList.release();
+			}
+		return null;
 		}
 	
 	public void markLectureListAsDirty()
@@ -432,6 +448,7 @@ public class ParseServices {
 						lecListRetrieved=true;
 						if(lectureListDirty) lectureListDirty=false;
 						lecListRetrievedTime=Calendar.getInstance().getTimeInMillis();
+						updatePermitLecList.release();
 						
 						}
 					});
