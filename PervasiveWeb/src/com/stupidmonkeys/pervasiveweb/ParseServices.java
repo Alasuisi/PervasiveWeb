@@ -121,9 +121,9 @@ public class ParseServices {
 			//lecListPending=true;
 			retrieveLectureList();
 			}
-		if(classListRetrievedTime-thisTime<300000 && !lectureListDirty)
+		if(lecListRetrievedTime-thisTime<300000 && !lectureListDirty)
 			{
-			System.out.println("class list retrieved");
+			System.out.println("Lecturelist retrieved");
 			lecListPending=false;
 			return totalList;
 			}
@@ -432,6 +432,7 @@ public class ParseServices {
 						lecListRetrieved=true;
 						if(lectureListDirty) lectureListDirty=false;
 						lecListRetrievedTime=Calendar.getInstance().getTimeInMillis();
+						
 						}
 					});
 				
