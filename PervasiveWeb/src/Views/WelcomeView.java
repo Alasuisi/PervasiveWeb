@@ -12,8 +12,11 @@ import org.apache.tools.ant.taskdefs.Java;
 import org.json.JSONArray;
 import org.parse4j.ParseCloud;
 import org.parse4j.ParseException;
+import org.parse4j.ParseObject;
+import org.parse4j.ParseQuery;
 import org.parse4j.ParseUser;
 import org.parse4j.callback.FunctionCallback;
+import org.parse4j.callback.GetCallback;
 import org.vaadin.jouni.restrain.Restrain;
 
 import com.askvikrant.digitalclock.DigitalClock;
@@ -451,6 +454,8 @@ public class WelcomeView extends VerticalLayout implements View, Serializable {
 					}
 				});
 				
+			
+				 
 				/////////////////////////////////////////////////////////////////////////
 				
 				midLayout.setComponentAlignment(wip, Alignment.MIDDLE_CENTER);

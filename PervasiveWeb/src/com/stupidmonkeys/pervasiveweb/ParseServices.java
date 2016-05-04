@@ -821,33 +821,5 @@ public class ParseServices {
 	return topicsForLecture;
 	
 	}
-	/*public HashMap<Integer,String> getTopicsForLecture(String objectID)
-	{
-	final HashMap<Integer,String> map=new HashMap<Integer,String>();
-	 ParseQuery<ParseObject> query = ParseQuery.getQuery("new_schedule");
-	    query.getInBackground(objectID, new GetCallback<ParseObject>(){
-
-			@Override
-			public void done(ParseObject t, ParseException parseException) {
-				if(parseException==null)
-				{
-				System.out.println("Sono nel done");
-				String result =t.getString("topics");
-				String[] split=result.split("\\|");
-				for(int i=0;i<split.length;i++)
-				{
-					String temp=split[i];
-					temp=temp.replaceAll("[{}]", "");
-					String[] entry=temp.split(":");
-					map.put(new Integer(entry[0]), entry[1]);
-				}
-				System.out.println(map.toString());
-				}else System.out.println("orcamadò "+parseException.getMessage());
-				
-				
-			}});
-	    return map;
 	
-	
-	}*/
 }

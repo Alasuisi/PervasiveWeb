@@ -1,15 +1,24 @@
 package Views;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.parse4j.ParseException;
+import org.parse4j.ParseObject;
+import org.parse4j.ParseQuery;
+import org.parse4j.ParseRelation;
 import org.parse4j.ParseUser;
+import org.parse4j.callback.FindCallback;
+import org.parse4j.callback.GetCallback;
+import org.parse4j.callback.ParseCallback;
 
 import com.stupidmonkeys.pervasiveweb.ParseServices;
 import com.vaadin.data.Item;
@@ -196,8 +205,25 @@ public class ProfessorView extends VerticalLayout {
 						}
 			}
 		});
-		
-		lecSelLayout.addComponents(lecTitle,lecDay,editBtn);
+		//////////TEST CODE//////////
+		Button testBtn = new Button();
+		testBtn.setCaption("testLecturesForProf");
+		testBtn.addClickListener(new Button.ClickListener() {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -9011740697052582649L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				ParseUser user = (ParseUser) UI.getCurrent().getSession().getAttribute("ParseUser");
+				getCoursesForProf(user);
+				
+			}
+		});
+		/////////////////////////////
+		lecSelLayout.addComponents(lecTitle,lecDay,editBtn,testBtn);
 		lecSelLayout.setComponentAlignment(editBtn, Alignment.BOTTOM_LEFT);
 		lecSelLayout.setSpacing(true);
 		this.addComponents(title,lecSelLayout);
@@ -303,6 +329,83 @@ public class ProfessorView extends VerticalLayout {
 			
 			timer.scheduleAtFixedRate(task, 0, 1500);
 		}
+	
+	private void getCoursesForProf(ParseUser prof)
+	{
+	//final HashMap<Integer,String> map=new HashMap<Integer,String>();
+	/* ParseQuery<ParseObject> query = ParseQuery.getQuery("new_schedule");
+	 
+	    query.whereEqualTo("prof_name", profObjID);
+	    query.findInBackground(new FindCallback<ParseObject>(){
+
+			@Override
+			public void done(List<ParseObject> list, ParseException parseException) {
+				if(parseException==null)
+					{
+					Iterator<ParseObject> iter = list.iterator();
+					while (iter.hasNext())
+						{
+						ParseObject temp= iter.next();
+						ParseObject prof = temp.getParseObject("prof_name");
+						ParseObject course = temp.getParseObject("Course");
+						ParseObject room = temp.getParseObject("classroom_name");
+						Date startTime = temp.getDate("start_time");
+						Date endTime = temp.getDate("end_time");
+						System.out.println("profname: "+prof.getObjectId()+" "
+											+prof.getString("surname")
+											+" classroom: "+room.getObjectId()+" "
+											+room.getString("name")
+											+" Course: "+course.getObjectId()+" "+course.getString("name")
+											+" startTime: "+startTime+" endTime: "+endTime);
+						}
+					System.out.println(list.toString());
+					}else
+						{
+						System.out.println("Erorr in getLecturesForProf: "+parseException.getMessage());
+						}
+				
+			}});*/
+	    ParseQuery<ParseObject> query =ParseQuery.getQuery("_User");
+	    System.out.println(prof.getObjectId());
+	    query.getInBackground(prof.getObjectId(), new GetCallback<ParseObject>(){
+
+			@Override
+			public void done(ParseObject t, ParseException parseException) {
+				if(parseException==null)
+					{
+					 ParseRelation<ParseObject> courses= t.getRelation("Courses");
+					//System.out.println(t.getString("objectId")+t.getString("surname"));
+					 ParseQuery<ParseObject> courseQuery = courses.getQuery();
+					 courseQuery.findInBackground(new FindCallback<ParseObject>(){
+
+						@Override
+						public void done(List<ParseObject> list, ParseException parseException) {
+							if(parseException==null)
+								{
+								 Iterator<ParseObject> iter = list.iterator();
+								 while(iter.hasNext())
+								 	{
+									 ParseObject tempCourse =iter.next();
+									 System.out.println(tempCourse.getString("name")+" "+tempCourse.getObjectId());
+								 	}
+								}else
+									{
+									System.out.println("Erorr in getLecturesForProf (inner query): "+parseException.getMessage());
+									}
+							
+						}});
+					// courseQuery.getInBackground(objectId, callback);
+					//ParseObject courses = t.getParseObject("Courses");
+					 System.out.println(courses.toString());
+					}else
+						{
+						System.out.println("Erorr in getLecturesForProf (outer query): "+parseException.getMessage());
+						}
+				
+			}});
+	
+	
+	}
 	
 	
 	
